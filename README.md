@@ -12,51 +12,45 @@ unicare/
   backend/     Spring Boot (Maven). Codice in src/main/java/it/unicare/
                Migrazioni del database in src/main/resources/db/migration/
   frontend/    React + TypeScript con Vite. Installabile come app (PWA)
-  docker-compose.yml   PostgreSQL per lo sviluppo
+  .vscode/     Comandi per avviare tutto da VS Code
 ```
 
 ## Cosa installare (una volta sola)
 
-- **Java 21** (per esempio Eclipse Temurin 21)
-- **Node.js 22** o più recente
-- **Docker Desktop** (per il database)
+- **Java 21** (per esempio Eclipse Temurin 21, con l'opzione "Set JAVA_HOME")
+- **Node.js** versione LTS
+- **VS Code**
 
-Maven non serve: il backend ha il suo `mvnw` che lo scarica da solo.
+Non servono né Maven né PostgreSQL né Docker:
+il backend ha il suo `mvnw` che scarica Maven, e avvia da solo un **PostgreSQL integrato**.
+I dati del database restano nella cartella `backend/.database-locale`
+(per ripartire da zero: ferma il backend e cancella quella cartella).
 
-## Avviare tutto da VS Code (il modo più semplice)
+## Avviare tutto da VS Code
 
-1. Apri Docker Desktop e aspetta che dica "Engine running".
-2. In VS Code: **File → Open Folder…** e scegli la cartella `unicare`.
-   Accetta di installare le estensioni consigliate (Java, Spring Boot, Docker).
-3. Premi **Ctrl+Shift+B**: parte il comando **Avvia Unicare**, che apre tre terminali in ordine:
-   database, backend (aspetta `Started UnicareApplication`), frontend.
-4. Apri http://localhost:5173
+1. In VS Code: **File → Open Folder…** e scegli la cartella del progetto.
+   Accetta di installare le estensioni consigliate (Java, Spring Boot).
+2. Premi **Ctrl+Shift+B**: parte **Avvia Unicare**, che apre due terminali in ordine:
+   - **1. Backend**: avvia database e backend; è pronto quando compare `Started UnicareApplication`
+   - **2. Frontend**: è pronto quando compare `Local: http://localhost:5173/`
+3. Apri http://localhost:5173 nel browser.
 
-Altri comandi: **Ctrl+Shift+P → Tasks: Run Task** → "Test del backend" oppure "Ferma database".
-Per fermare backend e frontend: clicca nel loro terminale e premi **Ctrl+C**, oppure chiudi il terminale con il cestino.
+Il primo avvio è lento (qualche minuto): scarica Maven, le librerie Java e quelle del frontend.
 
-## Avviare tutto in locale (a mano, dal terminale)
+**Per fermare:** clicca nel terminale del backend e premi **Ctrl+C**, poi lo stesso nel terminale del frontend.
+Usa sempre Ctrl+C sul backend: così anche il database si chiude bene.
 
-Servono tre terminali, aperti nella cartella `unicare`.
+**Test automatici:** Ctrl+Shift+P → "Tasks: Run Task" → **Test del backend**.
+I test usano un database integrato separato, quindi funzionano anche con il backend acceso.
 
-**1. Database**
-
-```bash
-docker compose up -d
-```
-
-**2. Backend** (su http://localhost:8080)
+## Avviare tutto a mano (dal terminale)
 
 ```bash
 cd backend
 ./mvnw spring-boot:run        # su Windows: mvnw.cmd spring-boot:run
 ```
 
-Al primo avvio Flyway crea le tabelle. Nel log cerca `Successfully applied 1 migration`.
-Prova: apri http://localhost:8080/api/stato e dovresti vedere
-`{"app":"Unicare","database":"ok","tabelle":7}`.
-
-**3. Frontend** (su http://localhost:5173)
+In un secondo terminale:
 
 ```bash
 cd frontend
@@ -64,23 +58,13 @@ npm install                   # solo la prima volta
 npm run dev
 ```
 
-Apri http://localhost:5173: compare la schermata di accesso. Prova "Registrati", poi "Esci" e di nuovo "Accedi".
+Prova: http://localhost:8080/api/stato deve rispondere `{"app":"Unicare","database":"ok","tabelle":7}`,
+e su http://localhost:5173 compare la schermata di accesso.
 
-## Test automatici
+## Usare un PostgreSQL vero (per esempio in produzione)
 
-Con il database avviato (`docker compose up -d`):
-
-```bash
-cd backend
-./mvnw test
-```
-
-I test usano un database separato, `unicare_test`, creato da Docker al primo avvio.
-Se il volume del database esisteva già prima di questa versione, crealo una volta a mano:
-
-```bash
-docker compose exec db psql -U unicare -c "CREATE DATABASE unicare_test OWNER unicare;"
-```
+Imposta queste variabili d'ambiente prima di avviare il backend:
+`UNICARE_DATABASE_INTEGRATO=false`, `DB_URL`, `DB_USER`, `DB_PASSWORD`.
 
 ## API disponibili
 

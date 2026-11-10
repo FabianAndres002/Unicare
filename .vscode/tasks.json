@@ -12,23 +12,15 @@
   "tasks": [
     {
       "label": "Avvia Unicare",
-      "detail": "Database, poi backend, poi frontend",
-      "dependsOn": ["1. Database", "2. Backend", "3. Frontend"],
+      "detail": "Backend (con il database integrato), poi frontend",
+      "dependsOn": ["1. Backend", "2. Frontend"],
       "dependsOrder": "sequence",
       "group": { "kind": "build", "isDefault": true },
       "problemMatcher": []
     },
     {
-      "label": "1. Database",
-      "detail": "Avvia PostgreSQL con Docker (Docker Desktop deve essere aperto)",
-      "type": "shell",
-      "command": "docker compose up -d",
-      "presentation": { "panel": "dedicated", "reveal": "always" },
-      "problemMatcher": []
-    },
-    {
-      "label": "2. Backend",
-      "detail": "Spring Boot su http://localhost:8080",
+      "label": "1. Backend",
+      "detail": "Spring Boot su http://localhost:8080, avvia anche il database",
       "type": "shell",
       "command": "./mvnw spring-boot:run",
       "windows": { "command": "mvnw.cmd spring-boot:run" },
@@ -47,7 +39,7 @@
       }
     },
     {
-      "label": "3. Frontend",
+      "label": "2. Frontend",
       "detail": "React su http://localhost:5173 (la prima volta installa le librerie)",
       "type": "shell",
       "command": "npm install && npm run dev",
@@ -66,20 +58,13 @@
     },
     {
       "label": "Test del backend",
-      "detail": "Esegue i test automatici (database avviato, backend fermo)",
+      "detail": "Esegue i test automatici (usano un database separato)",
       "type": "shell",
       "command": "./mvnw test",
       "windows": { "command": "mvnw.cmd test" },
       "options": { "cwd": "${workspaceFolder}/backend" },
       "group": "test",
       "presentation": { "panel": "dedicated", "reveal": "always" },
-      "problemMatcher": []
-    },
-    {
-      "label": "Ferma database",
-      "detail": "Spegne PostgreSQL (i dati restano salvati)",
-      "type": "shell",
-      "command": "docker compose down",
       "problemMatcher": []
     }
   ]
