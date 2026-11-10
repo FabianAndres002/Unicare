@@ -1,0 +1,79 @@
+/* Stile "caldo e accogliente" approvato in Fase 2. */
+:root {
+  --sabbia: #fbf6ef;
+  --petrolio: #0f5e57;
+  --testo: #2b2a28;
+  --testo-tenue: #6b6560;
+  --bianco: #ffffff;
+  --verde-ok: #2e7d4f;
+  --rosso-errore: #b3261e;
+  --ombra: 0 2px 12px rgba(60, 40, 20, 0.08);
+  --raggio: 20px;
+
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 18px; /* testo grande di base: pensato anche per gli anziani */
+  line-height: 1.5;
+  color: var(--testo);
+  background: var(--sabbia);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--sabbia);
+}
+
+.pagina {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.logo {
+  border-radius: 18px;
+  box-shadow: var(--ombra);
+}
+
+h1 {
+  margin: 16px 0 4px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--petrolio);
+}
+
+.sottotitolo {
+  margin: 0 0 32px;
+  color: var(--testo-tenue);
+}
+
+.scheda {
+  background: var(--bianco);
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra);
+  padding: 20px;
+  text-align: left;
+}
+
+.scheda h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.scheda p {
+  margin: 0;
+}
+
+.ok {
+  color: var(--verde-ok);
+  font-weight: 600;
+}
+
+.errore {
+  color: var(--rosso-errore);
+  font-weight: 600;
+}

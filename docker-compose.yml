@@ -1,0 +1,17 @@
+# Database PostgreSQL per lo sviluppo in locale.
+# Avvio:  docker compose up -d     Stop:  docker compose down
+# I dati restano nel volume "unicare-dati" anche dopo lo stop.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: unicare
+      POSTGRES_USER: unicare
+      POSTGRES_PASSWORD: unicare
+    ports:
+      - "5432:5432"
+    volumes:
+      - unicare-dati:/var/lib/postgresql/data
+
+volumes:
+  unicare-dati:
