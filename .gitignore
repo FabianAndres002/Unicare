@@ -1,5 +1,5 @@
 # Backend
-backend/target/
+backend/node_modules/
 backend/.database-locale/
 
 # Frontend

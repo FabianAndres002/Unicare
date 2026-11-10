@@ -15,7 +15,7 @@ export default function App() {
   const [schermata, setSchermata] = useState<Schermata>({ tipo: 'caricamento' })
 
   // All'avvio chiediamo al backend se c'è già una sessione aperta.
-  // La prima chiamata (stato) serve anche a ricevere il cookie CSRF.
+  // Prima controlliamo che il backend risponda, poi chi è collegato (cookie di accesso).
   useEffect(() => {
     api
       .stato()

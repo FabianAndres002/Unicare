@@ -1,5 +1,5 @@
 -- Unicare, migrazione 1: persone, cerchio, anziano, consensi.
--- Una migrazione Flyway non si modifica mai dopo essere stata eseguita:
+-- Una migrazione non si modifica mai dopo essere stata eseguita:
 -- per cambiare qualcosa si crea V2__..., V3__... e così via.
 
 -- Familiari e badanti (l'anziano NON è un utente con password).

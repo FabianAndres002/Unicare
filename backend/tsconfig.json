@@ -1,0 +1,17 @@
+{
+  // Il codice gira con "tsx" (niente compilazione a mano).
+  // "npm run controlla" usa TypeScript solo per trovare errori di tipo.
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["src", "test"]
+}

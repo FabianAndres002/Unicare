@@ -2,8 +2,9 @@
   // Comandi di Unicare per VS Code.
   // Avvio di tutto: Ctrl+Shift+B  (oppure Terminal > Run Build Task...)
   // Altri comandi: Ctrl+Shift+P > "Tasks: Run Task"
+  // Serve solo Node.js (versione 22 o più recente): niente Java, niente Docker.
   "version": "2.0.0",
-  // Su Windows usiamo il Prompt dei comandi (cmd), così "mvnw.cmd" e "&&" funzionano sempre.
+  // Su Windows usiamo il Prompt dei comandi (cmd), così "&&" funziona sempre.
   "windows": {
     "options": {
       "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] }
@@ -20,21 +21,20 @@
     },
     {
       "label": "1. Backend",
-      "detail": "Spring Boot su http://localhost:8080, avvia anche il database",
+      "detail": "Node.js + Express su http://localhost:8080, con il database integrato (la prima volta installa le librerie)",
       "type": "shell",
-      "command": "./mvnw spring-boot:run",
-      "windows": { "command": "mvnw.cmd spring-boot:run" },
+      "command": "npm install && npm run dev",
       "options": { "cwd": "${workspaceFolder}/backend" },
       "isBackground": true,
       "presentation": { "panel": "dedicated", "reveal": "always" },
-      // VS Code aspetta questa riga prima di passare al frontend.
+      // VS Code aspetta la riga "in ascolto" prima di passare al frontend.
       "problemMatcher": {
         "owner": "unicare-backend",
         "pattern": { "regexp": "^__nessun_errore__$" },
         "background": {
           "activeBegin": true,
-          "beginsPattern": "Starting UnicareApplication",
-          "endsPattern": "Started UnicareApplication|APPLICATION FAILED TO START|BUILD FAILURE"
+          "beginsPattern": "unicare-backend@",
+          "endsPattern": "in ascolto|Error"
         }
       }
     },
@@ -58,10 +58,9 @@
     },
     {
       "label": "Test del backend",
-      "detail": "Esegue i test automatici (usano un database separato)",
+      "detail": "Esegue i test automatici (ognuno con un database in memoria, i tuoi dati non si toccano)",
       "type": "shell",
-      "command": "./mvnw test",
-      "windows": { "command": "mvnw.cmd test" },
+      "command": "npm install && npm test",
       "options": { "cwd": "${workspaceFolder}/backend" },
       "group": "test",
       "presentation": { "panel": "dedicated", "reveal": "always" },

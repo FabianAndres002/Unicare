@@ -35,29 +35,15 @@ export class ErroreApi extends Error {
   }
 }
 
-/**
- * Protezione CSRF: il backend mette un token nel cookie XSRF-TOKEN
- * e per ogni POST/PUT/DELETE vuole lo stesso valore nell'header X-XSRF-TOKEN.
- * Un sito estraneo non può leggere il cookie, quindi non può copiarlo.
- */
-function tokenCsrf(): string | undefined {
-  return document.cookie
-    .split('; ')
-    .find((c) => c.startsWith('XSRF-TOKEN='))
-    ?.split('=')[1]
-}
-
 async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<T> {
   const intestazioni: Record<string, string> = {}
   if (corpo !== undefined) intestazioni['Content-Type'] = 'application/json'
-  const token = tokenCsrf()
-  if (metodo !== 'GET' && token) intestazioni['X-XSRF-TOKEN'] = decodeURIComponent(token)
 
   const risposta = await fetch(url, {
     method: metodo,
     headers: intestazioni,
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
-    credentials: 'same-origin', // invia il cookie di sessione
+    credentials: 'same-origin', // invia il cookie di accesso (unicare_accesso)
   })
 
   if (!risposta.ok) {
