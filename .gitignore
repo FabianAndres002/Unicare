@@ -7,7 +7,9 @@ frontend/dist/
 
 # Editor e sistema
 .idea/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/extensions.json
 *.iml
 .DS_Store
 .env

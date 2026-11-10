@@ -23,7 +23,19 @@ unicare/
 
 Maven non serve: il backend ha il suo `mvnw` che lo scarica da solo.
 
-## Avviare tutto in locale
+## Avviare tutto da VS Code (il modo più semplice)
+
+1. Apri Docker Desktop e aspetta che dica "Engine running".
+2. In VS Code: **File → Open Folder…** e scegli la cartella `unicare`.
+   Accetta di installare le estensioni consigliate (Java, Spring Boot, Docker).
+3. Premi **Ctrl+Shift+B**: parte il comando **Avvia Unicare**, che apre tre terminali in ordine:
+   database, backend (aspetta `Started UnicareApplication`), frontend.
+4. Apri http://localhost:5173
+
+Altri comandi: **Ctrl+Shift+P → Tasks: Run Task** → "Test del backend" oppure "Ferma database".
+Per fermare backend e frontend: clicca nel loro terminale e premi **Ctrl+C**, oppure chiudi il terminale con il cestino.
+
+## Avviare tutto in locale (a mano, dal terminale)
 
 Servono tre terminali, aperti nella cartella `unicare`.
 

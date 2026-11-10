@@ -1,0 +1,8 @@
+{
+  // VS Code propone di installare queste estensioni all'apertura del progetto.
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "ms-azuretools.vscode-docker"
+  ]
+}
