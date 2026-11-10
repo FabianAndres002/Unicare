@@ -42,6 +42,8 @@ export async function apriDatabaseIntegrato(cartella?: string): Promise<Database
 
 /** PostgreSQL esterno (produzione). */
 export function apriDatabaseEsterno(url: string): Database {
+  // Come PGlite: gli id BIGINT e i COUNT arrivano come numeri, non come testo.
+  pg.types.setTypeParser(pg.types.builtins.INT8, Number)
   const pool = new pg.Pool({ connectionString: url, max: 5 })
   return {
     async query<R>(sql: string, parametri: unknown[] = []) {

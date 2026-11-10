@@ -8,6 +8,9 @@ import { gestoreErrori, ErroreApplicativo } from './comune/errori.ts'
 import { rotteStato } from './comune/stato.routes.ts'
 import { creaServizioAccesso } from './accesso/accesso.service.ts'
 import { rotteAccesso } from './accesso/accesso.routes.ts'
+import { creaServizioCerchio } from './cerchio/cerchio.service.ts'
+import { creaServizioInviti } from './cerchio/inviti.service.ts'
+import { rotteCerchio } from './cerchio/cerchio.routes.ts'
 
 export function creaApp(db: Database) {
   const app = express()
@@ -18,6 +21,7 @@ export function creaApp(db: Database) {
 
   app.use('/api', rotteStato(db))
   app.use('/api/auth', rotteAccesso(creaServizioAccesso(db)))
+  app.use('/api', rotteCerchio(creaServizioCerchio(db), creaServizioInviti(db)))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

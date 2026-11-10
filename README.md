@@ -3,8 +3,9 @@
 App che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, ricevute.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 2**: registrazione, login e logout di familiari e badanti
-(password con bcrypt, accesso con cookie sicuro HttpOnly), con 13 test automatici.
+Stato: **Fase 4, settimana 3**: registrazione e login (settimana 2), poi cerchio familiare,
+scheda della persona assistita con consenso privacy, inviti con link monouso per familiari e badanti
+e permessi per ruolo. 35 test automatici.
 
 ## Struttura
 
@@ -12,6 +13,7 @@ Stato: **Fase 4, settimana 2**: registrazione, login e logout di familiari e bad
 unicare/
   backend/     Node.js + Express in TypeScript. Codice in src/
                  src/accesso/   registrazione, login, logout
+                 src/cerchio/   cerchi, membri, scheda dell'anziano, inviti, permessi
                  src/db/        collegamento al database e migrazioni (src/db/migrazioni/V1__...sql)
                Test in test/
   frontend/    React + TypeScript con Vite. Installabile come app (PWA)
@@ -84,6 +86,17 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/auth/login` | Accesso con email e password | No |
 | POST | `/api/auth/logout` | Esce | Sì |
 | GET | `/api/auth/io` | Dice chi è l'utente collegato | Sì |
+| GET | `/api/cerchi` | I miei cerchi | Sì |
+| POST | `/api/cerchi` | Crea un cerchio (solo familiari) | Sì |
+| GET | `/api/cerchi/:id` | Anziani, membri, inviti in attesa | Sì, membro |
+| PATCH | `/api/cerchi/:id` | Rinomina il cerchio | Amministratore |
+| DELETE | `/api/cerchi/:id/membri/:utenteId` | Toglie una persona dal cerchio | Amministratore |
+| POST | `/api/cerchi/:id/anziani` | Aggiunge la persona assistita (con consenso) | Amministratore, familiare |
+| PUT | `/api/anziani/:id` | Modifica la scheda | Amministratore, familiare |
+| POST | `/api/cerchi/:id/inviti` | Crea un link d'invito (7 giorni, monouso) | Amministratore |
+| DELETE | `/api/inviti/:id` | Annulla un invito | Amministratore |
+| GET | `/api/inviti/token/:token` | Anteprima dell'invito | No |
+| POST | `/api/inviti/token/:token/accetta` | Entra nel cerchio | Sì |
 
 ## Regole del progetto
 

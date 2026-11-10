@@ -1,39 +1,39 @@
 import { useEffect, useState } from 'react'
 import { api, type Profilo } from './comune/api'
+import { naviga, usePercorso } from './comune/router'
 import Accedi from './accesso/Accedi'
 import Registrati from './accesso/Registrati'
-import Benvenuto from './accesso/Benvenuto'
-
-// Quale schermata mostrare. Più avanti useremo un router vero (React Router).
-type Schermata =
-  | { tipo: 'caricamento' }
-  | { tipo: 'accedi' }
-  | { tipo: 'registrati' }
-  | { tipo: 'dentro'; profilo: Profilo }
+import AreaRiservata from './cerchio/AreaRiservata'
+import InvitoRicevuto from './cerchio/InvitoRicevuto'
 
 export default function App() {
-  const [schermata, setSchermata] = useState<Schermata>({ tipo: 'caricamento' })
+  // undefined = stiamo ancora chiedendo al backend; null = nessuno collegato.
+  const [profilo, setProfilo] = useState<Profilo | null | undefined>(undefined)
+  const percorso = usePercorso()
 
-  // All'avvio chiediamo al backend se c'è già una sessione aperta.
-  // Prima controlliamo che il backend risponda, poi chi è collegato (cookie di accesso).
+  // All'avvio chiediamo al backend chi è collegato (grazie al cookie di accesso).
   useEffect(() => {
-    api
-      .stato()
-      .then(() => api.io())
-      .then((profilo) => setSchermata({ tipo: 'dentro', profilo }))
-      .catch(() => setSchermata({ tipo: 'accedi' }))
+    api.io().then(setProfilo, () => setProfilo(null))
   }, [])
 
-  const entrato = (profilo: Profilo) => setSchermata({ tipo: 'dentro', profilo })
-
-  switch (schermata.tipo) {
-    case 'caricamento':
-      return <main className="pagina"><p>Caricamento…</p></main>
-    case 'accedi':
-      return <Accedi onEntrato={entrato} onVaiARegistrati={() => setSchermata({ tipo: 'registrati' })} />
-    case 'registrati':
-      return <Registrati onEntrato={entrato} onVaiAdAccedi={() => setSchermata({ tipo: 'accedi' })} />
-    case 'dentro':
-      return <Benvenuto profilo={schermata.profilo} onUscito={() => setSchermata({ tipo: 'accedi' })} />
+  async function esci() {
+    await api.logout().catch(() => {})
+    setProfilo(null)
+    naviga('/', true)
   }
+
+  function entrato(p: Profilo) {
+    setProfilo(p)
+    if (percorso === '/registrati') naviga('/', true)
+  }
+
+  if (profilo === undefined) return <div className="centro-pagina"><span className="rotella" aria-label="Caricamento" /></div>
+
+  // Il link d'invito funziona sia con sia senza login.
+  const invito = percorso.match(/^\/invito\/([A-Za-z0-9_-]+)$/)
+  if (invito) return <InvitoRicevuto token={invito[1]!} profilo={profilo} onEntrato={setProfilo} onEsci={esci} />
+
+  if (!profilo) return percorso === '/registrati' ? <Registrati onEntrato={entrato} /> : <Accedi onEntrato={entrato} />
+
+  return <AreaRiservata profilo={profilo} percorso={percorso} onEsci={esci} />
 }

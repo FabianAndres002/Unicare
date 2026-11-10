@@ -4,17 +4,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import request from 'supertest'
 import type { Express } from 'express'
-import { apriDatabaseIntegrato, type Database } from '../src/db/db.ts'
-import { eseguiMigrazioni } from '../src/db/migrazioni.ts'
-import { creaApp } from '../src/app.ts'
+import type { Database } from '../src/db/db.ts'
+import { preparaApp } from './aiuti.ts'
 
 let db: Database
 let app: Express
 
 beforeEach(async () => {
-  db = await apriDatabaseIntegrato()
-  await eseguiMigrazioni(db, () => {})
-  app = creaApp(db)
+  ;({ db, app } = await preparaApp())
 })
 
 afterEach(async () => {
@@ -30,7 +27,7 @@ const mario = {
 }
 
 describe('stato', () => {
-  it('risponde con le 7 tabelle create dalla migrazione V1', async () => {
+  it('risponde con le 7 tabelle create dalle migrazioni', async () => {
     const r = await request(app).get('/api/stato')
     expect(r.status).toBe(200)
     expect(r.body).toEqual({ app: 'Unicare', database: 'ok', tabelle: 7 })
