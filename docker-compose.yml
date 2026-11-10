@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - unicare-dati:/var/lib/postgresql/data
+      # Crea anche il database dei test (unicare_test)
+      - ./docker/crea-db-test.sql:/docker-entrypoint-initdb.d/crea-db-test.sql:ro
 
 volumes:
   unicare-dati:

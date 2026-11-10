@@ -3,7 +3,7 @@
 App che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, ricevute.
 Stack: **React + TypeScript** (PWA) · **Java 21 + Spring Boot 4** · **PostgreSQL 16**.
 
-Stato: **Fase 4, settimana 1**: scheletro del progetto, prime 7 tabelle, un endpoint di prova letto dal frontend.
+Stato: **Fase 4, settimana 2**: registrazione, login e logout di familiari e badanti (Spring Security, password BCrypt, sessione con cookie, protezione CSRF), con 9 test automatici.
 
 ## Struttura
 
@@ -52,7 +52,33 @@ npm install                   # solo la prima volta
 npm run dev
 ```
 
-Apri http://localhost:5173: deve comparire "Backend e database collegati. Tabelle create: 7."
+Apri http://localhost:5173: compare la schermata di accesso. Prova "Registrati", poi "Esci" e di nuovo "Accedi".
+
+## Test automatici
+
+Con il database avviato (`docker compose up -d`):
+
+```bash
+cd backend
+./mvnw test
+```
+
+I test usano un database separato, `unicare_test`, creato da Docker al primo avvio.
+Se il volume del database esisteva già prima di questa versione, crealo una volta a mano:
+
+```bash
+docker compose exec db psql -U unicare -c "CREATE DATABASE unicare_test OWNER unicare;"
+```
+
+## API disponibili
+
+| Metodo | Indirizzo | Cosa fa | Serve il login? |
+|---|---|---|---|
+| GET | `/api/stato` | Controlla backend e database | No |
+| POST | `/api/auth/registrati` | Crea l'account e fa entrare | No |
+| POST | `/api/auth/login` | Accesso con email e password | No |
+| POST | `/api/auth/logout` | Esce | Sì |
+| GET | `/api/auth/io` | Dice chi è l'utente collegato | Sì |
 
 ## Regole del progetto
 

@@ -77,3 +77,123 @@ h1 {
   color: var(--rosso-errore);
   font-weight: 600;
 }
+
+/* ---- Settimana 2: moduli di accesso e registrazione ---- */
+
+.intestazione {
+  margin-bottom: 24px;
+}
+
+.intestazione .sottotitolo {
+  margin-bottom: 0;
+}
+
+.modulo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modulo label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.modulo input:not([type='radio']) {
+  font: inherit;
+  padding: 12px 14px;
+  border: 1.5px solid #ddd3c7;
+  border-radius: 12px;
+  background: var(--sabbia);
+}
+
+.modulo input:focus {
+  outline: 3px solid rgba(15, 94, 87, 0.3);
+  border-color: var(--petrolio);
+}
+
+.scelta {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.scelta legend {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.scelta label {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 1.5px solid #ddd3c7;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.scelta label.attiva {
+  border-color: var(--petrolio);
+  background: rgba(15, 94, 87, 0.08);
+  color: var(--petrolio);
+}
+
+.scelta input {
+  position: absolute;
+  opacity: 0;
+}
+
+.pulsante {
+  font: inherit;
+  font-weight: 700;
+  padding: 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--petrolio);
+  color: var(--bianco);
+  cursor: pointer;
+}
+
+.pulsante:disabled {
+  opacity: 0.6;
+}
+
+.pulsante.secondario {
+  margin-top: 24px;
+  width: 100%;
+  background: transparent;
+  color: var(--petrolio);
+  border: 1.5px solid var(--petrolio);
+}
+
+.cambio {
+  margin-top: 20px;
+  color: var(--testo-tenue);
+}
+
+.link {
+  font: inherit;
+  font-weight: 700;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--petrolio);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.nota {
+  font-weight: 400;
+  color: var(--testo-tenue);
+  font-size: 0.9rem;
+}
+
+.scheda p + p {
+  margin-top: 8px;
+}

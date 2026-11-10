@@ -1,44 +1,39 @@
 import { useEffect, useState } from 'react'
-import { leggiStato, type Stato } from './comune/api'
+import { api, type Profilo } from './comune/api'
+import Accedi from './accesso/Accedi'
+import Registrati from './accesso/Registrati'
+import Benvenuto from './accesso/Benvenuto'
 
-// Settimana 1: una pagina di prova che legge /api/stato dal backend.
-// Dalla settimana 2 qui arriveranno login e le tre aree (Senior, Famiglia, Badante),
-// nelle cartelle src/senior, src/famiglia e src/badante.
-
-type Caricamento =
-  | { tipo: 'attesa' }
-  | { tipo: 'ok'; stato: Stato }
-  | { tipo: 'errore'; messaggio: string }
+// Quale schermata mostrare. Più avanti useremo un router vero (React Router).
+type Schermata =
+  | { tipo: 'caricamento' }
+  | { tipo: 'accedi' }
+  | { tipo: 'registrati' }
+  | { tipo: 'dentro'; profilo: Profilo }
 
 export default function App() {
-  const [caricamento, setCaricamento] = useState<Caricamento>({ tipo: 'attesa' })
+  const [schermata, setSchermata] = useState<Schermata>({ tipo: 'caricamento' })
 
+  // All'avvio chiediamo al backend se c'è già una sessione aperta.
+  // La prima chiamata (stato) serve anche a ricevere il cookie CSRF.
   useEffect(() => {
-    leggiStato()
-      .then((stato) => setCaricamento({ tipo: 'ok', stato }))
-      .catch((e: Error) => setCaricamento({ tipo: 'errore', messaggio: e.message }))
+    api
+      .stato()
+      .then(() => api.io())
+      .then((profilo) => setSchermata({ tipo: 'dentro', profilo }))
+      .catch(() => setSchermata({ tipo: 'accedi' }))
   }, [])
 
-  return (
-    <main className="pagina">
-      <img className="logo" src="/icone/icona-192.png" alt="" width={72} height={72} />
-      <h1>Unicare</h1>
-      <p className="sottotitolo">La famiglia unita intorno a chi ami</p>
+  const entrato = (profilo: Profilo) => setSchermata({ tipo: 'dentro', profilo })
 
-      <section className="scheda" aria-live="polite">
-        <h2>Stato del sistema</h2>
-        {caricamento.tipo === 'attesa' && <p>Controllo in corso…</p>}
-        {caricamento.tipo === 'ok' && (
-          <p className="ok">
-            Backend e database collegati. Tabelle create: {caricamento.stato.tabelle}.
-          </p>
-        )}
-        {caricamento.tipo === 'errore' && (
-          <p className="errore">
-            Il backend non risponde ({caricamento.messaggio}). È avviato su localhost:8080?
-          </p>
-        )}
-      </section>
-    </main>
-  )
+  switch (schermata.tipo) {
+    case 'caricamento':
+      return <main className="pagina"><p>Caricamento…</p></main>
+    case 'accedi':
+      return <Accedi onEntrato={entrato} onVaiARegistrati={() => setSchermata({ tipo: 'registrati' })} />
+    case 'registrati':
+      return <Registrati onEntrato={entrato} onVaiAdAccedi={() => setSchermata({ tipo: 'accedi' })} />
+    case 'dentro':
+      return <Benvenuto profilo={schermata.profilo} onUscito={() => setSchermata({ tipo: 'accedi' })} />
+  }
 }
