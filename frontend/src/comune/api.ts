@@ -77,6 +77,33 @@ export type MedicineAnziano = { promemoria: Promemoria[]; oggi: Occorrenza[]; co
 /** Iscrizione alle notifiche push, come la dà il browser (PushSubscription.toJSON()). */
 export type IscrizionePush = { endpoint: string; keys: { p256dh: string; auth: string } }
 
+/** Un appuntamento dell'anziano (visita, esame...). */
+export type Appuntamento = {
+  id: number
+  titolo: string
+  quando: string
+  luogo: string | null
+  note: string | null
+  accompagnaId: number | null
+  /** Chi ha detto "Ci vado io". */
+  accompagna: string | null
+  creatoDa: string | null
+}
+export type AppuntamentoFamiglia = Appuntamento & { accompagnoIo: boolean }
+export type CalendarioAnziano = { prossimi: AppuntamentoFamiglia[]; passati: AppuntamentoFamiglia[]; puoModificare: boolean }
+export type DatiAppuntamento = { titolo: string; data: string; ora: string; luogo: string; note: string }
+
+/** Un messaggio vocale tra l'anziano e il cerchio (l'audio si scarica a parte). */
+export type Vocale = {
+  id: number
+  dallAnziano: boolean
+  autore: string | null
+  durataSecondi: number
+  creatoIl: string
+  ascoltatoDa: string | null
+  ascoltatoIl: string | null
+}
+
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string }
@@ -84,6 +111,8 @@ export type SeniorIo = {
   famiglia: { nome: string; ruolo: Ruolo }[]
   richieste: Richiesta[]
   medicine: Occorrenza[]
+  appuntamenti: Appuntamento[]
+  vocali: Vocale[]
 }
 
 /** Errore restituito dal backend nel formato {"codice": ..., "messaggio": ...}. */
@@ -120,6 +149,28 @@ async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<
   }
   if (risposta.status === 204) return undefined as T
   return risposta.json()
+}
+
+/** Manda un audio registrato così com'è (non in JSON). */
+async function inviaAudio(url: string, audio: Blob, durata: number): Promise<{ id: number }> {
+  const risposta = await fetch(`${url}?durata=${Math.max(1, Math.round(durata))}`, {
+    method: 'POST',
+    headers: { 'Content-Type': audio.type || 'audio/webm' },
+    body: audio,
+    credentials: 'same-origin',
+  })
+  if (!risposta.ok) {
+    const errore = await risposta.json().catch(() => null)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+  }
+  return risposta.json()
+}
+
+/** Scarica l'audio di un messaggio. */
+export async function scaricaAudio(url: string): Promise<Blob> {
+  const risposta = await fetch(url, { credentials: 'same-origin' })
+  if (!risposta.ok) throw new ErroreApi(risposta.status, 'AUDIO', 'Non riesco a caricare il messaggio.')
+  return risposta.blob()
 }
 
 export const api = {
@@ -172,6 +223,20 @@ export const api = {
   modificaPromemoria: (id: number, dati: { ora?: string; attivo?: boolean }) => chiama<void>('PATCH', `/api/promemoria/${id}`, dati),
   eliminaPromemoria: (id: number) => chiama<void>('DELETE', `/api/promemoria/${id}`),
 
+  // Appuntamenti
+  appuntamenti: (anzianoId: number) => chiama<CalendarioAnziano>('GET', `/api/anziani/${anzianoId}/appuntamenti`),
+  creaAppuntamento: (anzianoId: number, dati: DatiAppuntamento) =>
+    chiama<CalendarioAnziano>('POST', `/api/anziani/${anzianoId}/appuntamenti`, dati),
+  modificaAppuntamento: (id: number, dati: Partial<DatiAppuntamento>) => chiama<void>('PATCH', `/api/appuntamenti/${id}`, dati),
+  eliminaAppuntamento: (id: number) => chiama<void>('DELETE', `/api/appuntamenti/${id}`),
+  ciVadoIo: (id: number) => chiama<void>('POST', `/api/appuntamenti/${id}/accompagno`),
+  nonCiVado: (id: number) => chiama<void>('DELETE', `/api/appuntamenti/${id}/accompagno`),
+
+  // Messaggi vocali
+  vocali: (anzianoId: number) => chiama<Vocale[]>('GET', `/api/anziani/${anzianoId}/vocali`),
+  inviaVocale: (anzianoId: number, audio: Blob, durata: number) => inviaAudio(`/api/anziani/${anzianoId}/vocali`, audio, durata),
+  audioVocale: (id: number) => `/api/vocali/${id}/audio`,
+
   // Notifiche push
   push: {
     chiave: () => chiama<{ chiave: string }>('GET', '/api/push/chiave'),
@@ -184,6 +249,8 @@ export const api = {
     fatto: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/fatto`),
     rimanda: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/rimanda`),
     iscriviPush: (s: IscrizionePush) => chiama<void>('POST', '/api/senior/push', s),
+    inviaVocale: (audio: Blob, durata: number) => inviaAudio('/api/senior/vocali', audio, durata),
+    audioVocale: (id: number) => `/api/senior/vocali/${id}/audio`,
     collega: (codice: string) => chiama<void>('POST', '/api/senior/collega', { codice }),
     io: () => chiama<SeniorIo>('GET', '/api/senior/io'),
     chiedi: (categoria: Categoria) => chiama<Richiesta>('POST', '/api/senior/richieste', { categoria }),

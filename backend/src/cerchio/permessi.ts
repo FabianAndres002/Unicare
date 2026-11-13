@@ -34,3 +34,18 @@ export async function richiediRuolo(db: Esecutore, cerchioId: number, utenteId: 
   }
   return ruolo
 }
+
+/**
+ * Il ruolo dell'utente nel cerchio di un anziano (con i ruoli ammessi, se indicati).
+ * Chi non fa parte del cerchio riceve 404: per lui quell'anziano non esiste.
+ */
+export async function ruoloPerAnziano(db: Esecutore, anzianoId: number, utenteId: number, ammessi?: Ruolo[]): Promise<Ruolo> {
+  const [a] = await db.query<{ cerchioId: number }>('SELECT cerchio_id AS "cerchioId" FROM anziano WHERE id = $1', [anzianoId])
+  if (!a) throw new ErroreApplicativo(404, 'ANZIANO_NON_TROVATO', 'Persona non trovata.')
+  try {
+    return ammessi ? await richiediRuolo(db, a.cerchioId, utenteId, ammessi) : await ruoloNelCerchio(db, a.cerchioId, utenteId)
+  } catch (e) {
+    if (e instanceof ErroreApplicativo && e.stato === 404) throw new ErroreApplicativo(404, 'ANZIANO_NON_TROVATO', 'Persona non trovata.')
+    throw e
+  }
+}

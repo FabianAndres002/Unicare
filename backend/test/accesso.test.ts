@@ -27,10 +27,10 @@ const mario = {
 }
 
 describe('stato', () => {
-  it('risponde con le 13 tabelle create dalle migrazioni', async () => {
+  it('risponde con le 15 tabelle create dalle migrazioni', async () => {
     const r = await request(app).get('/api/stato')
     expect(r.status).toBe(200)
-    expect(r.body).toEqual({ app: 'Unicare', database: 'ok', tabelle: 13 })
+    expect(r.body).toEqual({ app: 'Unicare', database: 'ok', tabelle: 15 })
   })
 
   it('indirizzo sconosciuto: 404 in JSON', async () => {

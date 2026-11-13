@@ -6,13 +6,11 @@ import { useCarica } from '../comune/useCarica'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
 import { Collegamento } from '../comune/router'
 import MedicineOggi from '../medicine/MedicineOggi'
+import ProssimaVisita from '../appuntamenti/ProssimaVisita'
+import MessaggiFunzione from '../vocali/MessaggiFunzione'
 import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
 
-const IN_ARRIVO = [
-  { Icona: CalendarDays, titolo: 'Appuntamenti', testo: 'Visite ed esami', colore: 'blu' },
-  { Icona: Receipt, titolo: 'Documenti', testo: 'Ricette, esami, ricevute', colore: 'verde' },
-]
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const puoModificare = cerchio.mioRuolo !== 'BADANTE'
@@ -48,7 +46,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               </div>
               <div className="scheda-anziano-basso">
                 <MedicineOggi anzianoId={a.id} />
-                <div><span className="numero">—</span><span>prossima visita</span></div>
+                <ProssimaVisita anzianoId={a.id} />
                 {(() => {
                   const n = richieste?.filter((r) => r.anziano.id === a.id).length
                   return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? 'richiesta attiva' : 'richieste attive'}</span></div>
@@ -94,15 +92,23 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
       )}
 
       <section>
-        <div className="titolo-sezione"><h2>Funzioni</h2><span className="distintivo">in arrivo</span></div>
+        <div className="titolo-sezione"><h2>Funzioni</h2></div>
         <div className="griglia-funzioni">
-          {IN_ARRIVO.map(({ Icona, titolo, testo, colore }) => (
-            <div key={titolo} className="funzione" aria-disabled="true">
-              <span className={`funzione-icona ${colore}`}><Icona size={22} /></span>
-              <strong>{titolo}</strong>
-              <span>{testo}</span>
-            </div>
-          ))}
+          {cerchio.anziani[0] && (
+            <>
+              <Collegamento a={`/anziano/${cerchio.anziani[0].id}/appuntamenti`} className="funzione">
+                <span className="funzione-icona blu"><CalendarDays size={22} /></span>
+                <strong>Appuntamenti</strong>
+                <span>Visite ed esami</span>
+              </Collegamento>
+              <MessaggiFunzione anziano={cerchio.anziani[0]} />
+            </>
+          )}
+          <div className="funzione" aria-disabled="true">
+            <span className="funzione-icona verde"><Receipt size={22} /></span>
+            <strong>Documenti</strong>
+            <span>Ricette, esami, ricevute · in arrivo</span>
+          </div>
         </div>
       </section>
 

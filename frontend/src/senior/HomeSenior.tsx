@@ -1,5 +1,5 @@
-// S2: la home dell'anziano. Un saluto, un pulsante enorme "Chiedi aiuto"
-// e lo stato delle sue richieste ("Se ne occupa Maria").
+// S2: la home dell'anziano. Un saluto, un pulsante enorme "Chiedi aiuto", i messaggi vocali,
+// lo stato delle sue richieste ("Se ne occupa Maria"), gli appuntamenti e le medicine.
 
 import { useEffect, useState } from 'react'
 import { Check, Clock, HandHeart, UserRound, X } from 'lucide-react'
@@ -11,6 +11,8 @@ import { CATEGORIE } from '../richieste/aspetto'
 import { statoPerAnziano, titoloRichiesta } from './parole'
 import { MedicineAdesso, MedicineDiOggi } from './MedicinaSenior'
 import NotificheSenior from './NotificheSenior'
+import AppuntamentiSenior from './AppuntamentiSenior'
+import MessaggiSenior from './MessaggiSenior'
 
 type Props = { io: SeniorIo; benvenuto: boolean; onCambiata: () => void }
 
@@ -80,6 +82,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
         <span>Chiedi aiuto</span>
       </Collegamento>
 
+      <MessaggiSenior vocali={io.vocali} onCambiata={onCambiata} />
+
       {io.richieste.length > 0 && (
         <section>
           <h2>Le tue richieste</h2>
@@ -88,6 +92,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
           </ul>
         </section>
       )}
+
+      <AppuntamentiSenior appuntamenti={io.appuntamenti} />
 
       <MedicineDiOggi medicine={io.medicine} />
 

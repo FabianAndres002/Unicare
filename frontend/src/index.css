@@ -544,3 +544,93 @@ a.scheda-vuota:hover { border-color: var(--petrolio); background: var(--bianco);
 .senior-notifiche { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 22px; background: #fff4ec; border: 2px solid #f3d3bf; }
 .senior-notifiche p { margin: 0; font-size: 1rem; }
 .promemoria-riga .riga-testo > span { white-space: normal; }
+
+/* ---- Settimana 7: appuntamenti e messaggi vocali ---- */
+
+.senior-pulsante.con-icona { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.riga-pulsanti { display: flex; gap: 10px; }
+.riga-pulsanti > * { flex: 1; }
+.pulsante.pericolo { background: var(--rosso); box-shadow: none; }
+.link.tenue { color: var(--testo-tenue); }
+.con-icona-piccola { display: inline-flex; align-items: center; gap: 4px; }
+.avviso-ok { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 14px; border-radius: var(--raggio-s); background: var(--petrolio-chiaro); color: var(--petrolio-scuro); font-weight: 700; }
+.rotella.piccola { width: 20px; height: 20px; border-width: 3px; }
+.errore.piccolo { font-size: 0.85rem; }
+
+/* Calendario */
+.pila-appuntamenti { display: flex; flex-direction: column; gap: 10px; }
+.appuntamento { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.appuntamento.passato { opacity: 0.7; }
+.appuntamento-alto { display: flex; gap: 14px; align-items: flex-start; }
+.appuntamento-titolo { font-size: 1.05rem; }
+.appuntamento .riga-testo > span { white-space: normal; max-width: none; }
+.appuntamento-note { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--sabbia); font-size: 0.9rem; display: flex; gap: 8px; align-items: flex-start; }
+.appuntamento-note svg { flex: none; margin-top: 3px; color: var(--testo-tenue); }
+.appuntamento-chi { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.appuntamento-chi .stato { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; padding: 4px 10px; }
+.appuntamento > .link { align-self: flex-start; font-size: 0.85rem; }
+.foglietto { flex: none; display: flex; flex-direction: column; align-items: center; width: 54px; padding: 4px 0 6px; border-radius: 14px; background: #e4eefa; color: #2f6fb0; line-height: 1.1; }
+.foglietto small { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.foglietto strong { font-size: 1.45rem; font-weight: 800; }
+.foglietto.grande { width: 68px; border-radius: 18px; }
+.foglietto.grande strong { font-size: 1.9rem; }
+.numero.numero-parola { font-size: 1.05rem; }
+
+/* Funzioni in Home */
+a.funzione { position: relative; transition: box-shadow 0.15s; }
+a.funzione:hover { box-shadow: var(--ombra-m); }
+.funzione[aria-disabled='true'] { opacity: 0.65; }
+.funzione-distintivo { position: absolute; top: 14px; right: 14px; }
+.funzione.con-novita { border-color: #f6d6c2; }
+
+/* Lettore audio */
+.riproduci { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.riproduci-tasto { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--petrolio); color: var(--bianco); cursor: pointer; }
+.riproduci-tasto:disabled { opacity: 0.6; }
+.riproduci-barra { flex: 1; min-width: 60px; height: 6px; border-radius: 3px; background: var(--sabbia-scura); overflow: hidden; }
+.riproduci-barra span { display: block; height: 100%; background: var(--petrolio); transition: width 0.25s linear; }
+.riproduci-tempo { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.85rem; color: var(--testo-tenue); min-width: 34px; }
+.riproduci.grande .riproduci-tasto { width: 72px; height: 72px; }
+.riproduci.grande .riproduci-barra { height: 10px; border-radius: 5px; }
+.riproduci.grande .riproduci-tempo { font-size: 1.1rem; }
+
+/* Registrazione */
+.registra { display: flex; flex-direction: column; gap: 10px; }
+.registra-in-corso, .registra-pronto { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.registra-in-corso { align-items: center; text-align: center; }
+.registra-in-corso > button { width: 100%; }
+.registra-punto { width: 18px; height: 18px; border-radius: 50%; background: #e0412f; animation: pulsa 1.1s ease-in-out infinite; }
+@keyframes pulsa { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.55; } }
+.registra-tempo { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.registra-tempo small { font-size: 0.9rem; color: var(--testo-tenue); font-weight: 700; }
+.registra-domanda { margin: 0; font-weight: 700; }
+.registra.grande .registra-inizia { min-height: 110px; font-size: 1.4rem; background: linear-gradient(180deg, #13716a, var(--petrolio)); border-radius: 26px; }
+.registra.grande .registra-tempo { font-size: 2.4rem; }
+.registra.grande .registra-domanda { font-size: 1.15rem; }
+.registra.grande .registra-in-corso strong { font-size: 1.2rem; }
+.registra.grande .registra-punto { width: 26px; height: 26px; }
+
+/* Fumetti dei messaggi (famiglia) */
+.fumetti { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.fumetto { display: flex; flex-direction: column; gap: 8px; max-width: 88%; padding: 12px 14px; border-radius: 20px; background: var(--bianco); box-shadow: var(--ombra-s); }
+.fumetto.da-anziano { align-self: flex-start; border-bottom-left-radius: 6px; }
+.fumetto.da-anziano.nuovo { border: 2px solid var(--terracotta); }
+.fumetto.da-famiglia { align-self: flex-end; border-bottom-right-radius: 6px; background: var(--petrolio-chiaro); }
+.fumetto-chi { font-size: 0.8rem; font-weight: 800; color: var(--testo-tenue); }
+.fumetto-letto { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--testo-tenue); }
+
+/* Senior App: appuntamenti e messaggi */
+.senior-appuntamenti, .senior-vocali-nuovi, .senior-vocali-vecchi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.senior-appuntamenti li { display: flex; gap: 16px; align-items: flex-start; padding: 18px; border-radius: 24px; background: var(--bianco); box-shadow: var(--ombra-s); }
+.senior-appuntamenti li.oggi { border: 3px solid #2f6fb0; }
+.senior-appuntamenti strong { display: block; font-size: 1.25rem; line-height: 1.25; }
+.senior-appuntamenti p { margin: 4px 0 0; display: flex; align-items: center; gap: 6px; font-size: 1.02rem; color: var(--testo-tenue); }
+.senior-appuntamenti p.senior-quando { margin: 0 0 2px; font-weight: 800; color: #2f6fb0; }
+.senior-appuntamenti p.senior-accompagna { color: var(--petrolio); font-weight: 700; }
+.senior-messaggi { display: flex; flex-direction: column; gap: 14px; }
+.senior-vocale { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 24px; background: var(--bianco); box-shadow: var(--ombra-s); }
+.senior-vocale.nuovo { border: 3px solid var(--terracotta); box-shadow: var(--ombra-m); }
+.senior-vocale p { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+.senior-vocale small { color: var(--testo-tenue); font-size: 0.9rem; }
+.senior-nota-vocale { margin: 0; display: flex; gap: 8px; align-items: flex-start; font-size: 1rem; color: var(--testo-tenue); }
+.senior-nota-vocale svg { flex: none; color: var(--petrolio); margin-top: 2px; }

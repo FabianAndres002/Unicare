@@ -38,7 +38,7 @@ function SchedaMedicina({ o, onCambiata }: { o: Occorrenza; onCambiata: () => vo
     return (
       <div className="senior-avviso entra">
         <Check size={28} />
-        {esito === 'fatto' ? 'Bravissima! Ho avvisato la famiglia.' : 'Va bene, te lo ricordo tra 15 minuti.'}
+        {esito === 'fatto' ? 'Benissimo! Ho avvisato la famiglia.' : 'Va bene, te lo ricordo tra 15 minuti.'}
       </div>
     )
   }

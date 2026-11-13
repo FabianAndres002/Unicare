@@ -20,6 +20,9 @@ import { creaPush, spingitoreWebPush, type Spingitore } from './notifiche/push.t
 import { creaPianificatore, creaServizioMedicine, type Pianificatore } from './medicine/medicine.service.ts'
 import { rotteMedicine } from './medicine/medicine.routes.ts'
 import { rotteSenior } from './senior/senior.routes.ts'
+import { creaPianificatoreAppuntamenti, creaServizioAppuntamenti } from './appuntamenti/appuntamenti.service.ts'
+import { rotteAppuntamenti } from './appuntamenti/appuntamenti.routes.ts'
+import { creaServizioVocali } from './vocali/vocali.service.ts'
 
 /** postino e spingitore: chi consegna email e notifiche push (i test ne passano di finti). */
 export function creaApp(
@@ -31,7 +34,18 @@ export function creaApp(
   const avvisi = creaAvvisi(db, opzioni.postino ?? postinoPredefinito(), push)
   const richieste = creaServizioRichieste(db, avvisi)
   const medicine = creaServizioMedicine(db, avvisi)
-  const pianificatore = creaPianificatore(db, avvisi)
+  const appuntamenti = creaServizioAppuntamenti(db, avvisi)
+  const vocali = creaServizioVocali(db, avvisi)
+  const pianificatoreMedicine = creaPianificatore(db, avvisi)
+  const pianificatoreAppuntamenti = creaPianificatoreAppuntamenti(db, avvisi)
+  // Gira ogni minuto (server.ts): medicine, appuntamenti, pulizia dei vocali vecchi.
+  const pianificatore: Pianificatore = {
+    async giro(adesso: Date = new Date()) {
+      await pianificatoreMedicine.giro(adesso)
+      await pianificatoreAppuntamenti.giro(adesso)
+      await vocali.pulizia(adesso)
+    },
+  }
 
   app.disable('x-powered-by')
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
@@ -41,8 +55,9 @@ export function creaApp(
   app.use('/api/auth', rotteAccesso(creaServizioAccesso(db)))
   app.use('/api', rotteCerchio(creaServizioCerchio(db), creaServizioInviti(db)))
   app.use('/api', rotteRichieste(richieste))
-  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push))
+  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali))
   app.use('/api', rotteMedicine(medicine, pianificatore, push))
+  app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

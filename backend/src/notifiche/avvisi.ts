@@ -173,6 +173,30 @@ export function creaAvvisi(db: Database, postino: Postino, push: Push) {
       )
     },
 
+    /**
+     * A chi fa parte del cerchio dell'anziano: email (a chi le vuole) e push.
+     * tranne: chi ha fatto l'azione; solo: limita a questi utenti (per esempio chi accompagna).
+     */
+    cerchio(anzianoId: number, oggetto: string, righe: string[], percorso: string, tag: string, opzioni: { tranne?: number | null; solo?: number[] } = {}): void {
+      inSottofondo(
+        (async () => {
+          const chi = await db.query<Destinatario>(
+            `SELECT u.id, u.email, u.nome, u.email_avvisi AS "emailAvvisi"
+             FROM anziano a JOIN membro_cerchio m ON m.cerchio_id = a.cerchio_id JOIN utente u ON u.id = m.utente_id
+             WHERE a.id = $1 ORDER BY u.id`,
+            [anzianoId],
+          )
+          await manda(
+            chi.filter((d) => d.id !== opzioni.tranne && (!opzioni.solo || opzioni.solo.includes(d.id))),
+            oggetto,
+            righe,
+            percorso,
+            tag,
+          )
+        })(),
+      )
+    },
+
     /** Notifica push al telefono dell'anziano. */
     anziano(anzianoId: number, messaggio: MessaggioPush): void {
       inSottofondo(push.aAnziano(anzianoId, messaggio))

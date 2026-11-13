@@ -19,7 +19,7 @@ await eseguiMigrazioni(db)
 
 const app = creaApp(db)
 
-// Ogni minuto: promemoria delle medicine (notifiche, rimandi, avvisi alla famiglia).
+// Ogni minuto: promemoria delle medicine e degli appuntamenti, pulizia dei vocali vecchi.
 const giro = () => app.pianificatore.giro().catch((e) => console.error('Pianificatore:', e))
 giro()
 const timer = setInterval(giro, 60_000)

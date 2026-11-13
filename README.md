@@ -3,20 +3,20 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 6**: registrazione e login, cerchio familiare, scheda della persona
-assistita con consenso privacy, inviti con link monouso, richieste di aiuto con il loro ciclo
-(da fare → in corso → fatta, oppure annullata) e lo storico, avvisi via email, **Senior App** su
-`/senior` (il telefono dell'anziano si collega con un codice di 6 cifre). Novità della settimana 6:
+Stato: **Fase 4, settimana 7**: registrazione e login, cerchio familiare, scheda della persona
+assistita con consenso privacy, inviti, richieste di aiuto, avvisi via email, **Senior App** su
+`/senior` (il telefono dell'anziano si collega con un codice di 6 cifre), promemoria delle medicine
+e notifiche push. Novità della settimana 7:
 
-- **promemoria delle medicine**: dalla scheda dell'anziano (pagina Medicine) i familiari scelgono
-  l'orario di mattino, pranzo e sera. Il nome delle medicine non si scrive mai: le notifiche dicono
-  solo "Medicine del mattino". La prima volta si registra il consenso dell'anziano;
-- all'orario il telefono dell'anziano **suona** e mostra "Fatto, le ho prese" oppure
-  "Ricordamelo tra 15 minuti". **Se dopo un'ora non conferma, avvisiamo i familiari** (notifica ed email);
-- **notifiche push** sul telefono per familiari (dal Profilo) e per l'anziano (dalla Senior App),
-  anche per le richieste di aiuto.
+- **calendario degli appuntamenti**: i familiari aggiungono visite ed esami (giorno, ora, dove,
+  note); chiunque nel cerchio tocca **"Ci vado io"**. Promemoria automatici: **la sera prima alle 18**
+  all'anziano e a tutto il cerchio, **due ore prima** all'anziano e a chi ci va. La Senior App
+  mostra "Domani alle 10:30 · Ti accompagna Marco";
+- **messaggi vocali**: l'anziano tocca "Manda un messaggio vocale", parla (fino a 2 minuti),
+  riascolta e manda; arriva a tutto il cerchio. La famiglia risponde con la voce e l'anziano lo
+  ascolta con un pulsante grande. Si vede chi l'ha ascoltato. Si cancellano dopo 30 giorni.
 
-71 test automatici.
+81 test automatici.
 
 ### Le email in sviluppo
 
@@ -155,6 +155,17 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/senior/medicine/:id/fatto` | "Fatto, le ho prese" | Telefono collegato |
 | POST | `/api/senior/medicine/:id/rimanda` | "Ricordamelo tra 15 minuti" | Telefono collegato |
 | POST | `/api/senior/push` | Il telefono dell'anziano riceve le notifiche | Telefono collegato |
+| POST | `/api/senior/vocali?durata=12` | Messaggio vocale al cerchio (il corpo è l'audio) | Telefono collegato |
+| GET | `/api/senior/vocali/:id/audio` | Ascolta un messaggio | Telefono collegato |
+| GET | `/api/anziani/:id/appuntamenti` | Appuntamenti in programma e passati | Sì, membro |
+| POST | `/api/anziani/:id/appuntamenti` | Nuovo appuntamento | Amministratore, familiare |
+| PATCH | `/api/appuntamenti/:id` | Cambia un appuntamento | Amministratore, familiare |
+| DELETE | `/api/appuntamenti/:id` | Toglie un appuntamento | Amministratore, familiare |
+| POST | `/api/appuntamenti/:id/accompagno` | "Ci vado io" | Sì, membro |
+| DELETE | `/api/appuntamenti/:id/accompagno` | "Non riesco più" | Chi ci va |
+| GET | `/api/anziani/:id/vocali` | Messaggi vocali degli ultimi 30 giorni | Sì, membro |
+| POST | `/api/anziani/:id/vocali?durata=12` | Vocale all'anziano (il corpo è l'audio) | Sì, membro |
+| GET | `/api/vocali/:id/audio` | Ascolta un messaggio | Sì, membro |
 | GET | `/api/anziani/:id/medicine` | Promemoria, medicine di oggi, consenso | Sì, membro |
 | POST | `/api/anziani/:id/promemoria` | Nuovo promemoria (mattino, pranzo o sera) | Amministratore, familiare |
 | PATCH | `/api/promemoria/:id` | Cambia orario o lo spegne | Amministratore, familiare |
