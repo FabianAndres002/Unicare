@@ -216,12 +216,17 @@ export function creaPianificatore(db: Database, avvisi: Avvisi) {
 
       // 1. Le occorrenze di oggi. Un orario già passato prima che il promemoria venisse
       //    creato o modificato non conta (niente avvisi per le 8:00 se lo imposti alle 14:00).
+      //    Al massimo una al giorno per promemoria.
       await db.query(
         `INSERT INTO occorrenza (promemoria_id, previsto_il, avvisare_il)
          SELECT p.id, t.previsto, t.previsto
          FROM promemoria p
          CROSS JOIN LATERAL (SELECT ((($1::timestamptz AT TIME ZONE $2)::date + p.ora) AT TIME ZONE $2) AS previsto) t
          WHERE p.attivo AND t.previsto > p.modificato_il
+           -- Una volta al giorno: se l'orario cambia dopo che la medicina di oggi è già stata
+           -- presa (o segnalata), non ne nasce una seconda per lo stesso giorno.
+           AND NOT EXISTS (SELECT 1 FROM occorrenza x WHERE x.promemoria_id = p.id
+                           AND (x.previsto_il AT TIME ZONE $2)::date = (t.previsto AT TIME ZONE $2)::date)
          ON CONFLICT (promemoria_id, previsto_il) DO NOTHING`,
         [adesso, fuso],
       )

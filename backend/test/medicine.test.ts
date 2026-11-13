@@ -121,6 +121,19 @@ describe('il promemoria scatta', () => {
     expect(await posta()).toEqual([])
   })
 
+  it('cambiare orario dopo il "Fatto" non crea una seconda medicina per oggi', async () => {
+    const { anna, nonna, anzianoId } = await famiglia()
+    await anna.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'PRANZO', ora: oraRoma(3), consenso: true }).expect(201)
+    let io = (await nonna.get('/api/senior/io')).body
+    await nonna.post(`/api/senior/medicine/${io.medicine[0].id}/fatto`).expect(204)
+    const { promemoria } = (await anna.get(`/api/anziani/${anzianoId}/medicine`)).body
+    await anna.patch(`/api/promemoria/${promemoria[0].id}`).send({ ora: oraRoma(10) }).expect(204)
+    await pianificatore.giro()
+    io = (await nonna.get('/api/senior/io')).body
+    expect(io.medicine).toHaveLength(1)
+    expect(io.medicine[0].stato).toBe('FATTO')
+  })
+
   it('dopo un\'ora senza "Fatto" avvisa i familiari (non la badante); un "Fatto" in ritardo li rassicura', async () => {
     const { anna, marco, nonna, anzianoId } = await famiglia()
     await anna.post('/api/push/iscrizione').send(iscrizione('anna')).expect(204)
