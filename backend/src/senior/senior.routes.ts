@@ -6,6 +6,9 @@
 // POST /api/senior/richieste                "Chiedi aiuto" con una categoria        (201, 200 se già chiesta)
 // POST /api/senior/richieste/:id/annulla    "Non serve più"                          (204)
 // POST /api/senior/esci                     scollega questo telefono                 (204)
+// POST /api/senior/medicine/:id/fatto       "Fatto": ho preso le medicine             (204)
+// POST /api/senior/medicine/:id/rimanda     "Ricordamelo tra 15 minuti"               (204)
+// POST /api/senior/push                     questo telefono riceve le notifiche       (204)
 //
 // Dai familiari (login normale, ruolo familiare o amministratore):
 // GET    /api/anziani/:id/telefono                   telefoni collegati e codice in attesa
@@ -21,13 +24,15 @@ import { schemaId } from '../comune/validazione.ts'
 import { richiedeAccesso } from '../accesso/sessione.ts'
 import { CATEGORIE, type ServizioRichieste } from '../richieste/richieste.service.ts'
 import { schemaCodice, type AnzianoCollegato, type ServizioTelefono } from './telefono.service.ts'
+import type { ServizioMedicine } from '../medicine/medicine.service.ts'
+import { schemaIscrizione, type Push } from '../notifiche/push.ts'
 
 const COOKIE = 'unicare_senior'
 
 // Dalla Senior App si sceglie solo tra pulsanti: niente "Altro" da scrivere (arriverà con la voce).
 const schemaRichiestaSenior = z.object({ categoria: z.enum(CATEGORIE.filter((c) => c !== 'ALTRO') as [string, ...string[]]) })
 
-export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste: ServizioRichieste): Router {
+export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste: ServizioRichieste, medicine: ServizioMedicine, push: Push): Router {
   const router = Router()
 
   /** Come richiedeAccesso, ma per il telefono dell'anziano. */
@@ -73,6 +78,7 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
       cerchio: anziano!.cerchio,
       famiglia,
       richieste: await richieste.elencoAnziano(anzianoId),
+      medicine: await medicine.oggi(anzianoId),
     })
   })
 
@@ -84,6 +90,21 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
 
   router.post('/senior/richieste/:id/annulla', richiedeTelefono, async (req, res) => {
     await richieste.annullaDallAnziano(schemaId.parse(req.params.id), senior(res).anzianoId)
+    res.status(204).end()
+  })
+
+  router.post('/senior/medicine/:id/fatto', richiedeTelefono, async (req, res) => {
+    await medicine.fatto(schemaId.parse(req.params.id), senior(res).anzianoId)
+    res.status(204).end()
+  })
+
+  router.post('/senior/medicine/:id/rimanda', richiedeTelefono, async (req, res) => {
+    await medicine.rimanda(schemaId.parse(req.params.id), senior(res).anzianoId)
+    res.status(204).end()
+  })
+
+  router.post('/senior/push', richiedeTelefono, async (req, res) => {
+    await push.iscriviTelefono(senior(res).dispositivoId, schemaIscrizione.parse(req.body))
     res.status(204).end()
   })
 

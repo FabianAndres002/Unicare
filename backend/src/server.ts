@@ -17,7 +17,14 @@ if (config.databaseUrl) {
 
 await eseguiMigrazioni(db)
 
-const server = creaApp(db).listen(config.porta, () => {
+const app = creaApp(db)
+
+// Ogni minuto: promemoria delle medicine (notifiche, rimandi, avvisi alla famiglia).
+const giro = () => app.pianificatore.giro().catch((e) => console.error('Pianificatore:', e))
+giro()
+const timer = setInterval(giro, 60_000)
+
+const server = app.listen(config.porta, () => {
   // Il comando di VS Code aspetta questa riga per sapere che il backend è pronto.
   console.log(`Unicare backend in ascolto su http://localhost:${config.porta}`)
 })
@@ -25,6 +32,7 @@ const server = creaApp(db).listen(config.porta, () => {
 // Spegnimento pulito (Ctrl+C): chiude il server e poi il database, così i dati restano integri.
 async function spegni() {
   console.log('Spegnimento in corso...')
+  clearInterval(timer)
   server.close()
   await db.chiudi()
   process.exit(0)

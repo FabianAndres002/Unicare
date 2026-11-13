@@ -3,17 +3,20 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 5**: registrazione e login, cerchio familiare, scheda della persona
+Stato: **Fase 4, settimana 6**: registrazione e login, cerchio familiare, scheda della persona
 assistita con consenso privacy, inviti con link monouso, richieste di aiuto con il loro ciclo
-(da fare → in corso → fatta, oppure annullata) e lo storico. Novità della settimana 5:
+(da fare → in corso → fatta, oppure annullata) e lo storico, avvisi via email, **Senior App** su
+`/senior` (il telefono dell'anziano si collega con un codice di 6 cifre). Novità della settimana 6:
 
-- **avvisi via email** quando una richiesta nasce, viene presa, lasciata, completata o annullata
-  (si spengono dal profilo);
-- **Senior App** su `/senior`: il telefono dell'anziano si collega con un **codice di 6 cifre**
-  generato dalla sua scheda; poi un pulsante enorme "Chiedi aiuto", 5 scelte, la conferma, e lo
-  stato ("Se ne occupa Maria"). Il pulsante del 112 è sempre in fondo allo schermo.
+- **promemoria delle medicine**: dalla scheda dell'anziano (pagina Medicine) i familiari scelgono
+  l'orario di mattino, pranzo e sera. Il nome delle medicine non si scrive mai: le notifiche dicono
+  solo "Medicine del mattino". La prima volta si registra il consenso dell'anziano;
+- all'orario il telefono dell'anziano **suona** e mostra "Fatto, le ho prese" oppure
+  "Ricordamelo tra 15 minuti". **Se dopo un'ora non conferma, avvisiamo i familiari** (notifica ed email);
+- **notifiche push** sul telefono per familiari (dal Profilo) e per l'anziano (dalla Senior App),
+  anche per le richieste di aiuto.
 
-60 test automatici.
+71 test automatici.
 
 ### Le email in sviluppo
 
@@ -26,6 +29,15 @@ backend compare una riga `✉ Email a ...`. Così si vede com'è senza rischiare
 1. Entra come familiare, apri la scheda dell'anziano dalla Home e tocca **Collega il telefono**.
 2. Apri una finestra in incognito (Ctrl+Shift+N) su `http://localhost:5173/senior`.
 3. Scrivi il codice. Per vederla "da telefono": F12, poi l'icona del telefono in alto a sinistra.
+
+### Provare le notifiche
+
+1. Profilo → **Attiva le notifiche** (il browser chiede il permesso).
+2. Nella Senior App tocca **Sì, attiva le notifiche**.
+3. Nella pagina Medicine metti un orario tra un paio di minuti: entro un minuto arriva la notifica.
+
+Sull'**iPhone** le notifiche arrivano solo se Unicare è aggiunta alla schermata Home (Condividi →
+"Aggiungi alla schermata Home") e con iOS 16.4 o più recente. Su Android basta Chrome.
 
 ## Struttura
 
@@ -100,6 +112,9 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 - `URL_APP`, l'indirizzo pubblico dell'app (serve per i link nelle email)
 - per spedire davvero le email (per esempio con Brevo): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
   `SMTP_PASSWORD`, `SMTP_FROM`
+- per le notifiche push: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (per esempio
+  `mailto:...`). Se mancano, il backend genera le chiavi una volta e le salva nel database.
+- `FUSO_ORARIO` (predefinito `Europe/Rome`), per gli orari dei promemoria
 
 ## API disponibili
 
@@ -137,6 +152,16 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/senior/richieste` | "Chiedi aiuto" | Telefono collegato |
 | POST | `/api/senior/richieste/:id/annulla` | "Non serve più" | Telefono collegato |
 | POST | `/api/senior/esci` | Scollega questo telefono | Telefono collegato |
+| POST | `/api/senior/medicine/:id/fatto` | "Fatto, le ho prese" | Telefono collegato |
+| POST | `/api/senior/medicine/:id/rimanda` | "Ricordamelo tra 15 minuti" | Telefono collegato |
+| POST | `/api/senior/push` | Il telefono dell'anziano riceve le notifiche | Telefono collegato |
+| GET | `/api/anziani/:id/medicine` | Promemoria, medicine di oggi, consenso | Sì, membro |
+| POST | `/api/anziani/:id/promemoria` | Nuovo promemoria (mattino, pranzo o sera) | Amministratore, familiare |
+| PATCH | `/api/promemoria/:id` | Cambia orario o lo spegne | Amministratore, familiare |
+| DELETE | `/api/promemoria/:id` | Toglie il promemoria | Amministratore, familiare |
+| GET | `/api/push/chiave` | Chiave pubblica per le notifiche | No |
+| POST | `/api/push/iscrizione` | Questo browser riceve le notifiche | Sì |
+| DELETE | `/api/push/iscrizione` | Non più | Sì |
 
 ## Regole del progetto
 

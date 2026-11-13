@@ -59,12 +59,31 @@ export type StatoTelefono = {
   codiceScadeIl: string | null
 }
 
+/** Promemoria delle medicine: solo il momento e l'orario, mai il nome dei farmaci. */
+export type Momento = 'MATTINO' | 'PRANZO' | 'SERA'
+export type Promemoria = { id: number; momento: Momento; ora: string; attivo: boolean }
+export type Occorrenza = {
+  id: number
+  promemoriaId: number
+  momento: Momento
+  previstoIl: string
+  stato: 'IN_ATTESA' | 'FATTO' | 'NON_CONFERMATO'
+  confermatoIl: string | null
+  rimandi: number
+  avvisareIl: string | null
+}
+export type MedicineAnziano = { promemoria: Promemoria[]; oggi: Occorrenza[]; consenso: boolean; puoModificare: boolean }
+
+/** Iscrizione alle notifiche push, come la dà il browser (PushSubscription.toJSON()). */
+export type IscrizionePush = { endpoint: string; keys: { p256dh: string; auth: string } }
+
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string }
   cerchio: string
   famiglia: { nome: string; ruolo: Ruolo }[]
   richieste: Richiesta[]
+  medicine: Occorrenza[]
 }
 
 /** Errore restituito dal backend nel formato {"codice": ..., "messaggio": ...}. */
@@ -146,8 +165,25 @@ export const api = {
   scollegaTelefono: (anzianoId: number, dispositivoId: number) =>
     chiama<void>('DELETE', `/api/anziani/${anzianoId}/telefono/${dispositivoId}`),
 
+  // Medicine (lato famiglia)
+  medicine: (anzianoId: number) => chiama<MedicineAnziano>('GET', `/api/anziani/${anzianoId}/medicine`),
+  creaPromemoria: (anzianoId: number, momento: Momento, ora: string, consenso?: boolean) =>
+    chiama<MedicineAnziano>('POST', `/api/anziani/${anzianoId}/promemoria`, { momento, ora, consenso }),
+  modificaPromemoria: (id: number, dati: { ora?: string; attivo?: boolean }) => chiama<void>('PATCH', `/api/promemoria/${id}`, dati),
+  eliminaPromemoria: (id: number) => chiama<void>('DELETE', `/api/promemoria/${id}`),
+
+  // Notifiche push
+  push: {
+    chiave: () => chiama<{ chiave: string }>('GET', '/api/push/chiave'),
+    iscrivi: (s: IscrizionePush) => chiama<void>('POST', '/api/push/iscrizione', s),
+    cancella: (endpoint: string) => chiama<void>('DELETE', '/api/push/iscrizione', { endpoint }),
+  },
+
   // Senior App (il telefono dell'anziano)
   senior: {
+    fatto: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/fatto`),
+    rimanda: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/rimanda`),
+    iscriviPush: (s: IscrizionePush) => chiama<void>('POST', '/api/senior/push', s),
     collega: (codice: string) => chiama<void>('POST', '/api/senior/collega', { codice }),
     io: () => chiama<SeniorIo>('GET', '/api/senior/io'),
     chiedi: (categoria: Categoria) => chiama<Richiesta>('POST', '/api/senior/richieste', { categoria }),

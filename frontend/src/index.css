@@ -511,3 +511,36 @@ a.scheda-vuota:hover { border-color: var(--petrolio); background: var(--bianco);
 .scheda-anziano-telefono { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-weight: 800; font-size: 0.95rem; }
 .scheda-anziano-telefono span { flex: 1; }
 .scheda-anziano-telefono:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* ---------- Settimana 6: medicine e notifiche ---------- */
+
+.riquadro-link { display: flex; flex-direction: column; align-items: center; width: 100%; color: inherit; }
+.riquadro-allarme { background: rgba(217, 119, 74, 0.35); }
+.stato-allarme { background: #fbe0d3; color: #a5431b; }
+.promemoria-riga { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 16px; }
+.promemoria-riga.spento .riga-testo strong { color: var(--testo-tenue); }
+.promemoria-comandi { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.campo-ora { width: auto; padding: 9px 10px; font-weight: 700; }
+.larga { width: 100%; }
+@media (max-width: 420px) { .promemoria-comandi { width: 100%; justify-content: flex-end; } }
+.consenso-medicine { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--raggio-s); background: var(--petrolio-chiaro); font-size: 0.92rem; cursor: pointer; }
+.consenso-medicine input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--petrolio); flex: none; }
+.notifiche-riga { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 16px; }
+.notifiche-riga .riga-testo > span { white-space: normal; }
+.notifiche-riga .pulsante { width: auto; }
+
+/* Senior App: medicine */
+.senior-medicina { display: flex; flex-direction: column; gap: 14px; padding: 22px; border-radius: 28px; background: var(--bianco); border: 3px solid var(--petrolio); box-shadow: var(--ombra-m); }
+.senior-medicina-alto { display: flex; align-items: center; gap: 16px; }
+.senior-medicina-alto .funzione-icona { width: 72px; height: 72px; border-radius: 22px; }
+.senior-medicina h2 { margin: 0; color: var(--testo); font-size: 1.5rem; }
+.senior-medicina p { margin: 2px 0 0; font-size: 1.05rem; color: var(--testo-tenue); }
+.senior-pulsante.fatto { background: #1f8a4c; box-shadow: 0 8px 20px rgba(31, 138, 76, 0.3); font-size: 1.5rem; min-height: 84px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.senior-oggi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.senior-oggi li { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; background: var(--bianco); box-shadow: var(--ombra-s); font-size: 1.05rem; }
+.senior-oggi li strong { flex: 1; }
+.senior-oggi .funzione-icona { width: 48px; height: 48px; }
+.senior-oggi .ok { color: #1f8a4c; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+.senior-notifiche { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 22px; background: #fff4ec; border: 2px solid #f3d3bf; }
+.senior-notifiche p { margin: 0; font-size: 1rem; }
+.promemoria-riga .riga-testo > span { white-space: normal; }

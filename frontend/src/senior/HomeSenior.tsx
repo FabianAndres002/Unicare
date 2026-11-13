@@ -1,7 +1,7 @@
 // S2: la home dell'anziano. Un saluto, un pulsante enorme "Chiedi aiuto"
 // e lo stato delle sue richieste ("Se ne occupa Maria").
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Clock, HandHeart, UserRound, X } from 'lucide-react'
 import { api, messaggioErrore, type Richiesta, type SeniorIo } from '../comune/api'
 import { Collegamento } from '../comune/router'
@@ -9,6 +9,8 @@ import Avatar from '../comune/Avatar'
 import { dataEstesa, saluto } from '../comune/utili'
 import { CATEGORIE } from '../richieste/aspetto'
 import { statoPerAnziano, titoloRichiesta } from './parole'
+import { MedicineAdesso, MedicineDiOggi } from './MedicinaSenior'
+import NotificheSenior from './NotificheSenior'
 
 type Props = { io: SeniorIo; benvenuto: boolean; onCambiata: () => void }
 
@@ -54,6 +56,12 @@ function RichiestaSenior({ r, onCambiata }: { r: Richiesta; onCambiata: () => vo
 
 export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
   const [oggi] = useState(() => new Date())
+  // "Adesso" avanza ogni 15 secondi, così la scheda delle medicine compare all'orario giusto.
+  const [adesso, setAdesso] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setAdesso(Date.now()), 15_000)
+    return () => clearInterval(timer)
+  }, [])
   return (
     <div className="senior-pagina entra">
       <header>
@@ -64,6 +72,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
       {benvenuto && (
         <p className="senior-avviso"><Check size={24} /> Il telefono è collegato. Quando ti serve qualcosa, tocca il pulsante qui sotto.</p>
       )}
+
+      <MedicineAdesso medicine={io.medicine} adesso={adesso} onCambiata={onCambiata} />
 
       <Collegamento a="/senior/chiedi" className="senior-chiedi">
         <HandHeart size={56} strokeWidth={1.8} />
@@ -78,6 +88,10 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
           </ul>
         </section>
       )}
+
+      <MedicineDiOggi medicine={io.medicine} />
+
+      <NotificheSenior />
 
       <section>
         <h2>La tua famiglia</h2>

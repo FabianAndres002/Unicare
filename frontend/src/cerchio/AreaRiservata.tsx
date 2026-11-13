@@ -16,6 +16,7 @@ import { cerchioScelto, scegliCerchio } from './cerchioAttivo'
 import Richieste from '../richieste/Richieste'
 import NuovaRichiesta from '../richieste/NuovaRichiesta'
 import DettaglioRichiesta from '../richieste/DettaglioRichiesta'
+import MedicinePagina from '../medicine/MedicinePagina'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -81,8 +82,11 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
 
   const anziano = percorso.match(/^\/anziano\/(\d+|nuovo)$/)
   const richiesta = percorso.match(/^\/richieste\/(\d+)$/)
+  const medicine = percorso.match(/^\/anziano\/(\d+)\/medicine$/)
+  const anzianoMedicine = medicine && cerchio.anziani.find((a) => a.id === Number(medicine[1]))
   let pagina
-  if (percorso === '/richieste') pagina = <Richieste profilo={profilo} cerchio={cerchio} />
+  if (anzianoMedicine) pagina = <MedicinePagina key={anzianoMedicine.id} anziano={anzianoMedicine} />
+  else if (percorso === '/richieste') pagina = <Richieste profilo={profilo} cerchio={cerchio} />
   else if (percorso === '/richieste/nuova') pagina = <NuovaRichiesta cerchio={cerchio} />
   else if (richiesta) pagina = <DettaglioRichiesta key={richiesta[1]} id={Number(richiesta[1])} profilo={profilo} />
   else if (percorso === '/cerchio') pagina = <Membri profilo={profilo} cerchio={cerchio} onCambiato={carica} />

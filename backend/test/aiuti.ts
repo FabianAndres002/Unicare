@@ -6,19 +6,26 @@ import { apriDatabaseIntegrato, type Database } from '../src/db/db.ts'
 import { eseguiMigrazioni } from '../src/db/migrazioni.ts'
 import { creaApp } from '../src/app.ts'
 import { postinoMemoria } from '../src/notifiche/postino.ts'
+import { spingitoreMemoria } from '../src/notifiche/push.ts'
 
 /** App con database in memoria e un postino finto: le email finiscono in "posta". */
 export async function preparaApp() {
   const db: Database = await apriDatabaseIntegrato()
   await eseguiMigrazioni(db, () => {})
   const postino = postinoMemoria()
-  const app = creaApp(db, { postino })
+  const spingitore = spingitoreMemoria()
+  const app = creaApp(db, { postino, spingitore })
   /** Le email spedite finora (aspetta quelle ancora in viaggio). */
   async function posta() {
     await app.avvisi.attendi()
     return postino.posta
   }
-  return { db, app: app as Express, posta, postino }
+  /** Le notifiche push consegnate finora. */
+  async function notifiche() {
+    await app.avvisi.attendi()
+    return spingitore.inviate
+  }
+  return { db, app: app as Express, posta, postino, notifiche, pianificatore: app.pianificatore }
 }
 
 /** Registra un utente e restituisce un "browser" già collegato (ricorda il cookie). */

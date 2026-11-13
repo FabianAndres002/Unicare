@@ -16,13 +16,22 @@ import { rotteRichieste } from './richieste/richieste.routes.ts'
 import { creaAvvisi, type Avvisi } from './notifiche/avvisi.ts'
 import { postinoPredefinito, type Postino } from './notifiche/postino.ts'
 import { creaServizioTelefono } from './senior/telefono.service.ts'
+import { creaPush, spingitoreWebPush, type Spingitore } from './notifiche/push.ts'
+import { creaPianificatore, creaServizioMedicine, type Pianificatore } from './medicine/medicine.service.ts'
+import { rotteMedicine } from './medicine/medicine.routes.ts'
 import { rotteSenior } from './senior/senior.routes.ts'
 
-/** postino: chi consegna le email (i test ne passano uno finto). */
-export function creaApp(db: Database, opzioni: { postino?: Postino } = {}): express.Express & { avvisi: Avvisi } {
+/** postino e spingitore: chi consegna email e notifiche push (i test ne passano di finti). */
+export function creaApp(
+  db: Database,
+  opzioni: { postino?: Postino; spingitore?: Spingitore } = {},
+): express.Express & { avvisi: Avvisi; pianificatore: Pianificatore } {
   const app = express()
-  const avvisi = creaAvvisi(db, opzioni.postino ?? postinoPredefinito())
+  const push = creaPush(db, opzioni.spingitore ?? spingitoreWebPush())
+  const avvisi = creaAvvisi(db, opzioni.postino ?? postinoPredefinito(), push)
   const richieste = creaServizioRichieste(db, avvisi)
+  const medicine = creaServizioMedicine(db, avvisi)
+  const pianificatore = creaPianificatore(db, avvisi)
 
   app.disable('x-powered-by')
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
@@ -32,7 +41,8 @@ export function creaApp(db: Database, opzioni: { postino?: Postino } = {}): expr
   app.use('/api/auth', rotteAccesso(creaServizioAccesso(db)))
   app.use('/api', rotteCerchio(creaServizioCerchio(db), creaServizioInviti(db)))
   app.use('/api', rotteRichieste(richieste))
-  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste))
+  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push))
+  app.use('/api', rotteMedicine(medicine, pianificatore, push))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {
@@ -40,5 +50,5 @@ export function creaApp(db: Database, opzioni: { postino?: Postino } = {}): expr
   })
 
   app.use(gestoreErrori)
-  return Object.assign(app, { avvisi })
+  return Object.assign(app, { avvisi, pianificatore })
 }

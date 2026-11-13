@@ -12,6 +12,7 @@
 import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
 import type { Postino } from './postino.ts'
+import type { MessaggioPush, Push } from './push.ts'
 
 export type EventoRichiesta = 'CREATA' | 'PRESA' | 'RILASCIATA' | 'COMPLETATA' | 'ANNULLATA'
 
@@ -37,7 +38,7 @@ type Info = {
   presaDaNome: string | null
 }
 
-type Destinatario = { email: string; nome: string }
+type Destinatario = { id: number; email: string; nome: string; emailAvvisi: boolean }
 
 /** Rende sicuro un testo scritto dagli utenti prima di metterlo in una pagina HTML. */
 function sicuro(testo: string): string {
@@ -79,13 +80,13 @@ function contenuto(evento: EventoRichiesta, r: Info, autore: string): { oggetto:
   }
 }
 
-export function creaAvvisi(db: Database, postino: Postino) {
+export function creaAvvisi(db: Database, postino: Postino, push: Push) {
   const inCorso = new Set<Promise<void>>()
 
   async function destinatari(evento: EventoRichiesta, r: Info, autoreId: number | null): Promise<Destinatario[]> {
-    const tutti = await db.query<Destinatario & { id: number; ruolo: string }>(
-      `SELECT u.id, u.email, u.nome, m.ruolo FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
-       WHERE m.cerchio_id = $1 AND u.email_avvisi ORDER BY u.id`,
+    const tutti = await db.query<Destinatario & { ruolo: string }>(
+      `SELECT u.id, u.email, u.nome, u.email_avvisi AS "emailAvvisi", m.ruolo FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
+       WHERE m.cerchio_id = $1 ORDER BY u.id`,
       [r.cerchioId],
     )
     const altri = tutti.filter((u) => u.id !== autoreId)
@@ -114,8 +115,25 @@ export function creaAvvisi(db: Database, postino: Postino) {
     if (!r) return
     const [autore] = autoreId ? await db.query<{ nome: string }>('SELECT nome FROM utente WHERE id = $1', [autoreId]) : []
     const { oggetto, righe } = contenuto(evento, r, autore?.nome ?? r.anziano)
-    const link = `${config.urlApp}/richieste/${r.id}`
-    for (const d of await destinatari(evento, r, autoreId)) {
+    await manda(await destinatari(evento, r, autoreId), oggetto, righe, `/richieste/${r.id}`, `richiesta-${r.id}`)
+
+    // All'anziano che l'ha chiesta dal telefono: "Maria se ne occupa", "Fatto".
+    if (r.dallAnziano && (evento === 'PRESA' || evento === 'COMPLETATA')) {
+      const [a] = await db.query<{ id: number }>('SELECT anziano_id AS id FROM richiesta WHERE id = $1', [r.id])
+      const cosa = r.categoria === 'ALTRO' && r.testo ? r.testo : COSA[r.categoria]!
+      await push.aAnziano(a!.id, {
+        titolo: evento === 'PRESA' ? `${autore?.nome ?? 'Qualcuno'} se ne occupa` : 'Fatto!',
+        testo: evento === 'PRESA' ? `Per ${cosa}.` : `${autore?.nome ?? 'La tua famiglia'} ha finito: ${cosa}.`,
+        url: '/senior',
+        tag: `richiesta-${r.id}`,
+      })
+    }
+  }
+
+  /** Email (a chi le vuole) e notifica push a ogni destinatario. */
+  async function manda(chi: Destinatario[], oggetto: string, righe: string[], percorso: string, tag: string) {
+    const link = `${config.urlApp}${percorso}`
+    for (const d of chi.filter((d) => d.emailAvvisi)) {
       await postino.invia({
         a: d.email,
         oggetto,
@@ -123,15 +141,41 @@ export function creaAvvisi(db: Database, postino: Postino) {
         html: pagina(d.nome, oggetto, righe, link),
       })
     }
+    await push.aUtenti(chi.map((d) => d.id), { titolo: oggetto, testo: righe.join(' '), url: percorso, tag })
+  }
+
+  function inSottofondo(lavoro: Promise<unknown>) {
+    const p: Promise<void> = lavoro
+      .then(() => {})
+      .catch((errore) => console.error('Avviso non inviato:', errore))
+      .finally(() => inCorso.delete(p))
+    inCorso.add(p)
   }
 
   return {
     /** Manda gli avvisi senza far aspettare chi ha fatto l'azione. */
     richiesta(evento: EventoRichiesta, richiestaId: number, autoreId: number | null): void {
-      const p = lavora(evento, richiestaId, autoreId)
-        .catch((errore) => console.error('Avviso email non inviato:', errore))
-        .finally(() => inCorso.delete(p))
-      inCorso.add(p)
+      inSottofondo(lavora(evento, richiestaId, autoreId))
+    },
+
+    /** Ai familiari e all'amministratore dell'anziano (non alla badante): email e push. */
+    familiari(anzianoId: number, oggetto: string, righe: string[], percorso: string, tag: string): void {
+      inSottofondo(
+        (async () => {
+          const chi = await db.query<Destinatario>(
+            `SELECT u.id, u.email, u.nome, u.email_avvisi AS "emailAvvisi"
+             FROM anziano a JOIN membro_cerchio m ON m.cerchio_id = a.cerchio_id JOIN utente u ON u.id = m.utente_id
+             WHERE a.id = $1 AND m.ruolo IN ('ADMIN', 'FAMILIARE') ORDER BY u.id`,
+            [anzianoId],
+          )
+          await manda(chi, oggetto, righe, percorso, tag)
+        })(),
+      )
+    },
+
+    /** Notifica push al telefono dell'anziano. */
+    anziano(anzianoId: number, messaggio: MessaggioPush): void {
+      inSottofondo(push.aAnziano(anzianoId, messaggio))
     },
 
     /** Per i test: aspetta che tutti gli avvisi partiti siano stati consegnati. */

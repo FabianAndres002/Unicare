@@ -29,6 +29,17 @@ export const config = {
     mittente: process.env.SMTP_FROM ?? 'Unicare <avvisi@unicare.local>',
   },
 
+  // Gli orari dei promemoria sono quelli italiani (anche se il server sta altrove).
+  fusoOrario: process.env.FUSO_ORARIO ?? 'Europe/Rome',
+
+  // Notifiche push. Le chiavi si possono dare qui; se mancano il server le crea
+  // la prima volta e le salva nel database (tabella impostazione).
+  push: {
+    chiavePubblica: process.env.VAPID_PUBLIC_KEY ?? '',
+    chiavePrivata: process.env.VAPID_PRIVATE_KEY ?? '',
+    contatto: process.env.VAPID_SUBJECT ?? 'mailto:avvisi@unicare.app',
+  },
+
   // Il telefono dell'anziano resta collegato a lungo: non deve rifare il codice ogni mese.
   durataTelefonoAnzianoGiorni: 365,
 }

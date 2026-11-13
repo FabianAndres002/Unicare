@@ -1,17 +1,17 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Pill, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
+import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
 import { Collegamento } from '../comune/router'
+import MedicineOggi from '../medicine/MedicineOggi'
 import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
 
 const IN_ARRIVO = [
-  { Icona: Pill, titolo: 'Medicine', testo: 'Promemoria con “Fatto”', colore: 'arancio' },
   { Icona: CalendarDays, titolo: 'Appuntamenti', testo: 'Visite ed esami', colore: 'blu' },
-  { Icona: Receipt, titolo: 'Ricevute e spese', testo: 'Mai più fogli persi', colore: 'verde' },
+  { Icona: Receipt, titolo: 'Documenti', testo: 'Ricette, esami, ricevute', colore: 'verde' },
 ]
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
@@ -47,7 +47,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
                 )}
               </div>
               <div className="scheda-anziano-basso">
-                <div><span className="numero">—</span><span>medicine oggi</span></div>
+                <MedicineOggi anzianoId={a.id} />
                 <div><span className="numero">—</span><span>prossima visita</span></div>
                 {(() => {
                   const n = richieste?.filter((r) => r.anziano.id === a.id).length

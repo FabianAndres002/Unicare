@@ -5,6 +5,7 @@ import { Check, LogOut, Mail, Plus } from 'lucide-react'
 import { api, messaggioErrore, type Profilo, type RiassuntoCerchio } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
+import NotificheTelefono from './NotificheTelefono'
 import { nomeRuolo } from '../comune/utili'
 
 type Props = {
@@ -63,6 +64,7 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
 
       <section>
         <div className="titolo-sezione"><h2>Avvisi</h2></div>
+        <NotificheTelefono />
         <label className="scheda interruttore-riga">
           <span className="funzione-icona arancio"><Mail size={22} /></span>
           <span className="riga-testo">
