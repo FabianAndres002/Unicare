@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { api, type Cerchio } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
 import ModuloAnziano from './ModuloAnziano'
+import TelefonoAnziano from './TelefonoAnziano'
 
 type Props = { cerchio: Cerchio; anzianoId: number | 'nuovo'; onCambiato: () => void }
 
@@ -33,6 +34,7 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
           }}
         />
       </div>
+      {anziano && <TelefonoAnziano anziano={anziano} />}
     </div>
   )
 }

@@ -27,7 +27,8 @@ export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata }: Pro
     onCambiata()
   }
 
-  let chi = `Chiesta ${r.creataDa ? `da ${r.creataDa.nome} ` : ''}${tempoFa(r.creataIl)}`
+  const autore = r.creataDa?.nome ?? (r.creataDallAnziano ? `${r.anziano.nome} dal suo telefono` : null)
+  let chi = `Chiesta ${tempoFa(r.creataIl)}${autore ? ` da ${autore}` : ''}`
   if (r.stato === 'PRESA_IN_CARICO') chi = r.presaDa?.id === mioId ? 'Te ne stai occupando tu' : `Se ne occupa ${r.presaDa?.nome}`
   if (r.chiusaIl) chi = `${stato.etichetta} ${tempoFa(r.chiusaIl)}${r.presaDa && r.stato === 'COMPLETATA' ? ` da ${r.presaDa.nome}` : ''}`
 

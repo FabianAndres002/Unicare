@@ -17,9 +17,9 @@ import Richieste from '../richieste/Richieste'
 import NuovaRichiesta from '../richieste/NuovaRichiesta'
 import DettaglioRichiesta from '../richieste/DettaglioRichiesta'
 
-type Props = { profilo: Profilo; percorso: string; onEsci: () => void }
+type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
-export default function AreaRiservata({ profilo, percorso, onEsci }: Props) {
+export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: Props) {
   const [cerchi, setCerchi] = useState<RiassuntoCerchio[] | null>(null)
   const [cerchio, setCerchio] = useState<Cerchio | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
@@ -88,7 +88,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci }: Props) {
   else if (percorso === '/cerchio') pagina = <Membri profilo={profilo} cerchio={cerchio} onCambiato={carica} />
   else if (percorso === '/invita') pagina = <Invita cerchio={cerchio} onCambiato={carica} />
   else if (percorso === '/profilo')
-    pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={cerchio.id} onScegli={vaiAlCerchio} onEsci={onEsci} />
+    pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={cerchio.id} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={onProfilo} />
   else if (anziano)
     pagina = <SchedaAnziano cerchio={cerchio} anzianoId={anziano[1] === 'nuovo' ? 'nuovo' : Number(anziano[1])} onCambiato={carica} />
   else pagina = <Home profilo={profilo} cerchio={cerchio} />

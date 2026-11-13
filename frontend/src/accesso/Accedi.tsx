@@ -8,6 +8,7 @@ export default function Accedi({ onEntrato }: { onEntrato: (profilo: Profilo) =>
     <LayoutAccesso titolo="Bentornato" sottotitolo="Accedi per vedere il tuo cerchio.">
       <ModuloAccedi onEntrato={onEntrato} />
       <p className="cambio">Non hai un account? <Collegamento a="/registrati" className="link">Registrati</Collegamento></p>
+      <p className="cambio">È il telefono di un anziano? <Collegamento a="/senior" className="link">Collegalo con il codice</Collegamento></p>
     </LayoutAccesso>
   )
 }

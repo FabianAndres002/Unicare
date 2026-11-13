@@ -14,6 +14,23 @@ export const config = {
   // Chiave per firmare i cookie di accesso. In produzione DEVE essere impostata.
   segretoJwt: process.env.JWT_SECRET ?? 'solo-per-sviluppo-cambiami',
   durataAccessoGiorni: 30,
+
+  // Indirizzo dell'app, usato nei link dentro le email.
+  urlApp: process.env.URL_APP ?? 'http://localhost:5173',
+
+  // Email. Se SMTP_HOST è vuoto non si spedisce nulla: ogni email viene salvata come
+  // pagina .html in questa cartella, così si può vedere com'è senza un vero servizio di posta.
+  cartellaPostaLocale: process.env.CARTELLA_POSTA ?? '.posta-locale',
+  smtp: {
+    host: process.env.SMTP_HOST ?? '',
+    porta: Number(process.env.SMTP_PORT ?? 587),
+    utente: process.env.SMTP_USER ?? '',
+    password: process.env.SMTP_PASSWORD ?? '',
+    mittente: process.env.SMTP_FROM ?? 'Unicare <avvisi@unicare.local>',
+  },
+
+  // Il telefono dell'anziano resta collegato a lungo: non deve rifare il codice ogni mese.
+  durataTelefonoAnzianoGiorni: 365,
 }
 
 if (inProduzione && !process.env.JWT_SECRET) {

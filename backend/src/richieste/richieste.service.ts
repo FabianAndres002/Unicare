@@ -19,6 +19,7 @@ import type { Database, Esecutore } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { testoFacoltativo } from '../comune/validazione.ts'
 import { ruoloNelCerchio, type Ruolo } from '../cerchio/permessi.ts'
+import type { Avvisi, EventoRichiesta } from '../notifiche/avvisi.ts'
 
 export const CATEGORIE = ['SPESA', 'FARMACIA', 'ACCOMPAGNAMENTO', 'COMPAGNIA', 'CASA', 'ALTRO'] as const
 export type Categoria = (typeof CATEGORIE)[number]
@@ -47,6 +48,8 @@ export type Richiesta = {
   testo: string | null
   stato: Stato
   creataDa: Persona
+  /** true se l'ha chiesta l'anziano dal suo telefono (Senior App). */
+  creataDallAnziano: boolean
   creataIl: string
   presaDa: Persona
   presaIl: string | null
@@ -55,7 +58,7 @@ export type Richiesta = {
   azioni: Azione[]
 }
 
-export type Evento = { tipo: string; utente: string | null; nota: string | null; il: string }
+export type Evento = { tipo: string; utente: string | null; dallAnziano: boolean; nota: string | null; il: string }
 export type DettaglioRichiesta = Richiesta & { eventi: Evento[] }
 
 type Riga = Omit<Richiesta, 'anziano' | 'creataDa' | 'presaDa' | 'azioni'> & {
@@ -68,7 +71,7 @@ type Riga = Omit<Richiesta, 'anziano' | 'creataDa' | 'presaDa' | 'azioni'> & {
 }
 
 const SELECT_RICHIESTA = `
-  SELECT r.id, r.cerchio_id AS "cerchioId", r.categoria, r.testo, r.stato,
+  SELECT r.id, r.cerchio_id AS "cerchioId", r.categoria, r.testo, r.stato, r.creata_dall_anziano AS "creataDallAnziano",
          r.creata_il AS "creataIl", r.presa_il AS "presaIl", r.chiusa_il AS "chiusaIl",
          a.id AS "anzianoId", a.nome AS "anzianoNome",
          c.id AS "creataDaId", c.nome AS "creataDaNome",
@@ -100,6 +103,7 @@ function componi(r: Riga, utenteId: number, ruolo: Ruolo): Richiesta {
     testo: r.testo,
     stato: r.stato,
     creataDa: r.creataDaId ? { id: r.creataDaId, nome: r.creataDaNome! } : null,
+    creataDallAnziano: r.creataDallAnziano,
     creataIl: r.creataIl,
     presaDa: r.presaDaId ? { id: r.presaDaId, nome: r.presaDaNome! } : null,
     presaIl: r.presaIl,
@@ -152,7 +156,7 @@ const TRANSIZIONI: Record<Azione, { evento: string; sql: string; conUtente: bool
   },
 }
 
-export function creaServizioRichieste(db: Database) {
+export function creaServizioRichieste(db: Database, avvisi: Avvisi) {
   async function trova(tx: Esecutore, id: number): Promise<Riga | undefined> {
     const [r] = await tx.query<Riga>(`${SELECT_RICHIESTA} WHERE r.id = $1`, [id])
     return r
@@ -183,6 +187,7 @@ export function creaServizioRichieste(db: Database) {
         await tx.query(`INSERT INTO richiesta_evento (richiesta_id, tipo, utente_id) VALUES ($1, 'CREATA', $2)`, [r!.id, utenteId])
         return r!.id
       })
+      avvisi.richiesta('CREATA', id, utenteId)
       return componi((await trova(db, id))!, utenteId, ruolo)
     },
 
@@ -203,7 +208,10 @@ export function creaServizioRichieste(db: Database) {
     async dettaglio(id: number, utenteId: number): Promise<DettaglioRichiesta> {
       const { riga, ruolo } = await caricaPer(id, utenteId)
       const eventi = await db.query<Evento>(
-        `SELECT e.tipo, u.nome AS utente, e.nota, e.il FROM richiesta_evento e
+        `SELECT e.tipo, COALESCE(u.nome, CASE WHEN e.dall_anziano THEN a.nome END) AS utente,
+                e.dall_anziano AS "dallAnziano", e.nota, e.il
+         FROM richiesta_evento e
+         JOIN richiesta r ON r.id = e.richiesta_id JOIN anziano a ON a.id = r.anziano_id
          LEFT JOIN utente u ON u.id = e.utente_id WHERE e.richiesta_id = $1 ORDER BY e.il, e.id`,
         [id],
       )
@@ -223,7 +231,67 @@ export function creaServizioRichieste(db: Database) {
         }
         await tx.query('INSERT INTO richiesta_evento (richiesta_id, tipo, utente_id, nota) VALUES ($1, $2, $3, $4)', [id, t.evento, utenteId, nota])
       })
+      avvisi.richiesta(t.evento as EventoRichiesta, id, utenteId)
       return this.dettaglio(id, utenteId)
+    },
+
+    // ---- Dalla Senior App: l'anziano agisce solo sulle proprie richieste ----
+
+    /** Le richieste dell'anziano ancora attive e quelle concluse nelle ultime 24 ore. */
+    async elencoAnziano(anzianoId: number): Promise<Richiesta[]> {
+      const righe = await db.query<Riga>(
+        `${SELECT_RICHIESTA} WHERE r.anziano_id = $1
+           AND (r.stato IN ('APERTA', 'PRESA_IN_CARICO') OR r.chiusa_il > now() - interval '24 hours')
+         ORDER BY (r.stato IN ('APERTA', 'PRESA_IN_CARICO')) DESC, r.creata_il DESC, r.id DESC LIMIT 20`,
+        [anzianoId],
+      )
+      return righe.map((r) => ({
+        ...componi(r, 0, 'BADANTE'),
+        // L'anziano può solo annullare quello che ha chiesto lui.
+        azioni: r.creataDallAnziano && (r.stato === 'APERTA' || r.stato === 'PRESA_IN_CARICO') ? ['ANNULLA' as const] : [],
+      }))
+    },
+
+    /**
+     * Nuova richiesta dal telefono dell'anziano. Se ne ha già una aperta uguale
+     * (per esempio ha toccato due volte il pulsante) restituisce quella.
+     */
+    async creaDallAnziano(anzianoId: number, categoria: Categoria): Promise<{ richiesta: Richiesta; nuova: boolean }> {
+      const [doppia] = await db.query<{ id: number }>(
+        `SELECT id FROM richiesta WHERE anziano_id = $1 AND categoria = $2 AND creata_dall_anziano
+           AND stato IN ('APERTA', 'PRESA_IN_CARICO') LIMIT 1`,
+        [anzianoId, categoria],
+      )
+      let id = doppia?.id
+      if (!id) {
+        id = await db.transazione(async (tx) => {
+          const [r] = await tx.query<{ id: number }>(
+            `INSERT INTO richiesta (cerchio_id, anziano_id, categoria, creata_dall_anziano)
+             SELECT cerchio_id, id, $2, true FROM anziano WHERE id = $1 RETURNING id`,
+            [anzianoId, categoria],
+          )
+          await tx.query(`INSERT INTO richiesta_evento (richiesta_id, tipo, dall_anziano) VALUES ($1, 'CREATA', true)`, [r!.id])
+          return r!.id
+        })
+        avvisi.richiesta('CREATA', id, null)
+      }
+      const [richiesta] = (await this.elencoAnziano(anzianoId)).filter((r) => r.id === id)
+      return { richiesta: richiesta!, nuova: !doppia }
+    },
+
+    /** "Non serve più", detto dall'anziano su una richiesta che ha fatto lui. */
+    async annullaDallAnziano(id: number, anzianoId: number): Promise<void> {
+      const aggiornate = await db.transazione(async (tx) => {
+        const righe = await tx.query(
+          `UPDATE richiesta SET stato = 'ANNULLATA', chiusa_il = now()
+           WHERE id = $1 AND anziano_id = $2 AND creata_dall_anziano AND stato IN ('APERTA', 'PRESA_IN_CARICO') RETURNING id`,
+          [id, anzianoId],
+        )
+        if (righe.length) await tx.query(`INSERT INTO richiesta_evento (richiesta_id, tipo, dall_anziano) VALUES ($1, 'ANNULLATA', true)`, [id])
+        return righe.length
+      })
+      if (!aggiornate) throw NON_TROVATA()
+      avvisi.richiesta('ANNULLATA', id, null)
     },
 
   }

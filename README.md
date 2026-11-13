@@ -1,11 +1,31 @@
 # Unicare
 
-App che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, ricevute.
+App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 4**: registrazione e login, cerchio familiare, scheda della persona
-assistita con consenso privacy, inviti con link monouso, e **richieste di aiuto** con il loro ciclo
-(da fare → in corso → fatta, oppure annullata) e lo storico. 47 test automatici.
+Stato: **Fase 4, settimana 5**: registrazione e login, cerchio familiare, scheda della persona
+assistita con consenso privacy, inviti con link monouso, richieste di aiuto con il loro ciclo
+(da fare → in corso → fatta, oppure annullata) e lo storico. Novità della settimana 5:
+
+- **avvisi via email** quando una richiesta nasce, viene presa, lasciata, completata o annullata
+  (si spengono dal profilo);
+- **Senior App** su `/senior`: il telefono dell'anziano si collega con un **codice di 6 cifre**
+  generato dalla sua scheda; poi un pulsante enorme "Chiedi aiuto", 5 scelte, la conferma, e lo
+  stato ("Se ne occupa Maria"). Il pulsante del 112 è sempre in fondo allo schermo.
+
+60 test automatici.
+
+### Le email in sviluppo
+
+Finché non è impostato un servizio di posta, **nessuna email viene spedita**: ognuna viene salvata
+come pagina nella cartella `backend/.posta-locale` (aprila con un doppio clic) e nel terminale del
+backend compare una riga `✉ Email a ...`. Così si vede com'è senza rischiare di scrivere a nessuno.
+
+### Provare la Senior App sul computer
+
+1. Entra come familiare, apri la scheda dell'anziano dalla Home e tocca **Collega il telefono**.
+2. Apri una finestra in incognito (Ctrl+Shift+N) su `http://localhost:5173/senior`.
+3. Scrivi il codice. Per vederla "da telefono": F12, poi l'icona del telefono in alto a sinistra.
 
 ## Struttura
 
@@ -77,6 +97,9 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 - `DATABASE_URL`, per esempio `postgres://utente:password@host:5432/unicare`
 - `JWT_SECRET`, una frase segreta lunga e casuale (in produzione è obbligatoria)
 - `NODE_ENV=production` (il cookie di accesso viaggia solo su HTTPS)
+- `URL_APP`, l'indirizzo pubblico dell'app (serve per i link nelle email)
+- per spedire davvero le email (per esempio con Brevo): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+  `SMTP_PASSWORD`, `SMTP_FROM`
 
 ## API disponibili
 
@@ -105,6 +128,15 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/richieste/:id/rilascia` | "Non riesco più" | Chi l'ha presa |
 | POST | `/api/richieste/:id/completa` | "Fatto" (nota facoltativa) | Chi l'ha presa, amministratore |
 | POST | `/api/richieste/:id/annulla` | "Non serve più" | Chi l'ha creata, amministratore |
+| PATCH | `/api/auth/io` | Accende o spegne gli avvisi via email | Sì |
+| GET | `/api/anziani/:id/telefono` | Telefoni collegati e codice in attesa | Amministratore, familiare |
+| POST | `/api/anziani/:id/telefono/codice` | Nuovo codice di 6 cifre (24 ore, monouso) | Amministratore, familiare |
+| DELETE | `/api/anziani/:id/telefono/:dispositivoId` | Scollega un telefono | Amministratore, familiare |
+| POST | `/api/senior/collega` | Il telefono dell'anziano scambia il codice (5 errori → 15 minuti di attesa) | No |
+| GET | `/api/senior/io` | Nome, famiglia e richieste dell'anziano | Telefono collegato |
+| POST | `/api/senior/richieste` | "Chiedi aiuto" | Telefono collegato |
+| POST | `/api/senior/richieste/:id/annulla` | "Non serve più" | Telefono collegato |
+| POST | `/api/senior/esci` | Scollega questo telefono | Telefono collegato |
 
 ## Regole del progetto
 

@@ -4,10 +4,11 @@
 // POST /api/auth/login        accesso con email e password
 // POST /api/auth/logout       esce                             (204)
 // GET  /api/auth/io           chi è l'utente collegato         (401 senza login)
+// PATCH /api/auth/io          preferenze (avvisi via email)
 
 import { Router } from 'express'
 import { ErroreApplicativo } from '../comune/errori.ts'
-import { schemaLogin, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
+import { schemaLogin, schemaPreferenze, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
 import { apriSessione, chiudiSessione, richiedeAccesso } from './sessione.ts'
 
 export function rotteAccesso(accesso: ServizioAccesso): Router {
@@ -39,6 +40,12 @@ export function rotteAccesso(accesso: ServizioAccesso): Router {
       chiudiSessione(res)
       throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
     }
+    res.json(profilo)
+  })
+
+  router.patch('/io', richiedeAccesso, async (req, res) => {
+    const profilo = await accesso.impostaPreferenze(res.locals.idUtente, schemaPreferenze.parse(req.body))
+    if (!profilo) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
     res.json(profilo)
   })
 

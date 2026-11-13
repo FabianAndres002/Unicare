@@ -8,7 +8,7 @@ import { ErroreApplicativo } from '../comune/errori.ts'
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 
 /** Quello che il frontend vede di un utente (mai la password!). */
-export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente }
+export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean }
 
 // ---- Regole sui dati in ingresso (zod controlla e rifiuta i dati sbagliati) ----
 
@@ -25,6 +25,8 @@ export const schemaLogin = z.object({
   email: z.string().trim().min(1),
   password: z.string().min(1),
 })
+
+export const schemaPreferenze = z.object({ emailAvvisi: z.boolean() })
 
 type RigaUtente = Profilo & { password_hash: string }
 
@@ -46,7 +48,7 @@ export function creaServizioAccesso(db: Database) {
       const [nuovo] = await db.query<Profilo>(
         `INSERT INTO utente (email, password_hash, nome, cognome, tipo)
          VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, email, nome, tipo`,
+         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi"`,
         [dati.email, hash, dati.nome, dati.cognome, dati.tipo],
       )
       return nuovo!
@@ -54,17 +56,22 @@ export function creaServizioAccesso(db: Database) {
 
     async verificaCredenziali(email: string, password: string): Promise<Profilo> {
       const [utente] = await db.query<RigaUtente>(
-        'SELECT id, email, nome, tipo, password_hash FROM utente WHERE lower(email) = lower($1)',
+        'SELECT id, email, nome, tipo, email_avvisi AS "emailAvvisi", password_hash FROM utente WHERE lower(email) = lower($1)',
         [email],
       )
       const corretta = await bcrypt.compare(password, utente?.password_hash ?? HASH_FINTO)
       if (!utente || !corretta) throw CREDENZIALI_ERRATE
-      return { id: utente.id, email: utente.email, nome: utente.nome, tipo: utente.tipo }
+      return { id: utente.id, email: utente.email, nome: utente.nome, tipo: utente.tipo, emailAvvisi: utente.emailAvvisi }
     },
 
     async trovaProfilo(id: number): Promise<Profilo | undefined> {
-      const [utente] = await db.query<Profilo>('SELECT id, email, nome, tipo FROM utente WHERE id = $1', [id])
+      const [utente] = await db.query<Profilo>('SELECT id, email, nome, tipo, email_avvisi AS "emailAvvisi" FROM utente WHERE id = $1', [id])
       return utente
+    },
+
+    async impostaPreferenze(id: number, dati: z.infer<typeof schemaPreferenze>): Promise<Profilo | undefined> {
+      await db.query('UPDATE utente SET email_avvisi = $2 WHERE id = $1', [id, dati.emailAvvisi])
+      return this.trovaProfilo(id)
     },
   }
 }

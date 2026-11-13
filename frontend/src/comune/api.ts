@@ -5,7 +5,7 @@ export type Stato = { app: string; database: string; tabelle: number }
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 export type Ruolo = 'ADMIN' | 'FAMILIARE' | 'BADANTE'
 
-export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente }
+export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean }
 
 export type DatiRegistrazione = { email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
 
@@ -41,6 +41,8 @@ export type Richiesta = {
   testo: string | null
   stato: StatoRichiesta
   creataDa: Persona
+  /** true se l'ha chiesta l'anziano dal suo telefono. */
+  creataDallAnziano: boolean
   creataIl: string
   presaDa: Persona
   presaIl: string | null
@@ -48,8 +50,22 @@ export type Richiesta = {
   /** Le azioni che puoi fare tu: il backend le calcola, noi mostriamo solo quei pulsanti. */
   azioni: AzioneRichiesta[]
 }
-export type EventoRichiesta = { tipo: 'CREATA' | 'PRESA' | 'RILASCIATA' | 'COMPLETATA' | 'ANNULLATA'; utente: string | null; nota: string | null; il: string }
+export type EventoRichiesta = { tipo: 'CREATA' | 'PRESA' | 'RILASCIATA' | 'COMPLETATA' | 'ANNULLATA'; utente: string | null; dallAnziano: boolean; nota: string | null; il: string }
 export type DettaglioRichiesta = Richiesta & { eventi: EventoRichiesta[] }
+
+/** Il telefono dell'anziano, visto dalla famiglia. */
+export type StatoTelefono = {
+  collegati: { id: number; collegatoIl: string; ultimoUsoIl: string | null }[]
+  codiceScadeIl: string | null
+}
+
+/** Quello che vede la Senior App. */
+export type SeniorIo = {
+  anziano: { id: number; nome: string; cognome: string }
+  cerchio: string
+  famiglia: { nome: string; ruolo: Ruolo }[]
+  richieste: Richiesta[]
+}
 
 /** Errore restituito dal backend nel formato {"codice": ..., "messaggio": ...}. */
 export class ErroreApi extends Error {
@@ -95,6 +111,7 @@ export const api = {
   login: (email: string, password: string) => chiama<Profilo>('POST', '/api/auth/login', { email, password }),
   registrati: (dati: DatiRegistrazione) => chiama<Profilo>('POST', '/api/auth/registrati', dati),
   logout: () => chiama<void>('POST', '/api/auth/logout'),
+  preferenze: (emailAvvisi: boolean) => chiama<Profilo>('PATCH', '/api/auth/io', { emailAvvisi }),
 
   // Cerchi e anziani
   cerchi: () => chiama<RiassuntoCerchio[]>('GET', '/api/cerchi'),
@@ -121,4 +138,20 @@ export const api = {
   richiesta: (id: number) => chiama<DettaglioRichiesta>('GET', `/api/richieste/${id}`),
   azioneRichiesta: (id: number, azione: AzioneRichiesta, nota?: string) =>
     chiama<DettaglioRichiesta>('POST', `/api/richieste/${id}/${azione.toLowerCase()}`, nota ? { nota } : undefined),
+
+  // Telefono dell'anziano (lato famiglia)
+  statoTelefono: (anzianoId: number) => chiama<StatoTelefono>('GET', `/api/anziani/${anzianoId}/telefono`),
+  nuovoCodice: (anzianoId: number) =>
+    chiama<{ codice: string; scadeIl: string }>('POST', `/api/anziani/${anzianoId}/telefono/codice`),
+  scollegaTelefono: (anzianoId: number, dispositivoId: number) =>
+    chiama<void>('DELETE', `/api/anziani/${anzianoId}/telefono/${dispositivoId}`),
+
+  // Senior App (il telefono dell'anziano)
+  senior: {
+    collega: (codice: string) => chiama<void>('POST', '/api/senior/collega', { codice }),
+    io: () => chiama<SeniorIo>('GET', '/api/senior/io'),
+    chiedi: (categoria: Categoria) => chiama<Richiesta>('POST', '/api/senior/richieste', { categoria }),
+    annulla: (id: number) => chiama<void>('POST', `/api/senior/richieste/${id}/annulla`),
+    esci: () => chiama<void>('POST', '/api/senior/esci'),
+  },
 }
