@@ -26,6 +26,10 @@ import TrovaBadante from '../badanti/TrovaBadante'
 import PaginaBadante from '../badanti/PaginaBadante'
 import Conversazioni from '../contatti/Conversazioni'
 import Chat from '../contatti/Chat'
+import LavoroBadante from '../ricerche/LavoroBadante'
+import RicercaPerBadante from '../ricerche/RicercaPerBadante'
+import CercoBadante from '../ricerche/CercoBadante'
+import ProposteRicerca from '../ricerche/ProposteRicerca'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -69,10 +73,13 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   // Pagine di lavoro (badanti che si propongono, famiglie che cercano), con o senza cerchio.
   const chat = percorso.match(/^\/contatti\/(\d+)$/)
   const schedaBadante = percorso.match(/^\/badanti\/(\d+)$/)
+  const ricercaLavoro = percorso.match(/^\/lavoro\/ricerche\/(\d+)$/)
   let paginaLavoro = null
   if (chat) paginaLavoro = <Chat key={chat[1]} id={Number(chat[1])} profilo={profilo} />
   else if (percorso === '/contatti') paginaLavoro = <Conversazioni profilo={profilo} />
-  else if (percorso === '/lavoro' && profilo.tipo === 'BADANTE') paginaLavoro = <IlMioProfilo profilo={profilo} />
+  else if (percorso === '/lavoro' && profilo.tipo === 'BADANTE') paginaLavoro = <LavoroBadante profilo={profilo} />
+  else if (percorso === '/lavoro/profilo' && profilo.tipo === 'BADANTE') paginaLavoro = <IlMioProfilo profilo={profilo} />
+  else if (ricercaLavoro && profilo.tipo === 'BADANTE') paginaLavoro = <RicercaPerBadante key={ricercaLavoro[1]} id={Number(ricercaLavoro[1])} />
   else if (percorso === '/badanti' && profilo.tipo === 'FAMILIARE') paginaLavoro = <TrovaBadante />
   else if (schedaBadante && profilo.tipo === 'FAMILIARE') paginaLavoro = <PaginaBadante key={schedaBadante[1]} id={Number(schedaBadante[1])} />
 
@@ -104,6 +111,8 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   // /anziano/12/medicine, /anziano/12/appuntamenti, /anziano/12/messaggi, /anziano/12/documenti
   const sottopagina = percorso.match(/^\/anziano\/(\d+)\/(medicine|appuntamenti|messaggi|documenti)$/)
   const anzianoSotto = sottopagina && cerchio.anziani.find((a) => a.id === Number(sottopagina[1]))
+  const ricercaFamiglia = percorso.match(/^\/cerco-badante\/(\d+)$/)
+  const famiglia = cerchio.mioRuolo !== 'BADANTE'
   let pagina
   if (paginaLavoro) pagina = paginaLavoro
   else if (anzianoSotto && sottopagina[2] === 'medicine') pagina = <MedicinePagina key={anzianoSotto.id} anziano={anzianoSotto} />
@@ -111,6 +120,8 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   else if (anzianoSotto && sottopagina[2] === 'documenti' && cerchio.mioRuolo !== 'BADANTE')
     pagina = <DocumentiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (percorso === '/privacy') pagina = <Privacy indietro="/profilo" />
+  else if (percorso === '/cerco-badante' && famiglia) pagina = <CercoBadante key={cerchio.id} cerchio={cerchio} />
+  else if (ricercaFamiglia && famiglia) pagina = <ProposteRicerca key={ricercaFamiglia[1]} id={Number(ricercaFamiglia[1])} />
   else if (anzianoSotto && sottopagina[2] === 'messaggi') pagina = <MessaggiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (percorso === '/richieste') pagina = <Richieste profilo={profilo} cerchio={cerchio} />
   else if (percorso === '/richieste/nuova') pagina = <NuovaRichiesta cerchio={cerchio} />

@@ -730,3 +730,17 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .chat-scrivi textarea { flex: 1; border: 0; resize: none; font: inherit; padding: 8px 10px; outline: none; background: none; max-height: 140px; field-sizing: content; }
 .chat-scrivi .pulsante-icona { background: var(--petrolio); color: var(--bianco); }
 .chat-scrivi .pulsante-icona:disabled { opacity: 0.5; }
+
+/* ---- Cerco una badante (settimana 10) ---- */
+.carta-ricerca { display: flex; flex-direction: column; gap: 8px; }
+.carta-ricerca-alto { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.carta-ricerca-alto strong { font-size: 1.05rem; }
+.carta-ricerca-alto small { color: var(--testo-tenue); white-space: nowrap; }
+.carta-ricerca .con-icona-piccola { color: var(--testo-tenue); font-size: 0.9rem; }
+.riga-proposte { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--testo-tenue); }
+.citazione { margin: 0; padding: 12px 14px; border-left: 4px solid var(--terracotta); border-radius: 0 12px 12px 0; background: var(--sabbia); line-height: 1.5; white-space: pre-wrap; }
+.citazione small { display: block; margin-bottom: 4px; color: var(--testo-tenue); font-size: 0.78rem; font-weight: 700; }
+.proposta { display: flex; flex-direction: column; gap: 14px; }
+.proposta.spenta { opacity: 0.65; }
+.dettagli-ricerca summary { cursor: pointer; font-weight: 800; color: var(--petrolio); }
+.dettagli-ricerca[open] summary { margin-bottom: 12px; }

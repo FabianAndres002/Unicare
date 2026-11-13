@@ -1,9 +1,10 @@
 // La badante compila il suo profilo e accende "Mi propongo": così le famiglie la trovano.
 
 import { useState, type FormEvent } from 'react'
-import { Eye, EyeOff, Megaphone } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, Megaphone } from 'lucide-react'
 import { api, messaggioErrore, type DatiProfiloBadante, type Disponibilita, type Profilo, type Servizio } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
+import { Collegamento } from '../comune/router'
 import CartaBadante from './CartaBadante'
 import { DISPONIBILITA, PROVINCE, SERVIZI } from './aspetto'
 
@@ -42,7 +43,7 @@ function Modulo({ nome, cognome, iniziale, onSalvato }: { nome: string; cognome:
         <span className="funzione-icona arancio"><Megaphone size={22} /></span>
         <span className="riga-testo">
           <strong>Mi propongo alle famiglie</strong>
-          <span>{d.visibile ? 'Le famiglie possono trovarti e scriverti' : 'Il tuo profilo è nascosto'}</span>
+          <span>{d.visibile ? 'Le famiglie possono trovarti e scriverti' : 'Ti vedono solo le famiglie a cui ti proponi'}</span>
         </span>
         <input type="checkbox" role="switch" className="interruttore" checked={d.visibile} onChange={(e) => cambia('visibile', e.target.checked)} />
       </label>
@@ -119,9 +120,10 @@ export default function IlMioProfilo({ profilo }: { profilo: Profilo }) {
   const { dati, errore, ricarica } = useCarica(() => api.mioProfiloBadante(), profilo.id, 3600)
   return (
     <div className="pagina-app entra">
+      <Collegamento a="/lavoro" className="indietro"><ArrowLeft size={18} /> Lavoro</Collegamento>
       <header className="intestazione-pagina">
-        <h1>Il mio lavoro</h1>
-        <p className="sottotitolo">Compila il tuo profilo e proponiti: le famiglie della tua zona ti trovano e ti scrivono.</p>
+        <h1>Il mio profilo</h1>
+        <p className="sottotitolo">Le famiglie lo vedono quando ti proponi per una ricerca. Con “Mi propongo” acceso ti trovano anche nella lista delle badanti.</p>
       </header>
       {errore && <p className="errore">{errore}</p>}
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}

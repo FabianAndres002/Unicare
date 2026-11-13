@@ -28,6 +28,8 @@ import { creaServizioDocumenti } from './documenti/documenti.service.ts'
 import { rotteDocumenti } from './documenti/documenti.routes.ts'
 import { creaServizioBadanti } from './badanti/badanti.service.ts'
 import { rotteBadanti } from './badanti/badanti.routes.ts'
+import { creaServizioRicerche } from './badanti/ricerche.service.ts'
+import { rotteRicerche } from './badanti/ricerche.routes.ts'
 
 /** postino e spingitore: chi consegna email e notifiche push (i test ne passano di finti). */
 export function creaApp(
@@ -79,6 +81,7 @@ export function creaApp(
   app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
   app.use('/api', rotteDocumenti(creaServizioDocumenti(db)))
   app.use('/api', rotteBadanti(creaServizioBadanti(db, avvisi, inviti)))
+  app.use('/api', rotteRicerche(creaServizioRicerche(db, avvisi)))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

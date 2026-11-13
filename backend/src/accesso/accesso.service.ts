@@ -104,6 +104,20 @@ export function creaServizioAccesso(db: Database) {
           `SELECT creato_il AS "mandatoIl", durata_secondi AS "durataSecondi" FROM messaggio_vocale WHERE autore_id = $1 ORDER BY creato_il`,
           [id],
         ),
+        profiloBadante: (await db.query(
+          `SELECT presentazione, provincia, comune, zone, anni_esperienza AS "anniEsperienza", lingue, servizi, disponibilita,
+                  tariffa_oraria_centesimi AS "tariffaOrariaCentesimi", automunita, visibile FROM profilo_badante WHERE utente_id = $1`,
+          [id],
+        ))[0] ?? null,
+        ricercheBadantePubblicate: await db.query(
+          `SELECT comune, provincia, descrizione, orario, creata_il AS "creataIl", chiusa_il AS "chiusaIl" FROM ricerca_badante WHERE creata_da = $1 ORDER BY creata_il`,
+          [id],
+        ),
+        proposteInviate: await db.query(
+          `SELECT p.messaggio, p.stato, p.creata_il AS "creataIl", r.comune FROM proposta p JOIN ricerca_badante r ON r.id = p.ricerca_id
+           WHERE p.badante_id = $1 ORDER BY p.creata_il`,
+          [id],
+        ),
         consensiDati: await db.query(
           `SELECT tipo, versione_testo AS versione, dato_il AS "datoIl", revocato_il AS "revocatoIl" FROM consenso WHERE dato_da = $1 OR utente_id = $1 ORDER BY dato_il`,
           [id],

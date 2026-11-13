@@ -1,7 +1,7 @@
 // Famiglia: cerca una badante per provincia, servizio e disponibilità.
 
 import { useState } from 'react'
-import { ArrowLeft, ChevronRight, MessagesSquare, SearchX } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Megaphone, MessagesSquare, SearchX } from 'lucide-react'
 import { api, type Disponibilita, type Servizio } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -38,6 +38,12 @@ export default function TrovaBadante() {
         <h1>Trova una badante</h1>
         <p className="sottotitolo">Badanti che si propongono nella tua zona. Scrivi a chi ti sembra adatta: risponde qui in Unicare.</p>
       </header>
+
+      <Collegamento a="/cerco-badante" className="scheda-proponiti">
+        <Megaphone size={30} />
+        <span><strong>Cerco una badante</strong><br />Scrivi di cosa avete bisogno: le badanti della zona si propongono e scegli tu.</span>
+        <ChevronRight size={22} />
+      </Collegamento>
 
       {conversazioni && conversazioni.length > 0 && (
         <Collegamento a="/contatti" className="scheda riga-cerchio">

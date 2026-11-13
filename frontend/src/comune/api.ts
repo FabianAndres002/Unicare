@@ -141,6 +141,30 @@ export type DatiProfiloBadante = {
 }
 export type ProfiloBadante = DatiProfiloBadante & { aggiornatoIl: string }
 export type SchedaBadante = Omit<ProfiloBadante, 'visibile'> & { id: number; nome: string; cognome: string; contattoId: number | null }
+
+// "Cerco una badante" e proposte
+export type StatoProposta = 'INVIATA' | 'SCELTA' | 'NON_SCELTA' | 'RITIRATA'
+export type DatiRicerca = {
+  provincia: string
+  comune: string
+  descrizione: string
+  orario: string
+  servizi: Servizio[]
+  disponibilita: Disponibilita[]
+}
+type BaseRicerca = Omit<DatiRicerca, 'orario'> & { id: number; orario: string | null; creataIl: string; chiusa: boolean }
+/** Come la vede una badante: senza nomi. */
+export type RicercaPubblica = BaseRicerca & { miaProposta: { id: number; stato: StatoProposta; messaggio: string } | null }
+export type RicercaFamiglia = BaseRicerca & { creataDa: string | null; nuove: number; proposte: number }
+export type PropostaPerFamiglia = {
+  id: number
+  messaggio: string
+  stato: StatoProposta
+  creataIl: string
+  contattoId: number | null
+  badante: Omit<ProfiloBadante, 'visibile' | 'aggiornatoIl'> & { id: number; nome: string; cognome: string }
+}
+export type MiaProposta = { id: number; messaggio: string; stato: StatoProposta; creataIl: string; contattoId: number | null; ricerca: BaseRicerca }
 export type Conversazione = {
   id: number
   altro: { id: number; nome: string; cognome: string; tipo: TipoUtente }
@@ -322,6 +346,21 @@ export const api = {
   rispondi: (id: number, testo: string) => chiama<void>('POST', `/api/contatti/${id}/messaggi`, { testo }),
   chiudiConversazione: (id: number, chiusa: boolean) => chiama<void>('POST', `/api/contatti/${id}/chiudi`, { chiusa }),
   invitaDaConversazione: (id: number, cerchioId: number) => chiama<void>('POST', `/api/contatti/${id}/invita`, { cerchioId }),
+
+  // Cerco una badante: famiglia
+  ricercheBadante: (cerchioId: number) => chiama<RicercaFamiglia[]>('GET', `/api/cerchi/${cerchioId}/ricerche-badante`),
+  pubblicaRicerca: (cerchioId: number, dati: DatiRicerca) => chiama<{ id: number }>('POST', `/api/cerchi/${cerchioId}/ricerche-badante`, dati),
+  ricercaBadante: (id: number) => chiama<{ ricerca: RicercaFamiglia; proposte: PropostaPerFamiglia[] }>('GET', `/api/ricerche-badante/${id}`),
+  chiudiRicerca: (id: number) => chiama<void>('POST', `/api/ricerche-badante/${id}/chiudi`),
+  scegliProposta: (id: number, testo: string) => chiama<{ contattoId: number }>('POST', `/api/proposte/${id}/scegli`, { testo }),
+  rifiutaProposta: (id: number) => chiama<void>('POST', `/api/proposte/${id}/rifiuta`),
+  // Cerco una badante: badante
+  ricercheAperte: (provincia?: string) =>
+    chiama<{ provincia: string | null; ricerche: RicercaPubblica[] }>('GET', `/api/lavoro/ricerche${provincia ? `?provincia=${provincia}` : ''}`),
+  ricercaAperta: (id: number) => chiama<RicercaPubblica>('GET', `/api/lavoro/ricerche/${id}`),
+  proponiti: (id: number, messaggio: string) => chiama<{ id: number }>('POST', `/api/lavoro/ricerche/${id}/proposte`, { messaggio }),
+  mieProposte: () => chiama<MiaProposta[]>('GET', '/api/lavoro/proposte'),
+  ritiraProposta: (id: number) => chiama<void>('POST', `/api/lavoro/proposte/${id}/ritira`),
 
   // Privacy
   datiPersonali: '/api/auth/io/dati',

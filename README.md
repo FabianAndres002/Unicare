@@ -3,8 +3,19 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 9**: tutto il coordinamento della famiglia (cerchio, richieste di aiuto,
-Senior App, medicine, appuntamenti, messaggi vocali, documenti sanitari, privacy). Novità della settimana 9:
+Stato: **Fase 4, settimana 10**: tutto il coordinamento della famiglia (cerchio, richieste di aiuto,
+Senior App, medicine, appuntamenti, messaggi vocali, documenti sanitari, privacy) e l'incontro tra
+famiglie e badanti. Novità della settimana 10:
+
+- **"Cerco una badante"**: la famiglia scrive di cosa ha bisogno (comune, orari, servizi, due righe).
+  Le badanti della provincia ricevono un avviso e la leggono in "Lavoro", **senza** il nome della
+  famiglia né quello dell'anziano;
+- **le badanti si propongono** con un breve messaggio; la famiglia vede le proposte con il profilo
+  di ognuna e sceglie: "Scrivi" apre la conversazione (la proposta è il primo messaggio), "No, grazie"
+  la avvisa con gentilezza. "Abbiamo trovato" chiude la ricerca. Al massimo 3 ricerche aperte per
+  cerchio e 20 proposte al giorno per badante.
+
+Settimana 9:
 
 - **le badanti si propongono**: una badante, anche senza cerchio, ha la sua interfaccia (Home, Lavoro,
   Messaggi, Profilo). In "Lavoro" compila il profilo (zona, esperienza, servizi, disponibilità,

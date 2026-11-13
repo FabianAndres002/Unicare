@@ -2,7 +2,7 @@
 // il suo profilo ("Mi propongo"), i messaggi delle famiglie e come entrare in un cerchio.
 
 import { useState } from 'react'
-import { ChevronRight, Eye, EyeOff, HeartHandshake, Megaphone, MessagesSquare } from 'lucide-react'
+import { ChevronRight, Eye, EyeOff, HeartHandshake, Megaphone, MessagesSquare, Search } from 'lucide-react'
 import { api, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -12,6 +12,8 @@ import { dataEstesa, saluto, tempoFa } from '../comune/utili'
 export default function HomeBadante({ profilo }: { profilo: Profilo }) {
   const { dati: mio } = useCarica(() => api.mioProfiloBadante(), 'mio-profilo', 300)
   const { dati: conversazioni } = useCarica(() => api.conversazioni(), 'conversazioni', 30)
+  const { dati: ricerche } = useCarica(() => api.ricercheAperte(), 'ricerche-home', 120)
+  const daVedere = ricerche?.ricerche.filter((r) => !r.miaProposta).length ?? 0
   const nonLetti = conversazioni?.reduce((n, c) => n + c.nonLetti, 0) ?? 0
   const p = mio?.profilo
   const [oggi] = useState(() => new Date())
@@ -24,19 +26,31 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
       </header>
 
       {mio && !p && (
-        <Collegamento a="/lavoro" className="scheda-proponiti">
+        <Collegamento a="/lavoro/profilo" className="scheda-proponiti">
           <Megaphone size={30} />
           <span><strong>Proponiti alle famiglie</strong><br />Compila il tuo profilo in 3 minuti: le famiglie della tua zona ti trovano e ti scrivono.</span>
           <ChevronRight size={22} />
         </Collegamento>
       )}
       {p && (
-        <Collegamento a="/lavoro" className="scheda riga-cerchio">
+        <Collegamento a="/lavoro/profilo" className="scheda riga-cerchio">
           <span className={`funzione-icona ${p.visibile ? 'verde' : 'grigio'}`}>{p.visibile ? <Eye size={22} /> : <EyeOff size={22} />}</span>
           <span className="riga-testo">
             <strong>{p.visibile ? 'Ti stai proponendo' : 'Profilo nascosto'}</strong>
             <span>{p.visibile ? `Le famiglie di ${p.comune} e dintorni ti vedono` : 'Accendi “Mi propongo” per farti trovare'}</span>
           </span>
+          <ChevronRight size={20} />
+        </Collegamento>
+      )}
+
+      {ricerche && (
+        <Collegamento a="/lavoro" className="scheda riga-cerchio">
+          <span className="funzione-icona blu"><Search size={22} /></span>
+          <span className="riga-testo">
+            <strong>{ricerche.ricerche.length === 0 ? 'Famiglie che cercano' : ricerche.ricerche.length === 1 ? '1 famiglia cerca una badante' : `${ricerche.ricerche.length} famiglie cercano una badante`}</strong>
+            <span>{ricerche.ricerche.length === 0 ? 'Per ora nessuna nella tua provincia: ti avvisiamo noi' : 'Nella tua provincia: leggi e proponiti'}</span>
+          </span>
+          {daVedere > 0 && <span className="distintivo urgente">{daVedere}</span>}
           <ChevronRight size={20} />
         </Collegamento>
       )}
