@@ -1,6 +1,6 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Pill, Plus, Receipt, UserPlus, Watch } from 'lucide-react'
+import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Pill, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
@@ -54,6 +54,11 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
                   return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? 'richiesta attiva' : 'richieste attive'}</span></div>
                 })()}
               </div>
+              {puoModificare && (
+                <Collegamento a={`/anziano/${a.id}`} className="scheda-anziano-telefono">
+                  <Smartphone size={20} /> <span>Il telefono di {a.nome} e la Senior App</span> <ChevronRight size={20} />
+                </Collegamento>
+              )}
             </article>
           )
         })}

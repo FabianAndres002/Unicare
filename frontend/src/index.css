@@ -508,3 +508,6 @@ a.scheda-vuota:hover { border-color: var(--petrolio); background: var(--bianco);
   background: var(--rosso); color: var(--bianco); font-size: 1.2rem; font-weight: 800;
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
 }
+.scheda-anziano-telefono { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-weight: 800; font-size: 0.95rem; }
+.scheda-anziano-telefono span { flex: 1; }
+.scheda-anziano-telefono:hover { background: rgba(255, 255, 255, 0.08); }

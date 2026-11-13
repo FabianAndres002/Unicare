@@ -20,6 +20,8 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
         <h1>{anziano ? `${anziano.nome} ${anziano.cognome}` : 'Nuova scheda'}</h1>
         <p className="sottotitolo">Solo dati utili all'organizzazione: niente dati sanitari.</p>
       </header>
+      {anziano && <TelefonoAnziano anziano={anziano} />}
+      {anziano && <div className="titolo-sezione"><h2>I dati di {anziano.nome}</h2></div>}
       <div className="scheda">
         <ModuloAnziano
           key={anzianoId}
@@ -34,7 +36,6 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
           }}
         />
       </div>
-      {anziano && <TelefonoAnziano anziano={anziano} />}
     </div>
   )
 }
