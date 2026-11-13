@@ -62,7 +62,7 @@
       "type": "shell",
       // Scarica cloudflared la prima volta. L'indirizzo https://....trycloudflare.com compare
       // nel terminale e cambia ogni volta che riavvii questo comando. Si chiude con Ctrl+C.
-      "command": "npx --yes cloudflared tunnel --url http://localhost:5173",
+      "command": "npx --yes cloudflared tunnel --protocol http2 --url http://localhost:5173",
       "options": { "cwd": "${workspaceFolder}/frontend" },
       "isBackground": true,
       "presentation": { "panel": "dedicated", "reveal": "always" },
