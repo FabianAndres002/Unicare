@@ -1,15 +1,22 @@
 // La "cornice" dell'area riservata: barra di navigazione in basso su telefono, a sinistra su computer.
 
 import type { ReactNode } from 'react'
-import { CircleUser, HandHelping, House, UserPlus, Users } from 'lucide-react'
+import { BriefcaseBusiness, CircleUser, HandHelping, House, MessagesSquare, UserPlus, Users } from 'lucide-react'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import type { Profilo } from '../comune/api'
 
-type Props = { percorso: string; profilo: Profilo; nomeCerchio?: string; puoInvitare: boolean; children: ReactNode }
+type Props = { percorso: string; profilo: Profilo; nomeCerchio?: string; puoInvitare: boolean; haCerchio: boolean; children: ReactNode }
 
-export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, children }: Props) {
-  const voci = [
+export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, haCerchio, children }: Props) {
+  // La badante ha anche il suo lavoro (profilo e messaggi delle famiglie).
+  const voci = profilo.tipo === 'BADANTE' ? [
+    { a: '/', etichetta: 'Home', Icona: House },
+    ...(haCerchio ? [{ a: '/richieste', etichetta: 'Richieste', Icona: HandHelping }] : []),
+    { a: '/contatti', etichetta: 'Messaggi', Icona: MessagesSquare },
+    { a: '/lavoro', etichetta: 'Lavoro', Icona: BriefcaseBusiness },
+    { a: '/profilo', etichetta: 'Profilo', Icona: CircleUser },
+  ] : [
     { a: '/', etichetta: 'Home', Icona: House },
     { a: '/richieste', etichetta: 'Richieste', Icona: HandHelping },
     { a: '/cerchio', etichetta: 'Cerchio', Icona: Users },

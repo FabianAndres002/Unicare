@@ -1,6 +1,6 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
+import { CalendarDays, Cake, UserSearch, ChevronRight, MapPin, Pencil, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
@@ -103,6 +103,13 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               </Collegamento>
               <MessaggiFunzione anziano={cerchio.anziani[0]} />
             </>
+          )}
+          {profilo.tipo === 'FAMILIARE' && (
+            <Collegamento a="/badanti" className="funzione">
+              <span className="funzione-icona viola"><UserSearch size={22} /></span>
+              <strong>Trova una badante</strong>
+              <span>Chi si propone nella tua zona</span>
+            </Collegamento>
           )}
           {cerchio.anziani[0] && puoModificare && (
             <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione">

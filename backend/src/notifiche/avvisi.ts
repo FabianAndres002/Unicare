@@ -197,6 +197,19 @@ export function creaAvvisi(db: Database, postino: Postino, push: Push) {
       )
     },
 
+    /** A una sola persona: email (se le vuole) e push. */
+    utente(utenteId: number, oggetto: string, righe: string[], percorso: string, tag: string): void {
+      inSottofondo(
+        (async () => {
+          const chi = await db.query<Destinatario>(
+            `SELECT id, email, nome, email_avvisi AS "emailAvvisi" FROM utente WHERE id = $1`,
+            [utenteId],
+          )
+          await manda(chi, oggetto, righe, percorso, tag)
+        })(),
+      )
+    },
+
     /** Notifica push al telefono dell'anziano. */
     anziano(anzianoId: number, messaggio: MessaggioPush): void {
       inSottofondo(push.aAnziano(anzianoId, messaggio))

@@ -2,7 +2,6 @@
 // e il dettaglio di quello attivo, poi sceglie la pagina in base all'indirizzo.
 
 import { useCallback, useEffect, useState } from 'react'
-import { HeartHandshake } from 'lucide-react'
 import { api, messaggioErrore, type Cerchio, type Profilo, type RiassuntoCerchio } from '../comune/api'
 import { naviga } from '../comune/router'
 import Guscio from './Guscio'
@@ -21,6 +20,12 @@ import AppuntamentiPagina from '../appuntamenti/AppuntamentiPagina'
 import MessaggiPagina from '../vocali/MessaggiPagina'
 import DocumentiPagina from '../documenti/DocumentiPagina'
 import Privacy from '../comune/Privacy'
+import HomeBadante from '../badanti/HomeBadante'
+import IlMioProfilo from '../badanti/IlMioProfilo'
+import TrovaBadante from '../badanti/TrovaBadante'
+import PaginaBadante from '../badanti/PaginaBadante'
+import Conversazioni from '../contatti/Conversazioni'
+import Chat from '../contatti/Chat'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -61,21 +66,31 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   }
   if (!cerchi) return <div className="centro-pagina"><span className="rotella" aria-label="Caricamento" /></div>
 
-  // Primo accesso: nessun cerchio.
+  // Pagine di lavoro (badanti che si propongono, famiglie che cercano), con o senza cerchio.
+  const chat = percorso.match(/^\/contatti\/(\d+)$/)
+  const schedaBadante = percorso.match(/^\/badanti\/(\d+)$/)
+  let paginaLavoro = null
+  if (chat) paginaLavoro = <Chat key={chat[1]} id={Number(chat[1])} profilo={profilo} />
+  else if (percorso === '/contatti') paginaLavoro = <Conversazioni profilo={profilo} />
+  else if (percorso === '/lavoro' && profilo.tipo === 'BADANTE') paginaLavoro = <IlMioProfilo profilo={profilo} />
+  else if (percorso === '/badanti' && profilo.tipo === 'FAMILIARE') paginaLavoro = <TrovaBadante />
+  else if (schedaBadante && profilo.tipo === 'FAMILIARE') paginaLavoro = <PaginaBadante key={schedaBadante[1]} id={Number(schedaBadante[1])} />
+
+  // Badante senza cerchio: la sua Home è il lavoro (profilo e messaggi delle famiglie).
+  if (!cerchio && profilo.tipo === 'BADANTE') {
+    let pagina = paginaLavoro
+    if (!pagina && percorso === '/profilo')
+      pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={0} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={onProfilo} />
+    else if (!pagina && percorso === '/privacy') pagina = <Privacy indietro="/profilo" />
+    return (
+      <Guscio percorso={percorso} profilo={profilo} puoInvitare={false} haCerchio={false}>
+        {pagina ?? <HomeBadante profilo={profilo} />}
+      </Guscio>
+    )
+  }
+
+  // Primo accesso di un familiare: nessun cerchio.
   if (!cerchio || percorso === '/cerchio/nuovo') {
-    if (profilo.tipo === 'BADANTE') {
-      return (
-        <div className="centro-pagina entra">
-          <span className="successo-icona"><HeartHandshake size={34} /></span>
-          <h1>Ciao {profilo.nome}!</h1>
-          <p className="sottotitolo stretto">
-            Per entrare nel cerchio di una famiglia ti serve il loro <strong>link d'invito</strong>.
-            Chiedi alla famiglia di invitarti con l'email <strong>{profilo.email}</strong>, poi apri il link che ti mandano.
-          </p>
-          <button className="pulsante secondario" onClick={onEsci}>Esci</button>
-        </div>
-      )
-    }
     return (
       <div className="centro-pagina">
         <NuovoCerchio nomeUtente={profilo.nome} onFatto={vaiAlCerchio}
@@ -90,7 +105,8 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   const sottopagina = percorso.match(/^\/anziano\/(\d+)\/(medicine|appuntamenti|messaggi|documenti)$/)
   const anzianoSotto = sottopagina && cerchio.anziani.find((a) => a.id === Number(sottopagina[1]))
   let pagina
-  if (anzianoSotto && sottopagina[2] === 'medicine') pagina = <MedicinePagina key={anzianoSotto.id} anziano={anzianoSotto} />
+  if (paginaLavoro) pagina = paginaLavoro
+  else if (anzianoSotto && sottopagina[2] === 'medicine') pagina = <MedicinePagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (anzianoSotto && sottopagina[2] === 'appuntamenti') pagina = <AppuntamentiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (anzianoSotto && sottopagina[2] === 'documenti' && cerchio.mioRuolo !== 'BADANTE')
     pagina = <DocumentiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
@@ -108,7 +124,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   else pagina = <Home profilo={profilo} cerchio={cerchio} />
 
   return (
-    <Guscio percorso={percorso} profilo={profilo} nomeCerchio={cerchio.nome} puoInvitare={cerchio.mioRuolo === 'ADMIN'}>
+    <Guscio percorso={percorso} profilo={profilo} nomeCerchio={cerchio.nome} puoInvitare={cerchio.mioRuolo === 'ADMIN'} haCerchio>
       {pagina}
     </Guscio>
   )

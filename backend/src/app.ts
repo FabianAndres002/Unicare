@@ -26,6 +26,8 @@ import { rotteAppuntamenti } from './appuntamenti/appuntamenti.routes.ts'
 import { creaServizioVocali } from './vocali/vocali.service.ts'
 import { creaServizioDocumenti } from './documenti/documenti.service.ts'
 import { rotteDocumenti } from './documenti/documenti.routes.ts'
+import { creaServizioBadanti } from './badanti/badanti.service.ts'
+import { rotteBadanti } from './badanti/badanti.routes.ts'
 
 /** postino e spingitore: chi consegna email e notifiche push (i test ne passano di finti). */
 export function creaApp(
@@ -69,12 +71,14 @@ export function creaApp(
 
   app.use('/api', rotteStato(db))
   app.use('/api/auth', rotteAccesso(creaServizioAccesso(db)))
-  app.use('/api', rotteCerchio(creaServizioCerchio(db), creaServizioInviti(db)))
+  const inviti = creaServizioInviti(db)
+  app.use('/api', rotteCerchio(creaServizioCerchio(db), inviti))
   app.use('/api', rotteRichieste(richieste))
   app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali))
   app.use('/api', rotteMedicine(medicine, pianificatore, push))
   app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
   app.use('/api', rotteDocumenti(creaServizioDocumenti(db)))
+  app.use('/api', rotteBadanti(creaServizioBadanti(db, avvisi, inviti)))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

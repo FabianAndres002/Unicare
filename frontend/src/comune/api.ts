@@ -123,6 +123,35 @@ export type Documento = {
 export type ArchivioDocumenti = { documenti: Documento[]; consenso: boolean; speseAnno: { anno: number; centesimi: number } }
 export type DatiDocumento = { categoria: CategoriaDocumento; titolo: string; data: string; note: string; importo: number | null }
 
+/** Badanti che si propongono. */
+export type Servizio = 'COMPAGNIA' | 'IGIENE' | 'PASTI' | 'PULIZIE' | 'SPESA' | 'ACCOMPAGNAMENTO' | 'FARMACI' | 'NOTTE'
+export type Disponibilita = 'CONVIVENTE' | 'A_ORE' | 'NOTTE' | 'WEEKEND'
+export type DatiProfiloBadante = {
+  presentazione: string
+  provincia: string
+  comune: string
+  zone: string | null
+  anniEsperienza: number
+  lingue: string | null
+  servizi: Servizio[]
+  disponibilita: Disponibilita[]
+  tariffaOrariaCentesimi: number | null
+  automunita: boolean
+  visibile: boolean
+}
+export type ProfiloBadante = DatiProfiloBadante & { aggiornatoIl: string }
+export type SchedaBadante = Omit<ProfiloBadante, 'visibile'> & { id: number; nome: string; cognome: string; contattoId: number | null }
+export type Conversazione = {
+  id: number
+  altro: { id: number; nome: string; cognome: string; tipo: TipoUtente }
+  ultimoTesto: string | null
+  ultimoIl: string
+  nonLetti: number
+  bloccato: boolean
+}
+export type MessaggioChat = { id: number; mio: boolean; autore: string; testo: string; creatoIl: string; lettoIl: string | null }
+export type DettaglioConversazione = { conversazione: Conversazione; messaggi: MessaggioChat[]; puoInvitare: { id: number; nome: string }[] }
+
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string }
@@ -280,6 +309,19 @@ export const api = {
   modificaDocumento: (id: number, dati: Partial<DatiDocumento>) => chiama<Documento>('PATCH', `/api/documenti/${id}`, dati),
   eliminaDocumento: (id: number) => chiama<void>('DELETE', `/api/documenti/${id}`),
   fileDocumento: (id: number) => `/api/documenti/${id}/file`,
+
+  // Badanti
+  mioProfiloBadante: () => chiama<{ profilo: ProfiloBadante | null; nome: string; cognome: string }>('GET', '/api/badante/profilo'),
+  salvaProfiloBadante: (dati: DatiProfiloBadante) => chiama<void>('PUT', '/api/badante/profilo', dati),
+  cercaBadanti: (filtri: { provincia?: string; servizio?: string; disponibilita?: string }) =>
+    chiama<SchedaBadante[]>('GET', `/api/badanti?${new URLSearchParams(Object.entries(filtri).filter(([, v]) => v) as [string, string][])}`),
+  schedaBadante: (id: number) => chiama<SchedaBadante>('GET', `/api/badanti/${id}`),
+  scriviABadante: (id: number, testo: string) => chiama<{ contattoId: number }>('POST', `/api/badanti/${id}/messaggi`, { testo }),
+  conversazioni: () => chiama<Conversazione[]>('GET', '/api/contatti'),
+  conversazione: (id: number) => chiama<DettaglioConversazione>('GET', `/api/contatti/${id}`),
+  rispondi: (id: number, testo: string) => chiama<void>('POST', `/api/contatti/${id}/messaggi`, { testo }),
+  chiudiConversazione: (id: number, chiusa: boolean) => chiama<void>('POST', `/api/contatti/${id}/chiudi`, { chiusa }),
+  invitaDaConversazione: (id: number, cerchioId: number) => chiama<void>('POST', `/api/contatti/${id}/invita`, { cerchioId }),
 
   // Privacy
   datiPersonali: '/api/auth/io/dati',

@@ -677,3 +677,56 @@ a.funzione:hover { box-shadow: var(--ombra-m); }
 .pagina-testo section ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .pagina-testo .intestazione-pagina .funzione-icona { margin-bottom: 10px; }
 .contenuto-pubblico { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+
+/* ---- Settimana 9: badanti che si propongono ---- */
+
+select.campo { width: 100%; appearance: none; background: var(--bianco) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236f6860' stroke-width='2'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right: 36px; }
+.modulo select.campo { font-weight: 400; }
+.testo-a-capo > span { white-space: normal !important; max-width: none !important; }
+
+/* Carta della badante */
+.carta-badante { display: flex; flex-direction: column; gap: 12px; }
+.carta-badante-alto { display: flex; gap: 14px; align-items: flex-start; }
+.carta-badante-alto .riga-testo > span { white-space: normal; max-width: none; }
+.carta-badante-nome { font-size: 1.12rem; }
+.carta-badante-tariffa { flex: none; padding: 4px 10px; border-radius: 999px; background: var(--petrolio-chiaro); color: var(--petrolio); font-weight: 800; font-size: 0.82rem; }
+.carta-badante-testo { margin: 0; line-height: 1.5; white-space: pre-wrap; }
+.carta-badante-testo.breve { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--testo-tenue); font-size: 0.92rem; }
+.chip-elenco { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: var(--sabbia-scura); font-size: 0.78rem; font-weight: 700; color: var(--testo-tenue); }
+.chip.forte { background: #e4eefa; color: #2f6fb0; }
+.carta-badante-dettagli { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+.carta-badante-dettagli li { display: flex; gap: 8px; align-items: flex-start; }
+.carta-badante-dettagli svg { flex: none; margin-top: 3px; color: var(--testo-tenue); }
+.carta-link { display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s; }
+.carta-link:hover { box-shadow: var(--ombra-m); }
+.carta-link > .stato { align-self: flex-start; }
+.filtri-badanti { display: flex; flex-direction: column; gap: 10px; }
+
+/* Profilo della badante */
+.mi-propongo.acceso { border-color: #f6d6c2; background: linear-gradient(135deg, #fff7f1, #fff); }
+.scelte-multiple { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.scelte-multiple legend { float: left; width: 100%; font-weight: 800; margin-bottom: 8px; padding: 0; }
+.modulo .scelte-multiple label { flex-direction: row; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--bordo); background: var(--bianco); font-size: 0.88rem; cursor: pointer; }
+.modulo .scelte-multiple label.attiva { border-color: var(--petrolio); background: var(--petrolio); color: var(--bianco); }
+.scheda-proponiti { display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: var(--raggio); color: var(--bianco); background: linear-gradient(135deg, #f08a5a, var(--terracotta)); box-shadow: 0 10px 26px rgba(217, 119, 74, 0.3); }
+.scheda-proponiti span { flex: 1; font-size: 0.92rem; }
+.scheda-proponiti strong { font-size: 1.1rem; }
+
+/* Conversazioni e chat */
+.conversazione-destra { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; color: var(--testo-tenue); }
+.conversazione-destra small { font-size: 0.72rem; }
+.chat { gap: 16px; }
+.invita-chat { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 16px; background: var(--petrolio-chiaro); border-color: transparent; color: var(--petrolio-scuro); font-size: 0.9rem; font-weight: 700; }
+.invita-chat > span { flex: 1; min-width: 160px; }
+.chat-messaggi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.chat-messaggi li { align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border-radius: 18px 18px 18px 6px; background: var(--bianco); box-shadow: var(--ombra-s); }
+.chat-messaggi li.mio { align-self: flex-end; border-radius: 18px 18px 6px 18px; background: var(--petrolio); color: var(--bianco); }
+.chat-messaggi p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-messaggi small { font-size: 0.7rem; opacity: 0.7; }
+.chat-messaggi li.mio .nota { color: inherit; opacity: 0.8; }
+.chat-messaggi .pulsante { align-self: flex-start; }
+.chat-scrivi { display: flex; gap: 8px; align-items: flex-end; padding: 8px; border-radius: 22px; background: var(--bianco); box-shadow: var(--ombra-m); }
+.chat-scrivi textarea { flex: 1; border: 0; resize: none; font: inherit; padding: 8px 10px; outline: none; background: none; max-height: 140px; field-sizing: content; }
+.chat-scrivi .pulsante-icona { background: var(--petrolio); color: var(--bianco); }
+.chat-scrivi .pulsante-icona:disabled { opacity: 0.5; }

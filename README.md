@@ -3,24 +3,21 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 8**: registrazione e login, cerchio familiare, scheda della persona
-assistita con consenso privacy, inviti, richieste di aiuto, avvisi via email, **Senior App** su
-`/senior`, promemoria delle medicine, notifiche push, calendario degli appuntamenti, messaggi vocali.
-Novità della settimana 8:
+Stato: **Fase 4, settimana 9**: tutto il coordinamento della famiglia (cerchio, richieste di aiuto,
+Senior App, medicine, appuntamenti, messaggi vocali, documenti sanitari, privacy). Novità della settimana 9:
 
-- **Documenti sanitari**: ricette e prescrizioni, analisi, ecografie e lastre, referti, ricevute.
-  Si fa una foto (rimpicciolita automaticamente) o si carica un PDF, fino a 10 MB. Filtri per tipo,
-  ricerca, totale delle **spese mediche dell'anno** dalle ricevute (utile per il 730). Li vedono solo
-  familiari e amministratore, non la badante; la prima volta serve il consenso dell'anziano.
-  Il server accetta solo JPEG, PNG, WEBP, HEIC e PDF, controllando i primi byte del file;
-- **privacy**: informativa su `/privacy`; nel Profilo "Scarica i miei dati" e "Cancella il mio
-  account" (con la password); l'amministratore può cancellare la scheda dell'anziano con tutti i
-  dati; dopo 10 password sbagliate il login si blocca per 15 minuti; intestazioni di sicurezza.
+- **le badanti si propongono**: una badante, anche senza cerchio, ha la sua interfaccia (Home, Lavoro,
+  Messaggi, Profilo). In "Lavoro" compila il profilo (zona, esperienza, servizi, disponibilità,
+  tariffa facoltativa) e accende **"Mi propongo"**;
+- **le famiglie cercano**: "Trova una badante" con filtri per provincia, orario e servizio; dal
+  profilo si scrive alla badante. Si parla dentro Unicare: email e telefono non si vedono, ognuno
+  decide se dare il proprio numero. Al massimo 10 nuove conversazioni al giorno per famiglia;
+- la badante può **chiudere** una conversazione; la famiglia può **invitarla nel cerchio** dalla chat.
 
 La messa online è rimandata alla fine del progetto. I file dei documenti sono nel database:
 online, con molti utenti, andranno spostati in uno spazio file a parte.
 
-90 test automatici.
+97 test automatici.
 
 ### Le email in sviluppo
 
@@ -175,6 +172,16 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | GET | `/api/auth/io/dati` | Scarica tutti i miei dati | Sì |
 | DELETE | `/api/auth/io` | Cancella il mio account (con la password) | Sì |
 | DELETE | `/api/anziani/:id` | Cancella la scheda e tutti i suoi dati | Amministratore |
+| GET | `/api/badante/profilo` | Il mio profilo da badante | Badante |
+| PUT | `/api/badante/profilo` | Salva il profilo e "Mi propongo" | Badante |
+| GET | `/api/badanti?provincia=&servizio=&disponibilita=` | Badanti che si propongono | Familiare |
+| GET | `/api/badanti/:id` | Profilo di una badante | Familiare |
+| POST | `/api/badanti/:id/messaggi` | Primo messaggio: apre la conversazione | Familiare |
+| GET | `/api/contatti` | Le mie conversazioni | Sì |
+| GET | `/api/contatti/:id` | Messaggi (segna come letti) | Chi partecipa |
+| POST | `/api/contatti/:id/messaggi` | Risponde | Chi partecipa |
+| POST | `/api/contatti/:id/chiudi` | Chiude o riapre la conversazione | La badante |
+| POST | `/api/contatti/:id/invita` | Invita la badante nel cerchio | Familiare amministratore |
 | GET | `/api/anziani/:id/vocali` | Messaggi vocali degli ultimi 30 giorni | Sì, membro |
 | POST | `/api/anziani/:id/vocali?durata=12` | Vocale all'anziano (il corpo è l'audio) | Sì, membro |
 | GET | `/api/vocali/:id/audio` | Ascolta un messaggio | Sì, membro |

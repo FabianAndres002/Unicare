@@ -56,7 +56,7 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
 
   const comeBadante = invito.ruolo === 'BADANTE'
   return (
-    <LayoutAccesso titolo="Sei stato invitato" sottotitolo="">
+    <LayoutAccesso titolo="Hai un invito" sottotitolo="">
       <div className="invito-card">
         <span className="invito-icona"><HeartHandshake size={28} /></span>
         <p>
