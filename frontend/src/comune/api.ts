@@ -28,6 +28,29 @@ export type Cerchio = {
 export type InvitoCreato = InvitoInAttesa & { token: string }
 export type AnteprimaInvito = { cerchio: string; invitatoDa: string; email: string; ruolo: Ruolo; scadeIl: string }
 
+export type Categoria = 'SPESA' | 'FARMACIA' | 'ACCOMPAGNAMENTO' | 'COMPAGNIA' | 'CASA' | 'ALTRO'
+export type StatoRichiesta = 'APERTA' | 'PRESA_IN_CARICO' | 'COMPLETATA' | 'ANNULLATA'
+export type AzioneRichiesta = 'PRENDI' | 'RILASCIA' | 'COMPLETA' | 'ANNULLA'
+type Persona = { id: number; nome: string } | null
+
+export type Richiesta = {
+  id: number
+  cerchioId: number
+  anziano: { id: number; nome: string }
+  categoria: Categoria
+  testo: string | null
+  stato: StatoRichiesta
+  creataDa: Persona
+  creataIl: string
+  presaDa: Persona
+  presaIl: string | null
+  chiusaIl: string | null
+  /** Le azioni che puoi fare tu: il backend le calcola, noi mostriamo solo quei pulsanti. */
+  azioni: AzioneRichiesta[]
+}
+export type EventoRichiesta = { tipo: 'CREATA' | 'PRESA' | 'RILASCIATA' | 'COMPLETATA' | 'ANNULLATA'; utente: string | null; nota: string | null; il: string }
+export type DettaglioRichiesta = Richiesta & { eventi: EventoRichiesta[] }
+
 /** Errore restituito dal backend nel formato {"codice": ..., "messaggio": ...}. */
 export class ErroreApi extends Error {
   readonly stato: number
@@ -89,4 +112,13 @@ export const api = {
   annullaInvito: (id: number) => chiama<void>('DELETE', `/api/inviti/${id}`),
   anteprimaInvito: (token: string) => chiama<AnteprimaInvito>('GET', `/api/inviti/token/${token}`),
   accettaInvito: (token: string) => chiama<{ cerchioId: number }>('POST', `/api/inviti/token/${token}/accetta`),
+
+  // Richieste di aiuto
+  richieste: (cerchioId: number, vista: 'attive' | 'concluse') =>
+    chiama<Richiesta[]>('GET', `/api/cerchi/${cerchioId}/richieste?vista=${vista}`),
+  nuovaRichiesta: (cerchioId: number, anzianoId: number, categoria: Categoria, testo: string) =>
+    chiama<Richiesta>('POST', `/api/cerchi/${cerchioId}/richieste`, { anzianoId, categoria, testo }),
+  richiesta: (id: number) => chiama<DettaglioRichiesta>('GET', `/api/richieste/${id}`),
+  azioneRichiesta: (id: number, azione: AzioneRichiesta, nota?: string) =>
+    chiama<DettaglioRichiesta>('POST', `/api/richieste/${id}/${azione.toLowerCase()}`, nota ? { nota } : undefined),
 }

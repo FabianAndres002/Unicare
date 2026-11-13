@@ -1,7 +1,9 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { CalendarDays, Cake, ChevronRight, LifeBuoy, MapPin, Pencil, Pill, Plus, Receipt, UserPlus, Watch } from 'lucide-react'
-import type { Cerchio, Profilo } from '../comune/api'
+import { CalendarDays, Cake, ChevronRight, MapPin, Pencil, Pill, Plus, Receipt, UserPlus, Watch } from 'lucide-react'
+import { api, type Cerchio, type Profilo } from '../comune/api'
+import { useCarica } from '../comune/useCarica'
+import SchedaRichiesta from '../richieste/SchedaRichiesta'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
@@ -9,12 +11,13 @@ import { dataEstesa, eta, saluto } from '../comune/utili'
 const IN_ARRIVO = [
   { Icona: Pill, titolo: 'Medicine', testo: 'Promemoria con “Fatto”', colore: 'arancio' },
   { Icona: CalendarDays, titolo: 'Appuntamenti', testo: 'Visite ed esami', colore: 'blu' },
-  { Icona: LifeBuoy, titolo: 'Richieste di aiuto', testo: 'Con un tocco', colore: 'viola' },
   { Icona: Receipt, titolo: 'Ricevute e spese', testo: 'Mai più fogli persi', colore: 'verde' },
 ]
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const puoModificare = cerchio.mioRuolo !== 'BADANTE'
+  const { dati: richieste, ricarica } = useCarica(() => api.richieste(cerchio.id, 'attive'), cerchio.id)
+  const daFare = richieste?.filter((r) => r.stato === 'APERTA').length ?? 0
   return (
     <div className="pagina-app entra">
       <header className="saluto">
@@ -46,7 +49,10 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <div className="scheda-anziano-basso">
                 <div><span className="numero">—</span><span>medicine oggi</span></div>
                 <div><span className="numero">—</span><span>prossima visita</span></div>
-                <div><span className="numero">—</span><span>richieste aperte</span></div>
+                {(() => {
+                  const n = richieste?.filter((r) => r.anziano.id === a.id).length
+                  return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? 'richiesta attiva' : 'richieste attive'}</span></div>
+                })()}
               </div>
             </article>
           )
@@ -62,6 +68,25 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
           )
         )}
       </section>
+
+      {cerchio.anziani.length > 0 && (
+        <section>
+          <div className="titolo-sezione">
+            <h2>Richieste di aiuto</h2>
+            {daFare > 0 && <span className="distintivo urgente">{daFare} da fare</span>}
+            <Collegamento a="/richieste" className="link-sezione">Vedi tutte</Collegamento>
+          </div>
+          {richieste && richieste.length === 0 && (
+            <p className="nota">Nessuna richiesta in sospeso. Tutto tranquillo!</p>
+          )}
+          {richieste && richieste.length > 0 && (
+            <div className="elenco-richieste">
+              {richieste.slice(0, 3).map((r) => <SchedaRichiesta key={r.id} richiesta={r} mioId={profilo.id} onCambiata={ricarica} />)}
+            </div>
+          )}
+          <Collegamento a="/richieste/nuova" className="pulsante secondario con-icona"><Plus size={20} /> Chiedi aiuto al cerchio</Collegamento>
+        </section>
+      )}
 
       <section>
         <div className="titolo-sezione"><h2>Funzioni</h2><span className="distintivo">in arrivo</span></div>

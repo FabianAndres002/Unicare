@@ -3,9 +3,9 @@
 App che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, ricevute.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 3**: registrazione e login (settimana 2), poi cerchio familiare,
-scheda della persona assistita con consenso privacy, inviti con link monouso per familiari e badanti
-e permessi per ruolo. 35 test automatici.
+Stato: **Fase 4, settimana 4**: registrazione e login, cerchio familiare, scheda della persona
+assistita con consenso privacy, inviti con link monouso, e **richieste di aiuto** con il loro ciclo
+(da fare → in corso → fatta, oppure annullata) e lo storico. 47 test automatici.
 
 ## Struttura
 
@@ -14,6 +14,7 @@ unicare/
   backend/     Node.js + Express in TypeScript. Codice in src/
                  src/accesso/   registrazione, login, logout
                  src/cerchio/   cerchi, membri, scheda dell'anziano, inviti, permessi
+                 src/richieste/ richieste di aiuto e i loro stati
                  src/db/        collegamento al database e migrazioni (src/db/migrazioni/V1__...sql)
                Test in test/
   frontend/    React + TypeScript con Vite. Installabile come app (PWA)
@@ -97,6 +98,13 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | DELETE | `/api/inviti/:id` | Annulla un invito | Amministratore |
 | GET | `/api/inviti/token/:token` | Anteprima dell'invito | No |
 | POST | `/api/inviti/token/:token/accetta` | Entra nel cerchio | Sì |
+| GET | `/api/cerchi/:id/richieste?vista=attive\|concluse` | Richieste di aiuto del cerchio | Sì, membro |
+| POST | `/api/cerchi/:id/richieste` | Nuova richiesta | Sì, membro |
+| GET | `/api/richieste/:id` | Dettaglio con lo storico | Sì, membro |
+| POST | `/api/richieste/:id/prendi` | "Me ne occupo io" | Sì, membro |
+| POST | `/api/richieste/:id/rilascia` | "Non riesco più" | Chi l'ha presa |
+| POST | `/api/richieste/:id/completa` | "Fatto" (nota facoltativa) | Chi l'ha presa, amministratore |
+| POST | `/api/richieste/:id/annulla` | "Non serve più" | Chi l'ha creata, amministratore |
 
 ## Regole del progetto
 

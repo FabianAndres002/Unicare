@@ -1,7 +1,7 @@
 // La "cornice" dell'area riservata: barra di navigazione in basso su telefono, a sinistra su computer.
 
 import type { ReactNode } from 'react'
-import { CircleUser, House, UserPlus, Users } from 'lucide-react'
+import { CircleUser, HandHelping, House, UserPlus, Users } from 'lucide-react'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import type { Profilo } from '../comune/api'
@@ -11,6 +11,7 @@ type Props = { percorso: string; profilo: Profilo; nomeCerchio?: string; puoInvi
 export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, children }: Props) {
   const voci = [
     { a: '/', etichetta: 'Home', Icona: House },
+    { a: '/richieste', etichetta: 'Richieste', Icona: HandHelping },
     { a: '/cerchio', etichetta: 'Cerchio', Icona: Users },
     ...(puoInvitare ? [{ a: '/invita', etichetta: 'Invita', Icona: UserPlus }] : []),
     { a: '/profilo', etichetta: 'Profilo', Icona: CircleUser },
