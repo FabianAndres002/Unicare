@@ -28,6 +28,8 @@ export const schemaLogin = z.object({
 
 export const schemaPreferenze = z.object({ emailAvvisi: z.boolean() })
 
+export const schemaEliminaAccount = z.object({ password: z.string().min(1, 'Scrivi la tua password per confermare.') })
+
 type RigaUtente = Profilo & { password_hash: string }
 
 const CREDENZIALI_ERRATE = new ErroreApplicativo(401, 'CREDENZIALI_ERRATE', 'Email o password non corretti.')
@@ -67,6 +69,81 @@ export function creaServizioAccesso(db: Database) {
     async trovaProfilo(id: number): Promise<Profilo | undefined> {
       const [utente] = await db.query<Profilo>('SELECT id, email, nome, tipo, email_avvisi AS "emailAvvisi" FROM utente WHERE id = $1', [id])
       return utente
+    },
+
+    /**
+     * Tutti i dati personali dell'utente, da scaricare (diritto di accesso e portabilità, GDPR art. 15 e 20).
+     * Dei cerchi riporta solo il suo ruolo e cosa ha fatto lui: i dati degli altri non sono suoi.
+     */
+    async esportaDati(id: number) {
+      const [profilo] = await db.query(
+        `SELECT email, nome, cognome, tipo, email_avvisi AS "emailAvvisi", creato_il AS "registratoIl" FROM utente WHERE id = $1`,
+        [id],
+      )
+      if (!profilo) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
+      return {
+        esportatoIl: new Date().toISOString(),
+        profilo,
+        cerchi: await db.query(
+          `SELECT c.nome, m.ruolo, m.entrato_il AS "entratoIl" FROM membro_cerchio m JOIN cerchio c ON c.id = m.cerchio_id WHERE m.utente_id = $1`,
+          [id],
+        ),
+        richiesteCreate: await db.query(
+          `SELECT categoria, testo, stato, creata_il AS "creataIl" FROM richiesta WHERE creata_da = $1 ORDER BY creata_il`,
+          [id],
+        ),
+        richiestePrese: await db.query(
+          `SELECT categoria, testo, stato, presa_il AS "presaIl" FROM richiesta WHERE presa_da = $1 ORDER BY presa_il`,
+          [id],
+        ),
+        appuntamentiAccompagnati: await db.query(
+          `SELECT titolo, quando, luogo FROM appuntamento WHERE accompagna_id = $1 ORDER BY quando`,
+          [id],
+        ),
+        messaggiVocaliMandati: await db.query(
+          `SELECT creato_il AS "mandatoIl", durata_secondi AS "durataSecondi" FROM messaggio_vocale WHERE autore_id = $1 ORDER BY creato_il`,
+          [id],
+        ),
+        consensiDati: await db.query(
+          `SELECT tipo, versione_testo AS versione, dato_il AS "datoIl", revocato_il AS "revocatoIl" FROM consenso WHERE dato_da = $1 OR utente_id = $1 ORDER BY dato_il`,
+          [id],
+        ),
+        telefoniConNotifiche: (await db.query<{ n: number }>('SELECT count(*)::int AS n FROM iscrizione_push WHERE utente_id = $1', [id]))[0]!.n,
+      }
+    },
+
+    /**
+     * Cancella l'account (diritto all'oblio, GDPR art. 17), dopo aver ricontrollato la password.
+     * Nei cerchi che amministrava: se resta un altro familiare, diventa lui l'amministratore;
+     * se non resta nessun familiare, il cerchio viene cancellato con la scheda e tutti i dati.
+     * Restano, senza il suo nome, le richieste e gli appuntamenti che riguardano l'anziano.
+     */
+    async eliminaAccount(id: number, password: string): Promise<{ cerchiCancellati: number }> {
+      const [utente] = await db.query<{ hash: string }>('SELECT password_hash AS hash FROM utente WHERE id = $1', [id])
+      if (!utente) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
+      if (!(await bcrypt.compare(password, utente.hash))) throw new ErroreApplicativo(403, 'PASSWORD_ERRATA', 'La password non è corretta.')
+      return db.transazione(async (tx) => {
+        const amministrati = await tx.query<{ cerchioId: number }>(
+          `SELECT cerchio_id AS "cerchioId" FROM membro_cerchio WHERE utente_id = $1 AND ruolo = 'ADMIN'`,
+          [id],
+        )
+        let cerchiCancellati = 0
+        for (const { cerchioId } of amministrati) {
+          const [erede] = await tx.query<{ id: number }>(
+            `SELECT utente_id AS id FROM membro_cerchio WHERE cerchio_id = $1 AND utente_id <> $2 AND ruolo IN ('ADMIN', 'FAMILIARE')
+             ORDER BY (ruolo = 'ADMIN') DESC, entrato_il LIMIT 1`,
+            [cerchioId, id],
+          )
+          if (erede) {
+            await tx.query(`UPDATE membro_cerchio SET ruolo = 'ADMIN' WHERE cerchio_id = $1 AND utente_id = $2`, [cerchioId, erede.id])
+          } else {
+            await tx.query('DELETE FROM cerchio WHERE id = $1', [cerchioId])
+            cerchiCancellati++
+          }
+        }
+        await tx.query('DELETE FROM utente WHERE id = $1', [id])
+        return { cerchiCancellati }
+      })
     },
 
     async impostaPreferenze(id: number, dati: z.infer<typeof schemaPreferenze>): Promise<Profilo | undefined> {

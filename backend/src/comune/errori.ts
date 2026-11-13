@@ -36,6 +36,11 @@ export const gestoreErrori: ErrorRequestHandler = (errore, _req, res, _next) => 
     res.status(400).json({ codice: 'RICHIESTA_ILLEGGIBILE', messaggio: 'Il formato della richiesta non è valido.' })
     return
   }
+  // File o corpo troppo grande (oltre il limite della rotta).
+  if (errore?.type === 'entity.too.large') {
+    res.status(413).json({ codice: 'TROPPO_GRANDE', messaggio: 'Il file è troppo grande.' })
+    return
+  }
   console.error(errore)
   res.status(500).json({ codice: 'ERRORE_INTERNO', messaggio: 'Si è verificato un errore. Riprova.' })
 }

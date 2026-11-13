@@ -104,11 +104,13 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <MessaggiFunzione anziano={cerchio.anziani[0]} />
             </>
           )}
-          <div className="funzione" aria-disabled="true">
-            <span className="funzione-icona verde"><Receipt size={22} /></span>
-            <strong>Documenti</strong>
-            <span>Ricette, esami, ricevute · in arrivo</span>
-          </div>
+          {cerchio.anziani[0] && puoModificare && (
+            <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione">
+              <span className="funzione-icona verde"><Receipt size={22} /></span>
+              <strong>Documenti</strong>
+              <span>Ricette, analisi, ecografie, ricevute</span>
+            </Collegamento>
+          )}
         </div>
       </section>
 

@@ -6,6 +6,7 @@ import { api, messaggioErrore, type Profilo, type RiassuntoCerchio } from '../co
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import NotificheTelefono from './NotificheTelefono'
+import PrivacyProfilo from './PrivacyProfilo'
 import { nomeRuolo } from '../comune/utili'
 
 type Props = {
@@ -75,6 +76,8 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
         </label>
         {errore && <p className="errore">{errore}</p>}
       </section>
+
+      <PrivacyProfilo onEliminato={onEsci} />
 
       <button className="pulsante secondario con-icona" onClick={onEsci}><LogOut size={20} /> Esci</button>
     </div>

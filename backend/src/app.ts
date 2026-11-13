@@ -4,6 +4,7 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Database } from './db/db.ts'
+import { config } from './config.ts'
 import { gestoreErrori, ErroreApplicativo } from './comune/errori.ts'
 import { rotteStato } from './comune/stato.routes.ts'
 import { creaServizioAccesso } from './accesso/accesso.service.ts'
@@ -23,6 +24,8 @@ import { rotteSenior } from './senior/senior.routes.ts'
 import { creaPianificatoreAppuntamenti, creaServizioAppuntamenti } from './appuntamenti/appuntamenti.service.ts'
 import { rotteAppuntamenti } from './appuntamenti/appuntamenti.routes.ts'
 import { creaServizioVocali } from './vocali/vocali.service.ts'
+import { creaServizioDocumenti } from './documenti/documenti.service.ts'
+import { rotteDocumenti } from './documenti/documenti.routes.ts'
 
 /** postino e spingitore: chi consegna email e notifiche push (i test ne passano di finti). */
 export function creaApp(
@@ -48,6 +51,19 @@ export function creaApp(
   }
 
   app.disable('x-powered-by')
+  // Dietro il proxy dell'hosting (https) l'indirizzo vero del visitatore arriva in X-Forwarded-For.
+  if (config.inProduzione) app.set('trust proxy', 1)
+  // Intestazioni di sicurezza per tutte le risposte.
+  app.use((_req, res, next) => {
+    res.set({
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'same-origin',
+      'Permissions-Policy': 'microphone=(self), camera=(self), geolocation=()',
+    })
+    if (config.inProduzione) res.set('Strict-Transport-Security', 'max-age=31536000')
+    next()
+  })
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
   app.use(cookieParser()) // legge i cookie (serve per la sessione)
 
@@ -58,6 +74,7 @@ export function creaApp(
   app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali))
   app.use('/api', rotteMedicine(medicine, pianificatore, push))
   app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
+  app.use('/api', rotteDocumenti(creaServizioDocumenti(db)))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

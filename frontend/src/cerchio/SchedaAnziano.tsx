@@ -5,6 +5,7 @@ import { api, type Cerchio } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
 import ModuloAnziano from './ModuloAnziano'
 import TelefonoAnziano from './TelefonoAnziano'
+import EliminaScheda from './EliminaScheda'
 
 type Props = { cerchio: Cerchio; anzianoId: number | 'nuovo'; onCambiato: () => void }
 
@@ -18,7 +19,7 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
       <header className="intestazione-pagina">
         <h1>{anziano ? `${anziano.nome} ${anziano.cognome}` : 'Nuova scheda'}</h1>
-        <p className="sottotitolo">Solo dati utili all'organizzazione: niente dati sanitari.</p>
+        <p className="sottotitolo">Solo dati utili all'organizzazione. I documenti sanitari stanno nella sezione Documenti.</p>
       </header>
       {anziano && <TelefonoAnziano anziano={anziano} />}
       {anziano && <div className="titolo-sezione"><h2>I dati di {anziano.nome}</h2></div>}
@@ -36,6 +37,9 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
           }}
         />
       </div>
+      {anziano && cerchio.mioRuolo === 'ADMIN' && (
+        <EliminaScheda anziano={anziano} onEliminata={() => { onCambiato(); naviga('/') }} />
+      )}
     </div>
   )
 }

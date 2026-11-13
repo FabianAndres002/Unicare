@@ -146,6 +146,14 @@ export function creaServizioCerchio(db: Database) {
       if (tolti.length === 0) throw new ErroreApplicativo(404, 'MEMBRO_NON_TROVATO', 'Questa persona non fa parte del cerchio.')
     },
 
+    /** Cancella la scheda dell'anziano e TUTTI i suoi dati (solo l'amministratore). */
+    async eliminaAnziano(anzianoId: number, utenteId: number): Promise<void> {
+      const [riga] = await db.query<{ cerchioId: number }>('SELECT cerchio_id AS "cerchioId" FROM anziano WHERE id = $1', [anzianoId])
+      if (!riga) throw new ErroreApplicativo(404, 'ANZIANO_NON_TROVATO', 'Persona non trovata.')
+      await richiediRuolo(db, riga.cerchioId, utenteId, PUO_GESTIRE_MEMBRI)
+      await db.query('DELETE FROM anziano WHERE id = $1', [anzianoId])
+    },
+
     /** Aggiunge un anziano al cerchio, registrando il consenso privacy dato dal familiare. */
     async aggiungiAnziano(cerchioId: number, utenteId: number, dati: z.infer<typeof schemaNuovoAnziano>): Promise<Anziano> {
       await richiediRuolo(db, cerchioId, utenteId, PUO_MODIFICARE_ANZIANO)

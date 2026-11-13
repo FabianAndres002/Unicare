@@ -8,6 +8,7 @@ export default function Registrati({ onEntrato }: { onEntrato: (profilo: Profilo
     <LayoutAccesso titolo="Crea il tuo account" sottotitolo="Ci vuole un minuto.">
       <ModuloRegistrati onEntrato={onEntrato} />
       <p className="cambio">Hai già un account? <Collegamento a="/" className="link">Accedi</Collegamento></p>
+      <p className="cambio">Registrandoti accetti <Collegamento a="/privacy" className="link">come trattiamo i dati</Collegamento>.</p>
     </LayoutAccesso>
   )
 }

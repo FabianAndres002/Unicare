@@ -9,6 +9,7 @@ export default function Accedi({ onEntrato }: { onEntrato: (profilo: Profilo) =>
       <ModuloAccedi onEntrato={onEntrato} />
       <p className="cambio">Non hai un account? <Collegamento a="/registrati" className="link">Registrati</Collegamento></p>
       <p className="cambio">È il telefono di un anziano? <Collegamento a="/senior" className="link">Collegalo con il codice</Collegamento></p>
+      <p className="cambio"><Collegamento a="/privacy" className="link">Come trattiamo i tuoi dati</Collegamento></p>
     </LayoutAccesso>
   )
 }

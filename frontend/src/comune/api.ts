@@ -104,6 +104,25 @@ export type Vocale = {
   ascoltatoIl: string | null
 }
 
+/** Documenti sanitari: foto o PDF. */
+export type CategoriaDocumento = 'PRESCRIZIONE' | 'ANALISI' | 'IMMAGINI' | 'REFERTO' | 'RICEVUTA' | 'ALTRO'
+export type Documento = {
+  id: number
+  categoria: CategoriaDocumento
+  titolo: string
+  /** La data scritta sul documento, AAAA-MM-GG. */
+  data: string
+  note: string | null
+  importoCentesimi: number | null
+  tipoFile: string
+  nomeFile: string
+  dimensione: number
+  caricatoDa: string | null
+  caricatoIl: string
+}
+export type ArchivioDocumenti = { documenti: Documento[]; consenso: boolean; speseAnno: { anno: number; centesimi: number } }
+export type DatiDocumento = { categoria: CategoriaDocumento; titolo: string; data: string; note: string; importo: number | null }
+
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string }
@@ -166,10 +185,28 @@ async function inviaAudio(url: string, audio: Blob, durata: number): Promise<{ i
   return risposta.json()
 }
 
-/** Scarica l'audio di un messaggio. */
-export async function scaricaAudio(url: string): Promise<Blob> {
+/** Carica un documento: il file nel corpo, i dati nell'indirizzo. */
+async function inviaDocumento(anzianoId: number, file: Blob, nome: string, dati: DatiDocumento, consenso: boolean): Promise<{ id: number }> {
+  const q = new URLSearchParams({ categoria: dati.categoria, titolo: dati.titolo, data: dati.data, note: dati.note, nome })
+  if (dati.importo !== null) q.set('importo', String(dati.importo))
+  if (consenso) q.set('consenso', 'true')
+  const risposta = await fetch(`/api/anziani/${anzianoId}/documenti?${q}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: file,
+    credentials: 'same-origin',
+  })
+  if (!risposta.ok) {
+    const errore = await risposta.json().catch(() => null)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+  }
+  return risposta.json()
+}
+
+/** Scarica un file (audio di un messaggio, documento). */
+export async function scaricaFile(url: string): Promise<Blob> {
   const risposta = await fetch(url, { credentials: 'same-origin' })
-  if (!risposta.ok) throw new ErroreApi(risposta.status, 'AUDIO', 'Non riesco a caricare il messaggio.')
+  if (!risposta.ok) throw new ErroreApi(risposta.status, 'AUDIO', 'Non riesco a caricare il file. Riprova.')
   return risposta.blob()
 }
 
@@ -236,6 +273,18 @@ export const api = {
   vocali: (anzianoId: number) => chiama<Vocale[]>('GET', `/api/anziani/${anzianoId}/vocali`),
   inviaVocale: (anzianoId: number, audio: Blob, durata: number) => inviaAudio(`/api/anziani/${anzianoId}/vocali`, audio, durata),
   audioVocale: (id: number) => `/api/vocali/${id}/audio`,
+
+  // Documenti sanitari
+  documenti: (anzianoId: number) => chiama<ArchivioDocumenti>('GET', `/api/anziani/${anzianoId}/documenti`),
+  caricaDocumento: inviaDocumento,
+  modificaDocumento: (id: number, dati: Partial<DatiDocumento>) => chiama<Documento>('PATCH', `/api/documenti/${id}`, dati),
+  eliminaDocumento: (id: number) => chiama<void>('DELETE', `/api/documenti/${id}`),
+  fileDocumento: (id: number) => `/api/documenti/${id}/file`,
+
+  // Privacy
+  datiPersonali: '/api/auth/io/dati',
+  eliminaAccount: (password: string) => chiama<void>('DELETE', '/api/auth/io', { password }),
+  eliminaAnziano: (id: number) => chiama<void>('DELETE', `/api/anziani/${id}`),
 
   // Notifiche push
   push: {

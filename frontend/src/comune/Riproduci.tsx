@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
-import { scaricaAudio } from './api'
+import { scaricaFile } from './api'
 import { minutiSecondi } from './registratore'
 
 /**
@@ -36,7 +36,7 @@ export default function Riproduci(props: {
     try {
       if (!audio.current) {
         setCarica(true)
-        const blob = typeof props.sorgente === 'string' ? await scaricaAudio(props.sorgente) : props.sorgente
+        const blob = typeof props.sorgente === 'string' ? await scaricaFile(props.sorgente) : props.sorgente
         const a = new Audio(URL.createObjectURL(blob))
         a.ontimeupdate = () => setPosizione(a.currentTime)
         a.onplay = () => setSuona(true)

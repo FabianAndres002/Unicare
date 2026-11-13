@@ -19,6 +19,8 @@ import DettaglioRichiesta from '../richieste/DettaglioRichiesta'
 import MedicinePagina from '../medicine/MedicinePagina'
 import AppuntamentiPagina from '../appuntamenti/AppuntamentiPagina'
 import MessaggiPagina from '../vocali/MessaggiPagina'
+import DocumentiPagina from '../documenti/DocumentiPagina'
+import Privacy from '../comune/Privacy'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -84,12 +86,15 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
 
   const anziano = percorso.match(/^\/anziano\/(\d+|nuovo)$/)
   const richiesta = percorso.match(/^\/richieste\/(\d+)$/)
-  // /anziano/12/medicine, /anziano/12/appuntamenti, /anziano/12/messaggi
-  const sottopagina = percorso.match(/^\/anziano\/(\d+)\/(medicine|appuntamenti|messaggi)$/)
+  // /anziano/12/medicine, /anziano/12/appuntamenti, /anziano/12/messaggi, /anziano/12/documenti
+  const sottopagina = percorso.match(/^\/anziano\/(\d+)\/(medicine|appuntamenti|messaggi|documenti)$/)
   const anzianoSotto = sottopagina && cerchio.anziani.find((a) => a.id === Number(sottopagina[1]))
   let pagina
   if (anzianoSotto && sottopagina[2] === 'medicine') pagina = <MedicinePagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (anzianoSotto && sottopagina[2] === 'appuntamenti') pagina = <AppuntamentiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
+  else if (anzianoSotto && sottopagina[2] === 'documenti' && cerchio.mioRuolo !== 'BADANTE')
+    pagina = <DocumentiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
+  else if (percorso === '/privacy') pagina = <Privacy indietro="/profilo" />
   else if (anzianoSotto && sottopagina[2] === 'messaggi') pagina = <MessaggiPagina key={anzianoSotto.id} anziano={anzianoSotto} />
   else if (percorso === '/richieste') pagina = <Richieste profilo={profilo} cerchio={cerchio} />
   else if (percorso === '/richieste/nuova') pagina = <NuovaRichiesta cerchio={cerchio} />

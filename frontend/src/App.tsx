@@ -6,6 +6,7 @@ import Registrati from './accesso/Registrati'
 import AreaRiservata from './cerchio/AreaRiservata'
 import InvitoRicevuto from './cerchio/InvitoRicevuto'
 import SeniorApp from './senior/SeniorApp'
+import Privacy from './comune/Privacy'
 
 export default function App() {
   // undefined = stiamo ancora chiedendo al backend; null = nessuno collegato.
@@ -40,6 +41,9 @@ export default function App() {
   if (senior) return <SeniorApp />
 
   if (profilo === undefined) return <div className="centro-pagina"><span className="rotella" aria-label="Caricamento" /></div>
+
+  // L'informativa si legge anche senza login.
+  if (percorso === '/privacy' && !profilo) return <div className="contenuto-pubblico"><Privacy indietro="/" /></div>
 
   // Il link d'invito funziona sia con sia senza login.
   const invito = percorso.match(/^\/invito\/([A-Za-z0-9_-]+)$/)

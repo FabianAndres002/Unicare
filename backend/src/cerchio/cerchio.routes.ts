@@ -8,6 +8,7 @@
 // DELETE /api/cerchi/:id/membri/:utenteId    toglie un membro (admin)                (204)
 // POST   /api/cerchi/:id/anziani             aggiunge un anziano, con consenso       (201)
 // PUT    /api/anziani/:id                    modifica la scheda (admin, familiari)
+// DELETE /api/anziani/:id                    cancella la scheda e tutti i suoi dati (admin) (204)
 // POST   /api/cerchi/:id/inviti              crea un invito (admin)                  (201)
 // DELETE /api/inviti/:id                     annulla un invito (admin)               (204)
 // GET    /api/inviti/token/:token            anteprima dell'invito (senza login)
@@ -56,6 +57,11 @@ export function rotteCerchio(cerchi: ServizioCerchio, inviti: ServizioInviti): R
 
   router.put('/anziani/:id', richiedeAccesso, async (req, res) => {
     res.json(await cerchi.modificaAnziano(schemaId.parse(req.params.id), res.locals.idUtente, schemaAnziano.parse(req.body)))
+  })
+
+  router.delete('/anziani/:id', richiedeAccesso, async (req, res) => {
+    await cerchi.eliminaAnziano(schemaId.parse(req.params.id), res.locals.idUtente)
+    res.status(204).end()
   })
 
   router.post('/cerchi/:id/inviti', richiedeAccesso, async (req, res) => {

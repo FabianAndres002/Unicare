@@ -3,20 +3,24 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 7**: registrazione e login, cerchio familiare, scheda della persona
+Stato: **Fase 4, settimana 8**: registrazione e login, cerchio familiare, scheda della persona
 assistita con consenso privacy, inviti, richieste di aiuto, avvisi via email, **Senior App** su
-`/senior` (il telefono dell'anziano si collega con un codice di 6 cifre), promemoria delle medicine
-e notifiche push. Novità della settimana 7:
+`/senior`, promemoria delle medicine, notifiche push, calendario degli appuntamenti, messaggi vocali.
+Novità della settimana 8:
 
-- **calendario degli appuntamenti**: i familiari aggiungono visite ed esami (giorno, ora, dove,
-  note); chiunque nel cerchio tocca **"Ci vado io"**. Promemoria automatici: **la sera prima alle 18**
-  all'anziano e a tutto il cerchio, **due ore prima** all'anziano e a chi ci va. La Senior App
-  mostra "Domani alle 10:30 · Ti accompagna Marco";
-- **messaggi vocali**: l'anziano tocca "Manda un messaggio vocale", parla (fino a 2 minuti),
-  riascolta e manda; arriva a tutto il cerchio. La famiglia risponde con la voce e l'anziano lo
-  ascolta con un pulsante grande. Si vede chi l'ha ascoltato. Si cancellano dopo 30 giorni.
+- **Documenti sanitari**: ricette e prescrizioni, analisi, ecografie e lastre, referti, ricevute.
+  Si fa una foto (rimpicciolita automaticamente) o si carica un PDF, fino a 10 MB. Filtri per tipo,
+  ricerca, totale delle **spese mediche dell'anno** dalle ricevute (utile per il 730). Li vedono solo
+  familiari e amministratore, non la badante; la prima volta serve il consenso dell'anziano.
+  Il server accetta solo JPEG, PNG, WEBP, HEIC e PDF, controllando i primi byte del file;
+- **privacy**: informativa su `/privacy`; nel Profilo "Scarica i miei dati" e "Cancella il mio
+  account" (con la password); l'amministratore può cancellare la scheda dell'anziano con tutti i
+  dati; dopo 10 password sbagliate il login si blocca per 15 minuti; intestazioni di sicurezza.
 
-81 test automatici.
+La messa online è rimandata alla fine del progetto. I file dei documenti sono nel database:
+online, con molti utenti, andranno spostati in uno spazio file a parte.
+
+90 test automatici.
 
 ### Le email in sviluppo
 
@@ -163,6 +167,14 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | DELETE | `/api/appuntamenti/:id` | Toglie un appuntamento | Amministratore, familiare |
 | POST | `/api/appuntamenti/:id/accompagno` | "Ci vado io" | Sì, membro |
 | DELETE | `/api/appuntamenti/:id/accompagno` | "Non riesco più" | Chi ci va |
+| GET | `/api/anziani/:id/documenti` | Documenti, consenso, spese dell'anno | Amministratore, familiare |
+| POST | `/api/anziani/:id/documenti?categoria=&titolo=&data=` | Carica un documento (il corpo è il file) | Amministratore, familiare |
+| GET | `/api/documenti/:id/file` | Il file | Amministratore, familiare |
+| PATCH | `/api/documenti/:id` | Cambia nome, tipo, data, note, importo | Amministratore, familiare |
+| DELETE | `/api/documenti/:id` | Toglie un documento | Amministratore, familiare |
+| GET | `/api/auth/io/dati` | Scarica tutti i miei dati | Sì |
+| DELETE | `/api/auth/io` | Cancella il mio account (con la password) | Sì |
+| DELETE | `/api/anziani/:id` | Cancella la scheda e tutti i suoi dati | Amministratore |
 | GET | `/api/anziani/:id/vocali` | Messaggi vocali degli ultimi 30 giorni | Sì, membro |
 | POST | `/api/anziani/:id/vocali?durata=12` | Vocale all'anziano (il corpo è l'audio) | Sì, membro |
 | GET | `/api/vocali/:id/audio` | Ascolta un messaggio | Sì, membro |
