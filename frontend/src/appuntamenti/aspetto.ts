@@ -27,3 +27,8 @@ export function foglietto(d: string) {
     settimana: data.toLocaleDateString('it-IT', { timeZone: FUSO, weekday: 'short' }).replace('.', ''),
   }
 }
+
+/** Giorni tra oggi e quel giorno (0 = oggi), contando le date italiane. */
+export function giorniDaOggi(quando: string, adesso = new Date()) {
+  return Math.round((Date.parse(giornoIso(quando)) - Date.parse(giornoIso(adesso))) / 86_400_000)
+}

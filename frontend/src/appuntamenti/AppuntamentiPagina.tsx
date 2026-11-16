@@ -1,12 +1,13 @@
 // Calendario degli appuntamenti dell'anziano (lato famiglia).
 // Familiari e amministratore aggiungono e cambiano; tutti possono dire "Ci vado io".
 
-import { useState, type FormEvent } from 'react'
+import { useState, type CSSProperties, type FormEvent } from 'react'
 import { ArrowLeft, BellRing, CalendarDays, CalendarPlus, Car, MapPin, Pencil, StickyNote, Trash2 } from 'lucide-react'
 import { api, messaggioErrore, type Anziano, type AppuntamentoFamiglia, type CalendarioAnziano, type DatiAppuntamento } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
-import { foglietto, giornoInParole, giornoIso, oraAppuntamento } from './aspetto'
+import { foglietto, giorniDaOggi, giornoInParole, giornoIso, oraAppuntamento } from './aspetto'
+import CalendarioMese from './CalendarioMese'
 
 function Modulo(props: { iniziale?: AppuntamentoFamiglia; onSalva: (d: DatiAppuntamento) => Promise<void>; onAnnulla: () => void }) {
   const i = props.iniziale
@@ -58,7 +59,26 @@ function Modulo(props: { iniziale?: AppuntamentoFamiglia; onSalva: (d: DatiAppun
   )
 }
 
-function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boolean; passato?: boolean; onCambiato: () => void }) {
+/** Il colore della striscia a sinistra: corallo se nessuno ci va, viola se qualcuno ci va, oggi in evidenza. */
+function coloreAppuntamento(a: AppuntamentoFamiglia, passato?: boolean) {
+  if (passato) return ''
+  const urgente = giorniDaOggi(a.quando) <= 1 ? 'vicino' : ''
+  return `${a.accompagna ? 'coperto' : 'scoperto'} ${urgente}`
+}
+
+/** Appuntamenti raggruppati per giorno, nell'ordine in cui arrivano. */
+function perGiorno(elenco: AppuntamentoFamiglia[]) {
+  const gruppi: { giorno: string; elenco: AppuntamentoFamiglia[] }[] = []
+  for (const a of elenco) {
+    const g = giornoIso(a.quando)
+    const ultimo = gruppi[gruppi.length - 1]
+    if (ultimo?.giorno === g) ultimo.elenco.push(a)
+    else gruppi.push({ giorno: g, elenco: [a] })
+  }
+  return gruppi
+}
+
+function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boolean; passato?: boolean; onCambiato: () => void; indice?: number }) {
   const { a } = props
   const [modifica, setModifica] = useState(false)
   const [conferma, setConferma] = useState(false)
@@ -86,7 +106,8 @@ function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boo
   }
 
   return (
-    <article className={`scheda appuntamento ${props.passato ? 'passato' : ''}`}>
+    <article className={`scheda appuntamento ${props.passato ? 'passato' : ''} ${coloreAppuntamento(a, props.passato)}`}
+      style={{ '--ritardo': `${0.06 * (props.indice ?? 0)}s` } as CSSProperties}>
       <div className="appuntamento-alto">
         <span className="foglietto" aria-hidden="true"><small>{f.settimana}</small><strong>{f.giorno}</strong><small>{f.mese}</small></span>
         <div className="riga-testo">
@@ -136,6 +157,7 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
   const { dati, errore, ricarica, setDati } = useCarica<CalendarioAnziano>(() => api.appuntamenti(anziano.id), anziano.id)
   const [nuovo, setNuovo] = useState(false)
   const [vediPassati, setVediPassati] = useState(false)
+  const [giorno, setGiorno] = useState<string | null>(null)
 
   return (
     <div className="pagina-app entra">
@@ -157,22 +179,46 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
             <button className="pulsante con-icona" onClick={() => setNuovo(true)}><CalendarPlus size={20} /> Aggiungi un appuntamento</button>
           ))}
 
+          <CalendarioMese appuntamenti={[...dati.prossimi, ...dati.passati]} prossimo={dati.prossimi[0]} scelto={giorno} onScegli={setGiorno} />
+
           <section>
-            <div className="titolo-sezione"><h2>In programma</h2></div>
-            {dati.prossimi.length === 0 ? (
-              <div className="scheda vuoto"><CalendarDays size={28} /><p>Nessun appuntamento in programma.</p></div>
-            ) : (
-              <div className="pila-appuntamenti">
-                {dati.prossimi.map((a) => <SchedaAppuntamento key={a.id} a={a} puoModificare={dati.puoModificare} onCambiato={ricarica} />)}
+            {giorno ? (
+              <div className="titolo-sezione">
+                <h2>{giornoInParole(`${giorno}T12:00:00`)}</h2>
+                <button className="link" onClick={() => setGiorno(null)}>Mostra tutti</button>
               </div>
+            ) : (
+              <div className="titolo-sezione"><h2>In programma</h2></div>
             )}
+            {(() => {
+              const elenco = giorno ? [...dati.prossimi, ...dati.passati].filter((a) => giornoIso(a.quando) === giorno) : dati.prossimi
+              if (elenco.length === 0) {
+                return <div className="scheda vuoto"><CalendarDays size={28} /><p>{giorno ? 'Niente in questo giorno.' : 'Nessun appuntamento in programma.'}</p></div>
+              }
+              let n = 0
+              return (
+                <ol className="linea-tempo">
+                  {perGiorno(elenco).map((gr) => (
+                    <li key={gr.giorno} className={`linea-tempo-giorno ${giorniDaOggi(`${gr.giorno}T12:00:00`) === 0 ? 'oggi' : ''}`}>
+                      {!giorno && <span className="linea-tempo-data">{giornoInParole(`${gr.giorno}T12:00:00`)}</span>}
+                      <div className="pila-appuntamenti">
+                        {gr.elenco.map((a) => {
+                          const passato = dati.passati.some((p) => p.id === a.id)
+                          return <SchedaAppuntamento key={a.id} a={a} indice={n++} passato={passato} puoModificare={dati.puoModificare && !passato} onCambiato={ricarica} />
+                        })}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )
+            })()}
             <p className="nota">
               <BellRing size={16} className="icona-inline" />
               Promemoria automatici: la sera prima alle 18 a {anziano.nome} e a tutto il cerchio, e due ore prima a {anziano.nome} e a chi ci va.
             </p>
           </section>
 
-          {dati.passati.length > 0 && (
+          {dati.passati.length > 0 && !giorno && (
             <section>
               <button className="link" onClick={() => setVediPassati(!vediPassati)}>
                 {vediPassati ? 'Nascondi i passati' : `Vedi i passati (${dati.passati.length})`}
