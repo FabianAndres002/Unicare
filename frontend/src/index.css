@@ -1151,3 +1151,12 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 @media (prefers-reduced-motion: reduce) {
   .tessera, .tessera-icona, .richiesta-dettagli, .richiesta-pulsante.pronto, .richiesta-passi li.attuale > span { animation: none !important; }
 }
+
+/* Logo "uniCare" (prova del 16/11): nastro a infinito + nome in due colori */
+.marchio img.marchio-segno { border-radius: 0; width: auto; }
+.marchio-nome { letter-spacing: -0.01em; }
+.marchio-nome b { color: #5E22B5; font-weight: 800; }
+.marchio-nome i { color: #F07E1F; font-style: normal; }
+.accesso-logo-mobile[src$="infinito.svg"] { border-radius: 0; box-shadow: none; width: auto; }
+.accesso-pannello .marchio img.marchio-segno { background: #fff; border-radius: 14px; padding: 6px 8px; box-sizing: content-box; }
+.accesso-pannello .marchio-nome b, .accesso-pannello .marchio-nome i { color: #fff; }

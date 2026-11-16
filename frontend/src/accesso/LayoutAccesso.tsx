@@ -8,8 +8,8 @@ export default function LayoutAccesso({ titolo, sottotitolo, children }: { titol
     <div className="accesso">
       <aside className="accesso-pannello">
         <div className="marchio">
-          <img src="/icone/icona-192.png" alt="" width={44} height={44} />
-          <span>Unicare</span>
+          <img src="/logo/infinito.svg" alt="" className="marchio-segno" height={44} />
+          <span className="marchio-nome"><b>uni</b><i>Care</i></span>
         </div>
         <div className="accesso-slogan">
           <h2>Prendersi cura, insieme.</h2>
@@ -23,7 +23,7 @@ export default function LayoutAccesso({ titolo, sottotitolo, children }: { titol
       </aside>
       <main className="accesso-contenuto">
         <div className="accesso-box entra">
-          <img className="accesso-logo-mobile" src="/icone/icona-192.png" alt="" width={56} height={56} />
+          <img className="accesso-logo-mobile" src="/logo/infinito.svg" alt="" height={56} />
           <h1>{titolo}</h1>
           <p className="sottotitolo">{sottotitolo}</p>
           {children}

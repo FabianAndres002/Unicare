@@ -27,8 +27,8 @@ export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, ha
     <div className="guscio">
       <header className="barra-alta">
         <Collegamento a="/" className="marchio">
-          <img src="/icone/icona-192.png" alt="" width={34} height={34} />
-          <span>Unicare</span>
+          <img src="/logo/infinito.svg" alt="" className="marchio-segno" height={34} />
+          <span className="marchio-nome"><b>uni</b><i>Care</i></span>
         </Collegamento>
         {nomeCerchio && <span className="pillola-cerchio">{nomeCerchio}</span>}
         <Collegamento a="/profilo" className="barra-avatar"><Avatar nome={profilo.nome} foto={profilo.foto} /></Collegamento>
