@@ -1,7 +1,7 @@
 // Tutto quello che si vede dopo il login. Carica i cerchi dell'utente
 // e il dettaglio di quello attivo, poi sceglie la pagina in base all'indirizzo.
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, messaggioErrore, type Cerchio, type Profilo, type RiassuntoCerchio } from '../comune/api'
 import { naviga } from '../comune/router'
 import Guscio from './Guscio'
@@ -39,7 +39,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   const [cerchio, setCerchio] = useState<Cerchio | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
 
-  const carica = useCallback(async () => {
+  const carica = useCallback(async (silenzioso: boolean = false) => {
     try {
       const elenco = await api.cerchi()
       setCerchi(elenco)
@@ -47,13 +47,33 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
       setCerchio(scelto ? await api.cerchio(scelto.id) : null)
       setErrore(null)
     } catch (e) {
-      setErrore(messaggioErrore(e))
+      // Negli aggiornamenti in silenzio un errore di rete non deve coprire la pagina.
+      if (!silenzioso) setErrore(messaggioErrore(e))
     }
   }, [])
 
   useEffect(() => {
     carica()
   }, [carica])
+
+  // Le persone del cerchio cambiano (nuove foto, avatar, chi entra o esce): si ricarica
+  // in silenzio a ogni cambio di pagina e quando si torna sull'app.
+  const primaVolta = useRef(true)
+  useEffect(() => {
+    if (primaVolta.current) { primaVolta.current = false; return }
+    void carica(true)
+  }, [percorso, carica])
+  useEffect(() => {
+    const quandoTorna = () => { if (document.visibilityState === 'visible') void carica(true) }
+    document.addEventListener('visibilitychange', quandoTorna)
+    return () => document.removeEventListener('visibilitychange', quandoTorna)
+  }, [carica])
+
+  /** Dopo aver cambiato la mia foto o il mio avatar: aggiorno anche il cerchio. */
+  const profiloCambiato = (p: Profilo) => {
+    onProfilo(p)
+    void carica(true)
+  }
 
   function vaiAlCerchio(id: number) {
     scegliCerchio(id)
@@ -65,7 +85,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
     return (
       <div className="centro-pagina">
         <p className="errore">{errore}</p>
-        <button className="pulsante" onClick={carica}>Riprova</button>
+        <button className="pulsante" onClick={() => carica()}>Riprova</button>
       </div>
     )
   }
@@ -89,7 +109,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   if (!cerchio && profilo.tipo === 'BADANTE') {
     let pagina = paginaLavoro
     if (!pagina && percorso === '/profilo')
-      pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={0} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={onProfilo} />
+      pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={0} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={profiloCambiato} />
     else if (!pagina && percorso === '/privacy') pagina = <Privacy indietro="/profilo" />
     return (
       <Guscio percorso={percorso} profilo={profilo} puoInvitare={false} haCerchio={false}>
@@ -131,7 +151,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   else if (percorso === '/cerchio') pagina = <Membri profilo={profilo} cerchio={cerchio} onCambiato={carica} />
   else if (percorso === '/invita') pagina = <Invita cerchio={cerchio} onCambiato={carica} />
   else if (percorso === '/profilo')
-    pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={cerchio.id} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={onProfilo} />
+    pagina = <ProfiloPagina profilo={profilo} cerchi={cerchi} attivo={cerchio.id} onScegli={vaiAlCerchio} onEsci={onEsci} onProfilo={profiloCambiato} />
   else if (anziano)
     pagina = <SchedaAnziano cerchio={cerchio} anzianoId={anziano[1] === 'nuovo' ? 'nuovo' : Number(anziano[1])} onCambiato={carica} />
   else pagina = <Home profilo={profilo} cerchio={cerchio} />
