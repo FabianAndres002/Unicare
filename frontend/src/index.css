@@ -811,3 +811,51 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .senior-nomi-medicine { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 1.3rem; font-weight: 800; }
 .senior-nomi-medicine li { display: flex; align-items: center; gap: 10px; }
 .senior-nomi-medicine svg { color: var(--accento); flex: none; }
+
+/* ---- Il cerchio come una rete (pagina Cerchio) ---- */
+.rete { position: relative; width: 100%; max-width: 440px; aspect-ratio: 1; margin: 4px auto 0; }
+.rete-linee { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.rete-anello { fill: none; stroke: var(--bordo); stroke-width: 0.5; stroke-dasharray: 1.2 1.6; }
+.rete-linea { stroke-width: 0.9; stroke-linecap: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: rete-traccia 0.7s ease-out forwards; animation-delay: var(--ritardo, 0s); }
+.rete-linea.familiare { stroke: var(--primario); opacity: 0.45; }
+.rete-linea.badante { stroke: var(--accento); opacity: 0.7; }
+.rete-linea.attesa { stroke: var(--testo-tenue); opacity: 0.4; stroke-dasharray: 1.5 1.5; stroke-dashoffset: 0; animation: none; }
+.rete-nodo {
+  position: absolute; transform: translate(-50%, -50%); padding: 0; border: none; background: none; cursor: pointer; font: inherit; color: var(--testo);
+  display: grid; place-items: center; animation: rete-entra 0.45s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: var(--ritardo, 0s);
+}
+.rete-avatar.avatar { width: 58px; height: 58px; font-size: 1.05rem; box-shadow: 0 0 0 4px var(--bianco), var(--ombra-m); transition: transform 0.2s, box-shadow 0.2s; }
+.rete-nome { z-index: 1; padding: 1px 7px; border-radius: 8px; background: var(--sfondo); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; font-weight: 800; }
+.rete-nodo:hover .rete-avatar, .rete-nodo:focus-visible .rete-avatar { transform: scale(1.08); }
+.rete-nodo:focus-visible { outline: none; }
+.rete-nodo:focus-visible .rete-avatar { box-shadow: 0 0 0 4px var(--bianco), 0 0 0 7px var(--primario); }
+.rete-nodo.scelto .rete-avatar { transform: scale(1.12); box-shadow: 0 0 0 4px var(--bianco), 0 0 0 7px var(--primario), var(--ombra-m); }
+.rete-nodo.scelto .rete-nome { color: var(--primario); }
+.rete-nodo.centro { z-index: 1; animation-delay: 0s; }
+.rete-nodo.centro .rete-avatar.avatar { width: 96px; height: 96px; font-size: 1.7rem; box-shadow: 0 0 0 5px var(--bianco), 0 0 0 9px var(--accento), var(--ombra-m); }
+.rete-nodo.centro.scelto .rete-avatar { box-shadow: 0 0 0 5px var(--bianco), 0 0 0 9px var(--accento), 0 0 0 13px rgba(255, 116, 87, 0.25), var(--ombra-m); }
+.rete-nodo.centro .rete-nome { font-size: 1rem; top: calc(100% + 12px); max-width: 180px; }
+.rete-alone { position: absolute; inset: -14px; border-radius: 50%; background: rgba(255, 116, 87, 0.18); animation: rete-respiro 2.8s ease-in-out infinite; }
+.rete-nodo.invito .rete-avatar { box-shadow: 0 0 0 4px var(--bianco); border: 2px dashed var(--testo-tenue); }
+.rete-nodo.aggiungi .rete-avatar.avatar { background: var(--bianco); color: var(--primario); border: 2px dashed var(--primario); box-shadow: none; }
+.rete-nodo.aggiungi .rete-nome { color: var(--primario); }
+.rete-legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin: 28px 0 0; padding: 0; list-style: none; font-size: 0.85rem; color: var(--testo-tenue); font-weight: 700; }
+.rete-legenda li { display: inline-flex; align-items: center; gap: 6px; }
+.rete-legenda .segno { width: 22px; height: 0; border-top: 3px solid var(--primario); border-radius: 2px; opacity: 0.6; }
+.rete-legenda .segno.badante { border-color: var(--accento); opacity: 0.9; }
+.rete-legenda .segno.attesa { border-top-style: dashed; border-color: var(--testo-tenue); }
+.rete-dettaglio { display: flex; flex-direction: column; gap: 14px; padding: 18px; margin-top: 18px; }
+.rete-dettaglio-alto { display: flex; align-items: center; gap: 14px; }
+.rete-dettaglio-alto h2 { margin: 0 0 2px; font-size: 1.2rem; overflow-wrap: anywhere; }
+.rete-dettaglio-alto .sottotitolo { margin: 0 0 6px; overflow-wrap: anywhere; }
+.rete-azioni { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rete-azioni .pulsante { min-height: 48px; font-size: 0.95rem; padding: 10px; }
+.pulsante-testo { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: none; background: none; font: inherit; font-weight: 800; color: var(--primario); cursor: pointer; border-radius: 12px; }
+.pulsante-testo.pericolo { color: var(--rosso); }
+.pulsante-testo:hover { background: var(--sfondo-scuro); }
+@keyframes rete-traccia { to { stroke-dashoffset: 0; } }
+@keyframes rete-entra { from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes rete-respiro { 0%, 100% { transform: scale(0.92); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  .rete-linea, .rete-nodo, .rete-alone { animation: none; stroke-dashoffset: 0; }
+}

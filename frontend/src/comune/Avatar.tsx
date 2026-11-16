@@ -1,7 +1,7 @@
 // Cerchio con le iniziali, colore fisso per persona (finché non ci saranno le foto).
 // Il colore dipende solo dal nome, così è uguale ovunque compaia la stessa persona.
 
-const COLORI = ['#5D46EC', '#D9502F', '#6b5ca5', '#2f7ab8', '#a8456b', '#3f7d4a', '#b5862b']
+const COLORI = ['#5D46EC', '#D9502F', '#8E3B8A', '#3F48CC', '#B23A6B', '#7A4FD0', '#C2452D']
 
 type Props = { nome: string; cognome?: string; grande?: boolean; className?: string }
 
