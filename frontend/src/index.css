@@ -1054,3 +1054,100 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 @media (prefers-reduced-motion: reduce) {
   .calendario-conto, .calendario-griglia.giorni, .calendario-prossimo, .linea-tempo .appuntamento, .linea-tempo-giorno.oggi::before { animation: none !important; }
 }
+
+/* ---- Nuova richiesta: palco, passi, tessere colorate ---- */
+.richiesta-palco {
+  position: relative; overflow: hidden; isolation: isolate; margin: 6px -4px 18px; padding: 20px 18px 16px; border-radius: 28px; color: #fff;
+  background:
+    radial-gradient(55% 50% at 95% 0%, rgba(255, 116, 87, 0.55), transparent 65%),
+    radial-gradient(50% 50% at 0% 100%, rgba(170, 150, 255, 0.6), transparent 65%),
+    linear-gradient(155deg, #7360F0 0%, #5D46EC 50%, #3A26A8 100%);
+  box-shadow: 0 16px 36px rgba(69, 48, 201, 0.3);
+}
+.richiesta-palco::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.45;
+  background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px) 0 0 / 18px 18px;
+  mask-image: linear-gradient(90deg, transparent, #000);
+}
+.richiesta-palco-alto { display: flex; align-items: center; gap: 14px; }
+.richiesta-palco-avatar.avatar { width: 58px; height: 58px; font-size: 1.15rem; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 0 7px rgba(255, 116, 87, 0.55); }
+.richiesta-palco-etichetta { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #FFD5C8; }
+.richiesta-palco h1 { margin: 0; font-size: 1.7rem; line-height: 1.1; }
+.richiesta-palco p { margin: 10px 0 14px; opacity: 0.9; }
+.richiesta-passi { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.richiesta-passi li {
+  flex: 1; display: flex; align-items: center; gap: 6px; padding: 7px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 800;
+  background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.75); transition: background 0.3s, color 0.3s;
+}
+.richiesta-passi li > span { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); font-size: 0.75rem; }
+.richiesta-passi li.attuale { background: #fff; color: var(--primario-scuro); }
+.richiesta-passi li.attuale > span { background: var(--accento); color: #fff; animation: ascolta 2s ease-in-out infinite; }
+.richiesta-passi li.fatto { background: rgba(255, 255, 255, 0.24); color: #fff; }
+.richiesta-passi li.fatto > span { background: #fff; color: var(--primario); }
+
+/* colori delle categorie */
+.cat-spesa { --c1: #3FB58F; --c2: #1F8A6B; --chiaro: #E3F6EF; }
+.cat-farmacia { --c1: #FF8E75; --c2: #D9502F; --chiaro: #FFEBE5; }
+.cat-accompagnamento { --c1: #7C6BF5; --c2: #4530C9; --chiaro: #ECE8FF; }
+.cat-compagnia { --c1: #E06A9A; --c2: #B23A6B; --chiaro: #FCE7EF; }
+.cat-casa { --c1: #F5B547; --c2: #C9780F; --chiaro: #FFF2D9; }
+.cat-altro { --c1: #8F8AA8; --c2: #5B5674; --chiaro: #EFEDF5; }
+
+.modulo .categorie.tessere label.tessera {
+  position: relative; overflow: hidden; padding: 16px 14px 14px; border-radius: 22px; border: 0;
+  background: var(--bianco); box-shadow: 0 0 0 1.5px var(--bordo), var(--ombra-m);
+  transition: transform 0.18s, box-shadow 0.2s, opacity 0.25s, filter 0.25s;
+  animation: entra 0.35s ease-out both; animation-delay: var(--ritardo, 0s);
+}
+.tessera::after {
+  content: ''; position: absolute; right: -22px; top: -22px; width: 80px; height: 80px; border-radius: 50%;
+  background: var(--chiaro); z-index: 0; transition: transform 0.35s;
+}
+.tessera > * { position: relative; z-index: 1; }
+.tessera:hover { transform: translateY(-2px); }
+.tessera:active { transform: scale(0.96); }
+.tessera-icona {
+  display: grid; place-items: center; width: 50px; height: 50px; border-radius: 16px; color: #fff;
+  background: linear-gradient(150deg, var(--c1), var(--c2)); box-shadow: 0 8px 16px -6px var(--c2);
+  transition: transform 0.3s;
+}
+.tessera strong { margin-top: 10px; font-size: 1.02rem; }
+.categorie .tessera .tessera-esempio { font-weight: 400; font-size: 0.8rem; color: var(--testo-tenue); }
+.modulo .categorie.tessere label.tessera.attiva {
+  background: linear-gradient(150deg, var(--c1), var(--c2)); color: #fff;
+  box-shadow: 0 14px 28px -10px var(--c2); transform: translateY(-3px);
+}
+.tessera.attiva::after { background: rgba(255, 255, 255, 0.18); transform: scale(1.6); }
+.tessera.attiva .tessera-icona { background: rgba(255, 255, 255, 0.22); box-shadow: none; animation: tessera-salta 0.5s ease-out; }
+.categorie .tessera.attiva .tessera-esempio { color: rgba(255, 255, 255, 0.9); }
+.tessera.spenta { opacity: 0.62; filter: saturate(0.6); }
+.tessera-spunta { position: absolute !important; top: 10px; right: 10px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: var(--c2); }
+@keyframes tessera-salta { 0% { transform: scale(1); } 40% { transform: scale(1.25) rotate(-8deg); } 100% { transform: scale(1); } }
+
+.richiesta-dettagli {
+  display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 22px;
+  background: var(--chiaro); border: 1.5px solid color-mix(in srgb, var(--c1) 35%, transparent);
+  animation: entra 0.3s ease-out;
+}
+.richiesta-dettagli textarea { background: var(--bianco); }
+.richiesta-suggerimenti { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-suggerimento {
+  padding: 8px 12px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--c1) 45%, transparent);
+  background: var(--bianco); color: var(--c2); font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+.chip-suggerimento:active { transform: scale(0.94); }
+.chip-suggerimento.usato { background: var(--c2); border-color: var(--c2); color: #fff; }
+
+.richiesta-invia.pronto { position: sticky; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 5; }
+.richiesta-pulsante { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+.richiesta-pulsante.pronto {
+  background: linear-gradient(110deg, #5D46EC, #7C6BF5, #FF7457, #5D46EC); background-size: 300% 100%;
+  animation: richiesta-scorre 5s linear infinite; box-shadow: 0 14px 30px -10px rgba(93, 70, 236, 0.7);
+}
+@keyframes richiesta-scorre { to { background-position: 300% 0; } }
+@media (min-width: 900px) { .richiesta-invia.pronto { position: static; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tessera, .tessera-icona, .richiesta-dettagli, .richiesta-pulsante.pronto, .richiesta-passi li.attuale > span { animation: none !important; }
+}
