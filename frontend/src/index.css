@@ -1250,3 +1250,85 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 @media (prefers-reduced-motion: reduce) {
   .richiesta.viva, .griglia-funzioni .funzione, .chiedi-aiuto, .richiesta-barra::after, .stato-punto, .richieste-conto.da-fare.acceso { animation: none !important; }
 }
+
+/* ---- Intestazioni delle pagine: palco viola con icona colorata ---- */
+.palco-pagina {
+  position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; gap: 16px;
+  margin: 0 -4px; padding: 22px 20px; border-radius: 28px; color: #fff;
+  background:
+    radial-gradient(55% 60% at 100% 0%, rgba(255, 116, 87, 0.5), transparent 65%),
+    radial-gradient(50% 60% at 0% 100%, rgba(170, 150, 255, 0.55), transparent 65%),
+    linear-gradient(155deg, #7360F0 0%, #5D46EC 50%, #3A26A8 100%);
+  box-shadow: 0 16px 36px -6px rgba(69, 48, 201, 0.35);
+}
+.palco-pagina::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.45; background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px) 0 0 / 18px 18px; mask-image: linear-gradient(90deg, transparent, #000); }
+.palco-pagina::after {
+  content: ''; position: absolute; top: 14px; right: 18px; width: 5px; height: 5px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.6), -60px 50px 0 -1px rgba(255, 213, 200, 0.9);
+  animation: rete-brilla 3.2s ease-in-out infinite;
+}
+.palco-pagina.centrato { flex-direction: column; text-align: center; }
+.palco-icona {
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; flex: none; color: #fff;
+  background: linear-gradient(150deg, var(--c1, #FF8E75), var(--c2, #D9502F));
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22), 0 12px 24px -8px rgba(0, 0, 0, 0.45);
+  animation: palco-icona-entra 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes palco-icona-entra { from { transform: scale(0.4) rotate(-15deg); opacity: 0; } }
+.palco-testi { min-width: 0; }
+.palco-pagina h1 { margin: 0; color: #fff; font-size: 1.5rem; line-height: 1.15; }
+.palco-pagina .sottotitolo { margin: 6px 0 0; color: rgba(255, 255, 255, 0.88); font-size: 0.93rem; line-height: 1.45; }
+.palco-pagina .sottotitolo strong { color: #fff; }
+
+/* Indietro: una pillola invece del testo grigio */
+.indietro {
+  align-self: flex-start; padding: 7px 14px 7px 10px; border-radius: 999px; margin-bottom: -10px;
+  background: var(--bianco); box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.9), var(--ombra-s); color: var(--primario-scuro);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.indietro:hover { transform: translateX(-2px); box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.9), var(--ombra-m); }
+
+/* I blocchi della pagina entrano uno dopo l'altro */
+.pagina-app.entra > * { animation: entra 0.4s ease-out both; }
+.pagina-app.entra > :nth-child(2) { animation-delay: 0.05s; }
+.pagina-app.entra > :nth-child(3) { animation-delay: 0.1s; }
+.pagina-app.entra > :nth-child(4) { animation-delay: 0.15s; }
+.pagina-app.entra > :nth-child(5) { animation-delay: 0.2s; }
+.pagina-app.entra > :nth-child(n+6) { animation-delay: 0.25s; }
+
+/* Dettaglio della richiesta: fascia del colore della categoria */
+.dettaglio-richiesta { position: relative; overflow: hidden; padding-top: 0; }
+.dettaglio-richiesta .dettaglio-testa {
+  margin: 0 -20px; padding: 22px 20px; color: #fff;
+  background: radial-gradient(60% 80% at 100% 0%, rgba(255, 255, 255, 0.25), transparent 70%), linear-gradient(150deg, var(--c1), var(--c2));
+}
+.dettaglio-richiesta .dettaglio-testa h1 { color: #fff; }
+.dettaglio-richiesta .dettaglio-testa .nota { color: rgba(255, 255, 255, 0.9); }
+.dettaglio-richiesta .dettaglio-testa .stato { background: rgba(255, 255, 255, 0.92); display: inline-flex; align-items: center; gap: 6px; }
+.dettaglio-icona.tessera-icona { width: 64px; height: 64px; border-radius: 20px; background: rgba(255, 255, 255, 0.2); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35); animation: palco-icona-entra 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+
+/* Profilo: avatar su palco viola */
+.palco-profilo {
+  position: relative; overflow: hidden; isolation: isolate; margin: 0 -4px; padding: 26px 20px 22px; border-radius: 28px; color: #fff;
+  background:
+    radial-gradient(55% 60% at 100% 0%, rgba(255, 116, 87, 0.5), transparent 65%),
+    radial-gradient(50% 60% at 0% 100%, rgba(170, 150, 255, 0.55), transparent 65%),
+    linear-gradient(155deg, #7360F0 0%, #5D46EC 50%, #3A26A8 100%);
+  box-shadow: 0 16px 36px -6px rgba(69, 48, 201, 0.35);
+}
+.palco-profilo::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.45; background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px) 0 0 / 18px 18px; }
+.palco-profilo h1 { color: #fff; margin: 10px 0 2px; }
+.palco-profilo .sottotitolo { color: rgba(255, 255, 255, 0.88); }
+.palco-profilo .avatar { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9), 0 0 0 9px rgba(255, 116, 87, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .palco-pagina::after, .palco-icona, .dettaglio-icona, .pagina-app.entra > * { animation: none !important; }
+}
+.palco-profilo .scegli-foto .collegamento-piccolo { background: rgba(255, 255, 255, 0.95); color: var(--primario-scuro); border-radius: 999px; padding: 6px 12px; }
+.palco-profilo .scegli-foto .nota-piccola { color: rgba(255, 255, 255, 0.85); }
+.palco-profilo .griglia-disegni { background: rgba(255, 255, 255, 0.96); border-radius: 20px; padding: 12px; }
+
+/* Pagine vuote: icona che galleggia in un cerchio lavanda */
+.vuoto > svg:first-child { box-sizing: content-box; padding: 16px; border-radius: 50%; color: var(--primario); background: radial-gradient(circle at 30% 30%, #fff, var(--primario-chiaro)); box-shadow: 0 10px 24px -10px rgba(93, 70, 236, 0.5); animation: vuoto-galleggia 3s ease-in-out infinite; }
+@keyframes vuoto-galleggia { 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .vuoto > svg:first-child { animation: none; } }

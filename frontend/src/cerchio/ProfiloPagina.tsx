@@ -37,7 +37,9 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
 
   return (
     <div className="pagina-app entra">
-      <div className="profilo-testa">
+      <div className="profilo-testa palco-profilo">
+        <span className="rete-stella s1" aria-hidden="true" />
+        <span className="rete-stella s2" aria-hidden="true" />
         <ScegliFoto nome={profilo.nome} foto={profilo.foto} etichetta="la tua foto"
           onCarica={async (f) => { const { foto } = await api.caricaMiaFoto(f); onProfilo({ ...profilo, foto }) }}
           onTogli={async () => { await api.togliMiaFoto(); onProfilo({ ...profilo, foto: null }) }}

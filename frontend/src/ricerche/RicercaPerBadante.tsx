@@ -1,7 +1,7 @@
 // Badante: una famiglia che cerca. Legge cosa serve e si propone con due righe.
 
 import { useState, type FormEvent } from 'react'
-import { ArrowLeft, MessageCircle, Send, ShieldCheck, Undo2 } from 'lucide-react'
+import { ArrowLeft, HeartHandshake, MessageCircle, Send, ShieldCheck, Undo2 } from 'lucide-react'
 import { api, messaggioErrore } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -42,9 +42,12 @@ export default function RicercaPerBadante({ id }: { id: number }) {
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
       {dati && (
         <>
-          <header className="intestazione-pagina">
-            <h1>Una famiglia cerca aiuto</h1>
-            <p className="sottotitolo">Il nome della famiglia lo saprai se decidono di scriverti.</p>
+          <header className="palco-pagina cat-compagnia">
+            <span className="palco-icona"><HeartHandshake size={26} /></span>
+            <div className="palco-testi">
+              <h1>Una famiglia cerca aiuto</h1>
+              <p className="sottotitolo">Il nome della famiglia lo saprai se decidono di scriverti.</p>
+            </div>
           </header>
           <div className="scheda"><CartaRicerca r={dati} /></div>
 

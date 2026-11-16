@@ -1,7 +1,7 @@
 // L'amministratore crea un link d'invito e lo manda come preferisce (WhatsApp, copia, condividi).
 
 import { useState, type FormEvent } from 'react'
-import { Check, Copy, HeartHandshake, MessageCircle, Share2, Users } from 'lucide-react'
+import { Check, Copy, HeartHandshake, MessageCircle, Share2, UserPlus, Users } from 'lucide-react'
 import { api, messaggioErrore, type Cerchio, type InvitoCreato } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { nomeRuolo } from '../comune/utili'
@@ -41,10 +41,12 @@ export default function Invita({ cerchio, onCambiato }: { cerchio: Cerchio; onCa
     }
     return (
       <div className="pagina-app entra">
-        <div className="successo-icona"><Check size={34} /></div>
-        <header className="intestazione-pagina centrato">
-          <h1>Invito pronto</h1>
-          <p className="sottotitolo">Manda questo link a <strong>{creato.email}</strong> ({nomeRuolo[creato.ruolo].toLowerCase()}).</p>
+        <header className="palco-pagina centrato cat-spesa">
+          <span className="palco-icona"><Check size={26} /></span>
+          <div className="palco-testi">
+            <h1>Invito pronto</h1>
+            <p className="sottotitolo">Manda questo link a <strong>{creato.email}</strong> ({nomeRuolo[creato.ruolo].toLowerCase()}).</p>
+          </div>
         </header>
         <div className="scheda pila">
           <div className="link-invito">{link}</div>
@@ -71,9 +73,12 @@ export default function Invita({ cerchio, onCambiato }: { cerchio: Cerchio; onCa
 
   return (
     <div className="pagina-app entra">
-      <header className="intestazione-pagina">
-        <h1>Invita nel cerchio</h1>
-        <p className="sottotitolo">Riceverà un link per entrare in <strong>{cerchio.nome}</strong>.</p>
+      <header className="palco-pagina cat-compagnia">
+        <span className="palco-icona"><UserPlus size={26} /></span>
+        <div className="palco-testi">
+          <h1>Invita nel cerchio</h1>
+          <p className="sottotitolo">Riceverà un link per entrare in <strong>{cerchio.nome}</strong>.</p>
+        </div>
       </header>
       <form className="modulo scheda" onSubmit={invia}>
         <fieldset className="scelta">

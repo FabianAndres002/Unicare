@@ -89,9 +89,12 @@ export default function CercoBadante({ cerchio }: { cerchio: Cerchio }) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/badanti" className="indietro"><ArrowLeft size={18} /> Trova una badante</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Cerco una badante</h1>
-        <p className="sottotitolo">Scrivi di cosa avete bisogno: le badanti della zona lo leggono e si propongono. Poi scegli tu a chi rispondere.</p>
+      <header className="palco-pagina cat-casa">
+        <span className="palco-icona"><Megaphone size={26} /></span>
+        <div className="palco-testi">
+          <h1>Cerco una badante</h1>
+          <p className="sottotitolo">Scrivi di cosa avete bisogno: le badanti della zona lo leggono e si propongono. Poi scegli tu a chi rispondere.</p>
+        </div>
       </header>
       {errore && <p className="errore">{errore}</p>}
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}

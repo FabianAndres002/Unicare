@@ -45,7 +45,7 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
   if (errore && !r) return <div className="pagina-app"><p className="errore">{errore}</p></div>
   if (!r) return <div className="centrato"><span className="rotella" aria-label="Caricamento" /></div>
 
-  const { etichetta, Icona, colore } = CATEGORIE[r.categoria]
+  const { etichetta, Icona } = CATEGORIE[r.categoria]
   const stato = STATI[r.stato]
   const mia = r.presaDa?.id === profilo.id
 
@@ -53,11 +53,11 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
     <div className="pagina-app entra">
       <Collegamento a="/richieste" className="indietro"><ArrowLeft size={18} /> Richieste</Collegamento>
 
-      <section className="scheda dettaglio-richiesta">
+      <section className={`scheda dettaglio-richiesta cat-${r.categoria.toLowerCase()}`}>
         <div className="dettaglio-testa">
-          <span className={`funzione-icona grande ${colore}`}><Icona size={28} /></span>
+          <span className="tessera-icona dettaglio-icona"><Icona size={30} /></span>
           <div>
-            <span className={`stato ${stato.classe}`}>{stato.etichetta}</span>
+            <span className={`stato ${stato.classe}`}><i className="stato-punto" aria-hidden="true" />{stato.etichetta}</span>
             <h1>{etichetta}</h1>
             <p className="nota">Per {r.anziano.nome} · chiesta {tempoFa(r.creataIl)}</p>
           </div>

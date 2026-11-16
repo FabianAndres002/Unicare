@@ -8,10 +8,12 @@ export default function Privacy({ indietro = '/' }: { indietro?: string }) {
   return (
     <div className="pagina-app pagina-testo entra">
       <Collegamento a={indietro} className="indietro"><ArrowLeft size={18} /> Indietro</Collegamento>
-      <header className="intestazione-pagina">
-        <span className="funzione-icona verde"><ShieldCheck size={22} /></span>
-        <h1>La tua privacy su Unicare</h1>
-        <p className="sottotitolo">Cosa salviamo, perché, chi lo vede e come cancellarlo. Versione di novembre 2026.</p>
+      <header className="palco-pagina cat-spesa">
+        <span className="palco-icona"><ShieldCheck size={26} /></span>
+        <div className="palco-testi">
+          <h1>La tua privacy su Unicare</h1>
+          <p className="sottotitolo">Cosa salviamo, perché, chi lo vede e come cancellarlo. Versione di novembre 2026.</p>
+        </div>
       </header>
 
       <section>

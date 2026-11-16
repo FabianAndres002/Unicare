@@ -164,9 +164,12 @@ export default function MedicinePagina({ anziano }: Props) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Medicine di {anziano.nome}</h1>
-        <p className="sottotitolo">All’orario il telefono di {anziano.nome} suona e chiede “Fatto”. Se dopo un’ora non risponde, avvisiamo i familiari.</p>
+      <header className="palco-pagina cat-farmacia">
+        <span className="palco-icona"><Pill size={26} /></span>
+        <div className="palco-testi">
+          <h1>Medicine di {anziano.nome}</h1>
+          <p className="sottotitolo">All’orario il telefono di {anziano.nome} suona e chiede “Fatto”. Se dopo un’ora non risponde, avvisiamo i familiari.</p>
+        </div>
       </header>
 
       {errore && <p className="errore">{errore}</p>}

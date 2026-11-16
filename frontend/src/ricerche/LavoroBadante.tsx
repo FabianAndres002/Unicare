@@ -1,7 +1,7 @@
 // Badante: le famiglie che cercano una badante nella sua zona, e le sue proposte.
 
 import { useState } from 'react'
-import { ChevronRight, Eye, Megaphone, SearchX, UserRound } from 'lucide-react'
+import { Briefcase, ChevronRight, Eye, Megaphone, SearchX, UserRound } from 'lucide-react'
 import { api, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -19,9 +19,12 @@ export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
 
   return (
     <div className="pagina-app entra">
-      <header className="intestazione-pagina">
-        <h1>Lavoro</h1>
-        <p className="sottotitolo">Famiglie che cercano una badante. Se fa per te, proponiti: la famiglia vede il tuo profilo e decide se scriverti.</p>
+      <header className="palco-pagina cat-casa">
+        <span className="palco-icona"><Briefcase size={26} /></span>
+        <div className="palco-testi">
+          <h1>Lavoro</h1>
+          <p className="sottotitolo">Famiglie che cercano una badante. Se fa per te, proponiti: la famiglia vede il tuo profilo e decide se scriverti.</p>
+        </div>
       </header>
 
       {mio && !p && (

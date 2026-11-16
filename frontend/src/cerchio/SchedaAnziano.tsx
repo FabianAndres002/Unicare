@@ -1,6 +1,6 @@
 // Aggiunge o modifica la scheda della persona assistita.
 
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, UserRound } from 'lucide-react'
 import { api, type Cerchio } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
 import ModuloAnziano from './ModuloAnziano'
@@ -18,9 +18,12 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
   return (
     <div className="pagina-app entra">
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>{anziano ? `${anziano.nome} ${anziano.cognome}` : 'Nuova scheda'}</h1>
-        <p className="sottotitolo">Solo dati utili all'organizzazione. I documenti sanitari stanno nella sezione Documenti.</p>
+      <header className="palco-pagina cat-compagnia">
+        <span className="palco-icona"><UserRound size={26} /></span>
+        <div className="palco-testi">
+          <h1>{anziano ? `${anziano.nome} ${anziano.cognome}` : 'Nuova scheda'}</h1>
+          <p className="sottotitolo">Solo dati utili all'organizzazione. I documenti sanitari stanno nella sezione Documenti.</p>
+        </div>
       </header>
       {anziano && (
         <div className="scheda scheda-foto-anziano">

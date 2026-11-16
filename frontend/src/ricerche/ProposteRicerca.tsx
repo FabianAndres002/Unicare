@@ -97,9 +97,12 @@ export default function ProposteRicerca({ id }: { id: number }) {
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
       {dati && r && (
         <>
-          <header className="intestazione-pagina">
-            <h1>{dati.proposte.length === 0 ? 'Nessuna proposta, per ora' : dati.proposte.length === 1 ? '1 badante si propone' : `${dati.proposte.length} badanti si propongono`}</h1>
-            <p className="sottotitolo">{r.chiusa ? 'Questa ricerca è chiusa.' : 'Leggi i profili e scrivi a chi vi convince. Ti avvisiamo noi quando arriva una nuova proposta.'}</p>
+          <header className="palco-pagina cat-compagnia">
+            <span className="palco-icona"><Inbox size={26} /></span>
+            <div className="palco-testi">
+              <h1>{dati.proposte.length === 0 ? 'Nessuna proposta, per ora' : dati.proposte.length === 1 ? '1 badante si propone' : `${dati.proposte.length} badanti si propongono`}</h1>
+              <p className="sottotitolo">{r.chiusa ? 'Questa ricerca è chiusa.' : 'Leggi i profili e scrivi a chi vi convince. Ti avvisiamo noi quando arriva una nuova proposta.'}</p>
+            </div>
           </header>
           <details className="scheda dettagli-ricerca">
             <summary>Cosa avete scritto{r.creataDa ? ` (${r.creataDa})` : ''}</summary>

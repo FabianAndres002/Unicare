@@ -1,6 +1,6 @@
 // Interprete per familiari e badanti: /interprete
 
-import { ArrowLeft, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Languages, ShieldCheck } from 'lucide-react'
 import { api } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -11,11 +11,14 @@ export default function InterpretePagina({ badante }: { badante: boolean }) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Interprete</h1>
-        <p className="sottotitolo">{badante
-          ? 'Ognuno parla nella sua lingua: il telefono traduce e legge ad alta voce.'
-          : 'Ognuno parla nella sua lingua: il telefono traduce e legge ad alta voce.'}</p>
+      <header className="palco-pagina cat-casa">
+        <span className="palco-icona"><Languages size={26} /></span>
+        <div className="palco-testi">
+          <h1>Interprete</h1>
+          <p className="sottotitolo">{badante
+            ? 'Ognuno parla nella sua lingua: il telefono traduce e legge ad alta voce.'
+            : 'Ognuno parla nella sua lingua: il telefono traduce e legge ad alta voce.'}</p>
+        </div>
       </header>
       {errore && <p className="errore">{errore}</p>}
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}

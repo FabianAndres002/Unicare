@@ -30,11 +30,14 @@ export default function MessaggiPagina({ anziano }: { anziano: Anziano }) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Messaggi vocali</h1>
-        <p className="sottotitolo">
-          {anziano.nome} può lasciarvi un messaggio dal suo telefono, senza scrivere. Potete rispondere con la voce: lo ascolta con un tocco.
-        </p>
+      <header className="palco-pagina cat-farmacia">
+        <span className="palco-icona"><Mic size={26} /></span>
+        <div className="palco-testi">
+          <h1>Messaggi vocali</h1>
+          <p className="sottotitolo">
+            {anziano.nome} può lasciarvi un messaggio dal suo telefono, senza scrivere. Potete rispondere con la voce: lo ascolta con un tocco.
+          </p>
+        </div>
       </header>
 
       <div className="scheda">

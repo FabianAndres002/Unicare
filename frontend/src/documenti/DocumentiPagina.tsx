@@ -207,9 +207,12 @@ export default function DocumentiPagina({ anziano }: { anziano: Anziano }) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Documenti di {anziano.nome}</h1>
-        <p className="sottotitolo">Ricette, analisi, ecografie e ricevute sempre a portata di mano. Li vedono solo i familiari.</p>
+      <header className="palco-pagina cat-spesa">
+        <span className="palco-icona"><FileText size={26} /></span>
+        <div className="palco-testi">
+          <h1>Documenti di {anziano.nome}</h1>
+          <p className="sottotitolo">Ricette, analisi, ecografie e ricevute sempre a portata di mano. Li vedono solo i familiari.</p>
+        </div>
       </header>
 
       {errore && <p className="errore">{errore}</p>}

@@ -1,7 +1,7 @@
 // La badante compila il suo profilo e accende "Mi propongo": così le famiglie la trovano.
 
 import { useState, type FormEvent } from 'react'
-import { ArrowLeft, Eye, EyeOff, Megaphone } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, Megaphone, UserRound } from 'lucide-react'
 import { api, messaggioErrore, type DatiProfiloBadante, type Disponibilita, type Profilo, type Servizio } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import { Collegamento } from '../comune/router'
@@ -121,9 +121,12 @@ export default function IlMioProfilo({ profilo }: { profilo: Profilo }) {
   return (
     <div className="pagina-app entra">
       <Collegamento a="/lavoro" className="indietro"><ArrowLeft size={18} /> Lavoro</Collegamento>
-      <header className="intestazione-pagina">
-        <h1>Il mio profilo</h1>
-        <p className="sottotitolo">Le famiglie lo vedono quando ti proponi per una ricerca. Con “Mi propongo” acceso ti trovano anche nella lista delle badanti.</p>
+      <header className="palco-pagina cat-compagnia">
+        <span className="palco-icona"><UserRound size={26} /></span>
+        <div className="palco-testi">
+          <h1>Il mio profilo</h1>
+          <p className="sottotitolo">Le famiglie lo vedono quando ti proponi per una ricerca. Con “Mi propongo” acceso ti trovano anche nella lista delle badanti.</p>
+        </div>
       </header>
       {errore && <p className="errore">{errore}</p>}
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
