@@ -1,9 +1,10 @@
 // La foto profilo grande con il pulsante della macchina fotografica sopra:
 // si sceglie dalla galleria o si scatta, l'app la ritaglia quadrata e la rimpicciolisce
 // (512 px, JPEG) prima di mandarla, così pesa poco anche con la connessione del telefono.
+// Chi non vuole la foto sceglie uno dei nostri disegni (file in public/avatar).
 
 import { useRef, useState } from 'react'
-import { Camera, Trash2 } from 'lucide-react'
+import { Camera, Check, Smile, Trash2 } from 'lucide-react'
 import Avatar from './Avatar'
 import { messaggioErrore } from './api'
 
@@ -13,11 +14,18 @@ type Props = {
   foto: string | null
   onCarica: (foto: Blob) => Promise<void>
   onTogli: () => Promise<void>
+  onDisegno: (disegno: string) => Promise<void>
   /** Per gli screen reader: "la tua foto", "la foto di Pina". */
   etichetta: string
 }
 
 const LATO = 512
+
+/** I disegni che si possono scegliere (stessi nomi del backend, foto.ts). */
+const DISEGNI = [
+  ['nonna', 'Nonna'], ['nonno', 'Nonno'], ['donna', 'Donna'], ['uomo', 'Uomo'], ['ragazza', 'Ragazza'], ['ragazzo', 'Ragazzo'],
+  ['gatto', 'Gatto'], ['cane', 'Cane'], ['girasole', 'Girasole'], ['sole', 'Sole'], ['albero', 'Albero'], ['uccellino', 'Uccellino'],
+] as const
 
 /** Ritaglia al centro un quadrato e lo rimpicciolisce a 512×512 JPEG. */
 async function preparaFoto(file: File): Promise<Blob> {
@@ -34,10 +42,11 @@ async function preparaFoto(file: File): Promise<Blob> {
   return blob
 }
 
-export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, etichetta }: Props) {
+export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, onDisegno, etichetta }: Props) {
   const input = useRef<HTMLInputElement>(null)
   const [occupato, setOccupato] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
+  const [disegni, setDisegni] = useState(false)
 
   async function esegui(azione: () => Promise<void>) {
     setOccupato(true)
@@ -64,9 +73,28 @@ export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, eti
           e.target.value = ''
           if (file) void esegui(async () => onCarica(await preparaFoto(file)))
         }} />
-      {foto
-        ? <button type="button" className="collegamento-piccolo" disabled={occupato} onClick={() => void esegui(onTogli)}><Trash2 size={14} /> Togli la foto</button>
-        : <span className="nota-piccola">Tocca per mettere una foto</span>}
+      <div className="scegli-foto-azioni">
+        <button type="button" className="collegamento-piccolo viola" disabled={occupato} aria-expanded={disegni} onClick={() => setDisegni(!disegni)}>
+          <Smile size={15} /> {disegni ? 'Chiudi i disegni' : 'Scegli un disegno'}
+        </button>
+        {foto && <button type="button" className="collegamento-piccolo" disabled={occupato} onClick={() => void esegui(onTogli)}><Trash2 size={14} /> Togli</button>}
+      </div>
+      {!foto && !disegni && <span className="nota-piccola">Tocca il cerchio per mettere una foto</span>}
+      {disegni && (
+        <div className="griglia-disegni" role="group" aria-label="Disegni">
+          {DISEGNI.map(([chiave, titolo]) => {
+            const url = `/avatar/${chiave}.svg`
+            return (
+              <button key={chiave} type="button" className={`disegno ${foto === url ? 'scelto' : ''}`} aria-pressed={foto === url} disabled={occupato}
+                onClick={() => void esegui(async () => { await onDisegno(chiave); setDisegni(false) })}>
+                <img src={url} alt="" />
+                <span>{titolo}</span>
+                {foto === url && <Check size={16} className="disegno-spunta" />}
+              </button>
+            )
+          })}
+        </div>
+      )}
       {errore && <p className="errore" role="alert">{errore}</p>}
     </div>
   )

@@ -937,3 +937,22 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .scheda-foto-anziano { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 16px; }
 .scheda-foto-anziano .nota { margin: 0; }
 .rete-avatar.avatar.con-foto { background: #fff !important; }
+.scegli-foto-azioni { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.scegli-foto .collegamento-piccolo.viola { color: var(--primario); }
+.griglia-disegni {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 420px;
+  padding: 14px; background: var(--bianco); border: 1px solid var(--bordo); border-radius: 20px; box-shadow: var(--ombra-m);
+  animation: entra-giu 0.25s ease-out;
+}
+@keyframes entra-giu { from { opacity: 0; transform: translateY(-6px); } }
+.disegno {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 0; border: 0; background: none; border-radius: 14px; cursor: pointer;
+  font: inherit; font-size: 0.75rem; font-weight: 700; color: var(--testo-tenue);
+}
+.disegno img { width: 100%; max-width: 68px; aspect-ratio: 1; border-radius: 50%; transition: transform 0.15s, box-shadow 0.15s; }
+.disegno:hover img, .disegno:focus-visible img { transform: scale(1.06); }
+.disegno.scelto img { box-shadow: 0 0 0 3px var(--bianco), 0 0 0 6px var(--primario); }
+.disegno.scelto span { color: var(--primario); }
+.disegno-spunta { position: absolute; top: 2px; right: 6px; background: var(--primario); color: #fff; border-radius: 50%; padding: 2px; }
+@media (prefers-reduced-motion: reduce) { .griglia-disegni { animation: none; } }

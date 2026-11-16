@@ -1,9 +1,11 @@
 // Endpoint delle foto profilo.
 //
 // PUT    /api/auth/io/foto        la mia foto (il corpo è l'immagine, max 1 MB)   → { foto }
-// DELETE /api/auth/io/foto        tolgo la mia foto                               204
+// PUT    /api/auth/io/disegno     scelgo un disegno al posto della foto {disegno} → { foto }
+// DELETE /api/auth/io/foto        tolgo la mia foto (o il disegno)                204
 // PUT    /api/anziani/:id/foto    foto della persona assistita (admin, familiari) → { foto }
-// DELETE /api/anziani/:id/foto    la toglie                                       204
+// PUT    /api/anziani/:id/disegno disegno per la persona assistita {disegno}     → { foto }
+// DELETE /api/anziani/:id/foto    la toglie (o il disegno)                        204
 // GET    /api/foto/:chiave        l'immagine (chiave casuale, vedi foto.ts)
 
 import express, { Router } from 'express'
@@ -19,6 +21,9 @@ export function rotteFoto(foto: ServizioFoto): Router {
   router.put('/auth/io/foto', richiedeAccesso, corpoFoto, async (req, res) => {
     res.json({ foto: await foto.salvaMia(res.locals.idUtente, req.body) })
   })
+  router.put('/auth/io/disegno', richiedeAccesso, async (req, res) => {
+    res.json({ foto: await foto.disegnoMio(res.locals.idUtente, req.body) })
+  })
   router.delete('/auth/io/foto', richiedeAccesso, async (_req, res) => {
     await foto.togliMia(res.locals.idUtente)
     res.status(204).end()
@@ -26,6 +31,9 @@ export function rotteFoto(foto: ServizioFoto): Router {
 
   router.put('/anziani/:id/foto', richiedeAccesso, corpoFoto, async (req, res) => {
     res.json({ foto: await foto.salvaAnziano(schemaId.parse(req.params.id), res.locals.idUtente, req.body) })
+  })
+  router.put('/anziani/:id/disegno', richiedeAccesso, async (req, res) => {
+    res.json({ foto: await foto.disegnoAnziano(schemaId.parse(req.params.id), res.locals.idUtente, req.body) })
   })
   router.delete('/anziani/:id/foto', richiedeAccesso, async (req, res) => {
     await foto.togliAnziano(schemaId.parse(req.params.id), res.locals.idUtente)

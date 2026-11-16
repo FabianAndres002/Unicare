@@ -26,8 +26,9 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
         <div className="scheda scheda-foto-anziano">
           <ScegliFoto nome={anziano.nome} cognome={anziano.cognome} foto={anziano.foto} etichetta={`la foto di ${anziano.nome}`}
             onCarica={async (f) => { await api.caricaFotoAnziano(anziano.id, f); onCambiato() }}
-            onTogli={async () => { await api.togliFotoAnziano(anziano.id); onCambiato() }} />
-          <p className="nota">Una foto aiuta tutti, soprattutto chi è nuovo nel cerchio, a riconoscere {anziano.nome}. La vede solo chi fa parte del cerchio.</p>
+            onTogli={async () => { await api.togliFotoAnziano(anziano.id); onCambiato() }}
+            onDisegno={async (d) => { await api.disegnoAnziano(anziano.id, d); onCambiato() }} />
+          <p className="nota">Una foto aiuta tutti, soprattutto chi è nuovo nel cerchio, a riconoscere {anziano.nome}. La vede solo chi fa parte del cerchio. Se preferite, scegliete un disegno.</p>
         </div>
       )}
       {anziano && <TelefonoAnziano anziano={anziano} />}

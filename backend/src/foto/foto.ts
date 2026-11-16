@@ -5,18 +5,29 @@
 // Ogni foto ha un indirizzo con una chiave casuale (/api/foto/<chiave>): lo ricevono solo
 // le persone che vedono già quel nome (stesso cerchio, conversazione, scheda badante).
 // Cambiando foto cambia la chiave, così il telefono non mostra quella vecchia.
+// Al posto della foto si può scegliere uno dei disegni dell'app (DISEGNI): o l'una o l'altro.
 
 import { randomBytes } from 'node:crypto'
+import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { PUO_MODIFICARE_ANZIANO, ruoloPerAnziano } from '../cerchio/permessi.ts'
 
 export const DIMENSIONE_MASSIMA_FOTO = 1024 * 1024 // 1 MB
 
-/** Espressione SQL: l'indirizzo della foto dell'utente con quell'id (o null). */
-export const fotoUtente = (colonnaId: string) => `(SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.utente_id = ${colonnaId})`
-/** Espressione SQL: l'indirizzo della foto dell'anziano con quell'id (o null). */
-export const fotoAnziano = (colonnaId: string) => `(SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.anziano_id = ${colonnaId})`
+/** I disegni che si possono scegliere al posto della foto (file in frontend/public/avatar). */
+export const DISEGNI = ['nonna', 'nonno', 'donna', 'uomo', 'ragazza', 'ragazzo', 'gatto', 'cane', 'girasole', 'sole', 'albero', 'uccellino'] as const
+
+/** Espressione SQL: la foto dell'utente con quell'id, o il disegno scelto, o null. */
+export const fotoUtente = (colonnaId: string) =>
+  `COALESCE((SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.utente_id = ${colonnaId}),
+            (SELECT '/avatar/' || x.avatar || '.svg' FROM utente x WHERE x.id = ${colonnaId}))`
+/** Espressione SQL: la foto dell'anziano con quell'id, o il disegno scelto, o null. */
+export const fotoAnziano = (colonnaId: string) =>
+  `COALESCE((SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.anziano_id = ${colonnaId}),
+            (SELECT '/avatar/' || x.avatar || '.svg' FROM anziano x WHERE x.id = ${colonnaId}))`
+
+export const schemaDisegno = z.object({ disegno: z.enum(DISEGNI) })
 
 /** Il tipo vero dell'immagine, letto dai primi byte (non ci si fida di quello dichiarato). */
 export function tipoImmagine(dati: Buffer): 'image/jpeg' | 'image/png' | 'image/webp' | null {
@@ -34,21 +45,40 @@ export function creaServizioFoto(db: Database) {
     return { dati, tipo }
   }
 
+  const TABELLA = { utente_id: 'utente', anziano_id: 'anziano' } as const
+
   async function salva(colonna: 'utente_id' | 'anziano_id', id: number, file: unknown): Promise<string> {
     const { dati, tipo } = controlla(file)
     const chiave = randomBytes(18).toString('base64url')
     await db.transazione(async (tx) => {
       await tx.query(`DELETE FROM foto WHERE ${colonna} = $1`, [id])
       await tx.query(`INSERT INTO foto (chiave, ${colonna}, tipo, dati) VALUES ($1, $2, $3, $4)`, [chiave, id, tipo, dati])
+      await tx.query(`UPDATE ${TABELLA[colonna]} SET avatar = NULL WHERE id = $1`, [id])
     })
     return `/api/foto/${chiave}`
   }
 
+  /** Sceglie un disegno: la foto, se c'era, si cancella (o l'una o l'altro). */
+  async function disegna(colonna: 'utente_id' | 'anziano_id', id: number, corpo: unknown): Promise<string> {
+    const { disegno } = schemaDisegno.parse(corpo)
+    await db.transazione(async (tx) => {
+      await tx.query(`DELETE FROM foto WHERE ${colonna} = $1`, [id])
+      await tx.query(`UPDATE ${TABELLA[colonna]} SET avatar = $2 WHERE id = $1`, [id, disegno])
+    })
+    return `/avatar/${disegno}.svg`
+  }
+
+  async function togli(colonna: 'utente_id' | 'anziano_id', id: number) {
+    await db.transazione(async (tx) => {
+      await tx.query(`DELETE FROM foto WHERE ${colonna} = $1`, [id])
+      await tx.query(`UPDATE ${TABELLA[colonna]} SET avatar = NULL WHERE id = $1`, [id])
+    })
+  }
+
   return {
     salvaMia: (utenteId: number, file: unknown) => salva('utente_id', utenteId, file),
-    async togliMia(utenteId: number) {
-      await db.query('DELETE FROM foto WHERE utente_id = $1', [utenteId])
-    },
+    disegnoMio: (utenteId: number, corpo: unknown) => disegna('utente_id', utenteId, corpo),
+    togliMia: (utenteId: number) => togli('utente_id', utenteId),
 
     /** La foto della persona assistita: la cambiano l'amministratore e i familiari. */
     async salvaAnziano(anzianoId: number, utenteId: number, file: unknown) {
@@ -57,7 +87,11 @@ export function creaServizioFoto(db: Database) {
     },
     async togliAnziano(anzianoId: number, utenteId: number) {
       await ruoloPerAnziano(db, anzianoId, utenteId, PUO_MODIFICARE_ANZIANO)
-      await db.query('DELETE FROM foto WHERE anziano_id = $1', [anzianoId])
+      await togli('anziano_id', anzianoId)
+    },
+    async disegnoAnziano(anzianoId: number, utenteId: number, corpo: unknown) {
+      await ruoloPerAnziano(db, anzianoId, utenteId, PUO_MODIFICARE_ANZIANO)
+      return disegna('anziano_id', anzianoId, corpo)
     },
 
     async leggi(chiave: string): Promise<{ dati: Buffer; tipo: string }> {

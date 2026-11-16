@@ -40,7 +40,8 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
       <div className="profilo-testa">
         <ScegliFoto nome={profilo.nome} foto={profilo.foto} etichetta="la tua foto"
           onCarica={async (f) => { const { foto } = await api.caricaMiaFoto(f); onProfilo({ ...profilo, foto }) }}
-          onTogli={async () => { await api.togliMiaFoto(); onProfilo({ ...profilo, foto: null }) }} />
+          onTogli={async () => { await api.togliMiaFoto(); onProfilo({ ...profilo, foto: null }) }}
+          onDisegno={async (d) => { const { foto } = await api.disegnoMio(d); onProfilo({ ...profilo, foto }) }} />
         <h1>{profilo.nome}</h1>
         <p className="sottotitolo">{profilo.email} · {profilo.tipo === 'FAMILIARE' ? 'familiare' : 'badante'}</p>
       </div>

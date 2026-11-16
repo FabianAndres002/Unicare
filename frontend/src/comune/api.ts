@@ -351,6 +351,8 @@ export const api = {
   // Foto profilo
   caricaMiaFoto: (foto: Blob) => inviaFoto('/api/auth/io/foto', foto),
   togliMiaFoto: () => chiama<void>('DELETE', '/api/auth/io/foto'),
+  disegnoMio: (disegno: string) => chiama<{ foto: string }>('PUT', '/api/auth/io/disegno', { disegno }),
+  disegnoAnziano: (id: number, disegno: string) => chiama<{ foto: string }>('PUT', `/api/anziani/${id}/disegno`, { disegno }),
   caricaFotoAnziano: (id: number, foto: Blob) => inviaFoto(`/api/anziani/${id}/foto`, foto),
   togliFotoAnziano: (id: number) => chiama<void>('DELETE', `/api/anziani/${id}/foto`),
   modificaDocumento: (id: number, dati: Partial<DatiDocumento>) => chiama<Documento>('PATCH', `/api/documenti/${id}`, dati),
