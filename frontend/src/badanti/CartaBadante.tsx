@@ -5,13 +5,13 @@ import type { ProfiloBadante } from '../comune/api'
 import Avatar from '../comune/Avatar'
 import { DISPONIBILITA, SERVIZI, nomeProvincia, tariffa } from './aspetto'
 
-type Props = { nome: string; cognome: string; p: Omit<ProfiloBadante, 'visibile'>; breve?: boolean }
+type Props = { nome: string; cognome: string; foto?: string | null; p: Omit<ProfiloBadante, 'visibile'>; breve?: boolean }
 
-export default function CartaBadante({ nome, cognome, p, breve }: Props) {
+export default function CartaBadante({ nome, cognome, foto, p, breve }: Props) {
   return (
     <div className="carta-badante">
       <div className="carta-badante-alto">
-        <Avatar nome={nome} cognome={cognome} grande />
+        <Avatar nome={nome} cognome={cognome} foto={foto} grande />
         <div className="riga-testo">
           <strong className="carta-badante-nome">{nome} {cognome}</strong>
           <span className="con-icona-piccola"><MapPin size={14} /> {p.comune} ({nomeProvincia(p.provincia)})</span>

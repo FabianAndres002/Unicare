@@ -12,6 +12,7 @@
 //
 // Anti-spam: al massimo 3 ricerche aperte per cerchio, 20 proposte al giorno per badante.
 
+import { fotoUtente } from '../foto/foto.ts'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
@@ -75,6 +76,7 @@ export type PropostaPerFamiglia = {
     id: number
     nome: string
     cognome: string
+    foto: string | null
     presentazione: string
     comune: string
     provincia: string
@@ -203,7 +205,7 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
       const proposte = await db.query<PropostaPerFamiglia>(
         `SELECT p.id, p.messaggio, p.stato, ${ISO('p.creata_il')} AS "creataIl", p.contatto_id AS "contattoId",
                 json_build_object(
-                  'id', u.id, 'nome', u.nome, 'cognome', left(u.cognome, 1) || '.',
+                  'id', u.id, 'nome', u.nome, 'cognome', left(u.cognome, 1) || '.', 'foto', ${fotoUtente('u.id')},
                   'presentazione', pb.presentazione, 'comune', pb.comune, 'provincia', pb.provincia, 'zone', pb.zone,
                   'anniEsperienza', pb.anni_esperienza, 'lingue', pb.lingue, 'servizi', pb.servizi, 'disponibilita', pb.disponibilita,
                   'tariffaOrariaCentesimi', pb.tariffa_oraria_centesimi, 'automunita', pb.automunita

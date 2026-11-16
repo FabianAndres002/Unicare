@@ -52,7 +52,7 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
       {anzianoScelto && (
         <section className="scheda rete-dettaglio entra" aria-live="polite">
           <div className="rete-dettaglio-alto">
-            <Avatar nome={anzianoScelto.nome} cognome={anzianoScelto.cognome} grande />
+            <Avatar nome={anzianoScelto.nome} cognome={anzianoScelto.cognome} foto={anzianoScelto.foto} grande />
             <div>
               <h2>{anzianoScelto.nome} {anzianoScelto.cognome}</h2>
               <p className="sottotitolo">
@@ -70,7 +70,7 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
       {membroScelto && (
         <section className="scheda rete-dettaglio entra" aria-live="polite">
           <div className="rete-dettaglio-alto">
-            <Avatar nome={membroScelto.nome} cognome={membroScelto.cognome} grande />
+            <Avatar nome={membroScelto.nome} cognome={membroScelto.cognome} foto={membroScelto.foto} grande />
             <div>
               <h2>{membroScelto.nome} {membroScelto.cognome}{membroScelto.id === profilo.id && <span className="tu"> (tu)</span>}</h2>
               <p className="sottotitolo">{membroScelto.email}</p>

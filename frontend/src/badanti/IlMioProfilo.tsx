@@ -13,7 +13,7 @@ const VUOTO: DatiProfiloBadante = {
   servizi: [], disponibilita: [], tariffaOrariaCentesimi: null, automunita: false, visibile: true,
 }
 
-function Modulo({ nome, cognome, iniziale, onSalvato }: { nome: string; cognome: string; iniziale: DatiProfiloBadante; onSalvato: () => void }) {
+function Modulo({ nome, cognome, foto, iniziale, onSalvato }: { nome: string; cognome: string; foto: string | null; iniziale: DatiProfiloBadante; onSalvato: () => void }) {
   const [d, setD] = useState(iniziale)
   const [tariffa, setTariffa] = useState(iniziale.tariffaOrariaCentesimi === null ? '' : String(iniziale.tariffaOrariaCentesimi / 100).replace('.', ','))
   const [errore, setErrore] = useState<string | null>(null)
@@ -107,9 +107,9 @@ function Modulo({ nome, cognome, iniziale, onSalvato }: { nome: string; cognome:
       {d.provincia && d.comune && (
         <section>
           <div className="titolo-sezione"><h2>{d.visibile ? <Eye size={18} className="icona-inline" /> : <EyeOff size={18} className="icona-inline" />} Così ti vedono le famiglie</h2></div>
-          <div className="scheda"><CartaBadante nome={nome} cognome={cognome}
+          <div className="scheda"><CartaBadante nome={nome} cognome={cognome} foto={foto}
             p={{ ...d, tariffaOrariaCentesimi: tariffa.trim() ? Math.round(Number(tariffa.replace(',', '.')) * 100) || null : null, aggiornatoIl: '' }} /></div>
-          <p className="nota">Le famiglie vedono il tuo nome e l’iniziale del cognome. Email e telefono no: ti scrivono qui, e decidi tu se dare il tuo numero.</p>
+          <p className="nota">Le famiglie vedono il tuo nome, l’iniziale del cognome e la tua foto (se l’hai messa nel Profilo). Email e telefono no: ti scrivono qui, e decidi tu se dare il tuo numero.</p>
         </section>
       )}
     </form>
@@ -127,7 +127,7 @@ export default function IlMioProfilo({ profilo }: { profilo: Profilo }) {
       </header>
       {errore && <p className="errore">{errore}</p>}
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
-      {dati && <Modulo nome={dati.nome} cognome={dati.cognome} iniziale={dati.profilo ? { ...dati.profilo } : VUOTO} onSalvato={ricarica} />}
+      {dati && <Modulo nome={dati.nome} cognome={dati.cognome} foto={profilo.foto} iniziale={dati.profilo ? { ...dati.profilo } : VUOTO} onSalvato={ricarica} />}
     </div>
   )
 }

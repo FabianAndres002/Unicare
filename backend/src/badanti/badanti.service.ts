@@ -10,6 +10,7 @@
 //
 // Anti-spam: una famiglia può aprire al massimo 10 nuove conversazioni al giorno.
 
+import { fotoUtente } from '../foto/foto.ts'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
@@ -55,11 +56,12 @@ export type SchedaBadante = Omit<ProfiloBadante, 'visibile'> & {
   cognome: string
   /** La conversazione già aperta con lei, se c'è. */
   contattoId: number | null
+  foto: string | null
 }
 
 export type Conversazione = {
   id: number
-  altro: { id: number; nome: string; cognome: string; tipo: 'FAMILIARE' | 'BADANTE' }
+  altro: { id: number; nome: string; cognome: string; tipo: 'FAMILIARE' | 'BADANTE'; foto: string | null }
   ultimoTesto: string | null
   ultimoIl: string
   nonLetti: number
@@ -155,7 +157,7 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
     async cerca(utenteId: number, filtri: z.infer<typeof schemaRicerca>): Promise<SchedaBadante[]> {
       await soloFamiliare(utenteId)
       return db.query<SchedaBadante>(
-        `SELECT u.id, u.nome, left(u.cognome, 1) || '.' AS cognome, ${CAMPI_PROFILO}, c.id AS "contattoId"
+        `SELECT u.id, u.nome, left(u.cognome, 1) || '.' AS cognome, ${CAMPI_PROFILO}, c.id AS "contattoId", ${fotoUtente('u.id')} AS foto
          FROM profilo_badante p JOIN utente u ON u.id = p.utente_id
          LEFT JOIN contatto c ON c.badante_id = u.id AND c.familiare_id = $1
          WHERE p.visibile
@@ -171,7 +173,7 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
     async scheda(badanteId: number, utenteId: number): Promise<SchedaBadante> {
       await soloFamiliare(utenteId)
       const [s] = await db.query<SchedaBadante>(
-        `SELECT u.id, u.nome, left(u.cognome, 1) || '.' AS cognome, ${CAMPI_PROFILO}, c.id AS "contattoId"
+        `SELECT u.id, u.nome, left(u.cognome, 1) || '.' AS cognome, ${CAMPI_PROFILO}, c.id AS "contattoId", ${fotoUtente('u.id')} AS foto
          FROM profilo_badante p JOIN utente u ON u.id = p.utente_id
          LEFT JOIN contatto c ON c.badante_id = u.id AND c.familiare_id = $2
          WHERE u.id = $1 AND (p.visibile OR c.id IS NOT NULL)`,
@@ -208,7 +210,7 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
     async conversazioni(utenteId: number): Promise<Conversazione[]> {
       return db.query<Conversazione>(
         `SELECT c.id,
-                json_build_object('id', o.id, 'nome', o.nome, 'cognome', left(o.cognome, 1) || '.', 'tipo', o.tipo) AS altro,
+                json_build_object('id', o.id, 'nome', o.nome, 'cognome', left(o.cognome, 1) || '.', 'tipo', o.tipo, 'foto', ${fotoUtente('o.id')}) AS altro,
                 (SELECT testo FROM messaggio_contatto WHERE contatto_id = c.id ORDER BY creato_il DESC, id DESC LIMIT 1) AS "ultimoTesto",
                 ${ISO('c.ultimo_messaggio_il')} AS "ultimoIl",
                 (SELECT count(*)::int FROM messaggio_contatto WHERE contatto_id = c.id AND autore_id <> $1 AND letto_il IS NULL) AS "nonLetti",

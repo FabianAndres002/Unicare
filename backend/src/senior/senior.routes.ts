@@ -19,6 +19,7 @@
 // POST   /api/anziani/:id/telefono/codice            nuovo codice a 6 cifre                 (201)
 // DELETE /api/anziani/:id/telefono/:dispositivoId    scollega un telefono                   (204)
 
+import { fotoAnziano, fotoUtente } from '../foto/foto.ts'
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
@@ -82,18 +83,18 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
 
   router.get('/senior/io', richiedeTelefono, async (_req, res) => {
     const { anzianoId } = senior(res)
-    const [anziano] = await db.query<{ nome: string; cognome: string; cerchio: string; cerchioId: number }>(
-      `SELECT a.nome, a.cognome, c.nome AS cerchio, c.id AS "cerchioId"
+    const [anziano] = await db.query<{ nome: string; cognome: string; foto: string | null; cerchio: string; cerchioId: number }>(
+      `SELECT a.nome, a.cognome, ${fotoAnziano('a.id')} AS foto, c.nome AS cerchio, c.id AS "cerchioId"
        FROM anziano a JOIN cerchio c ON c.id = a.cerchio_id WHERE a.id = $1`,
       [anzianoId],
     )
-    const famiglia = await db.query<{ nome: string; ruolo: string }>(
-      `SELECT u.nome, m.ruolo FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
+    const famiglia = await db.query<{ nome: string; ruolo: string; foto: string | null }>(
+      `SELECT u.nome, m.ruolo, ${fotoUtente('u.id')} AS foto FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
        WHERE m.cerchio_id = $1 ORDER BY (m.ruolo = 'BADANTE'), m.entrato_il`,
       [anziano!.cerchioId],
     )
     res.json({
-      anziano: { id: anzianoId, nome: anziano!.nome, cognome: anziano!.cognome },
+      anziano: { id: anzianoId, nome: anziano!.nome, cognome: anziano!.cognome, foto: anziano!.foto },
       cerchio: anziano!.cerchio,
       famiglia,
       richieste: await richieste.elencoAnziano(anzianoId),

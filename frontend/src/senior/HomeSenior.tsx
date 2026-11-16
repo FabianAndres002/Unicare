@@ -108,7 +108,7 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
         <h2>La tua famiglia</h2>
         <ul className="senior-famiglia">
           {io.famiglia.map((f, i) => (
-            <li key={i}><Avatar nome={f.nome} /> <span>{f.nome}{f.ruolo === 'BADANTE' && <small> · badante</small>}</span></li>
+            <li key={i}><Avatar nome={f.nome} foto={f.foto} /> <span>{f.nome}{f.ruolo === 'BADANTE' && <small> · badante</small>}</span></li>
           ))}
         </ul>
       </section>

@@ -31,7 +31,7 @@ export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, ha
           <span>Unicare</span>
         </Collegamento>
         {nomeCerchio && <span className="pillola-cerchio">{nomeCerchio}</span>}
-        <Collegamento a="/profilo" className="barra-avatar"><Avatar nome={profilo.nome} /></Collegamento>
+        <Collegamento a="/profilo" className="barra-avatar"><Avatar nome={profilo.nome} foto={profilo.foto} /></Collegamento>
       </header>
 
       <nav className="navigazione" aria-label="Menu principale">

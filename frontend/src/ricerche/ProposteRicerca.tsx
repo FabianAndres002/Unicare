@@ -43,7 +43,7 @@ function Proposta({ p, chiusa, onCambiato }: { p: PropostaPerFamiglia; chiusa: b
 
   return (
     <article className={`scheda proposta ${p.stato === 'NON_SCELTA' ? 'spenta' : ''}`}>
-      <CartaBadante nome={b.nome} cognome={b.cognome} p={{ ...b, aggiornatoIl: '' }} breve={p.stato === 'NON_SCELTA'} />
+      <CartaBadante nome={b.nome} cognome={b.cognome} foto={b.foto} p={{ ...b, aggiornatoIl: '' }} breve={p.stato === 'NON_SCELTA'} />
       <div className="citazione">
         <small>Ha scritto {tempoFa(p.creataIl)}</small>
         {p.messaggio}

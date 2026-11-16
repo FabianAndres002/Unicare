@@ -7,14 +7,14 @@ export type Stato = { app: string; database: string; tabelle: number }
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 export type Ruolo = 'ADMIN' | 'FAMILIARE' | 'BADANTE'
 
-export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean }
+export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null }
 
 export type DatiRegistrazione = { email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
 
-export type Anziano = { id: number; nome: string; cognome: string; dataNascita: string | null; comune: string | null }
-export type DatiAnziano = Omit<Anziano, 'id'>
+export type Anziano = { id: number; nome: string; cognome: string; dataNascita: string | null; comune: string | null; foto: string | null }
+export type DatiAnziano = Omit<Anziano, 'id' | 'foto'>
 
-export type Membro = { id: number; nome: string; cognome: string; email: string; ruolo: Ruolo }
+export type Membro = { id: number; nome: string; cognome: string; email: string; ruolo: Ruolo; foto: string | null }
 export type InvitoInAttesa = { id: number; email: string; ruolo: Ruolo; scadeIl: string }
 
 export type RiassuntoCerchio = { id: number; nome: string; mioRuolo: Ruolo; anziani: Anziano[]; numeroMembri: number }
@@ -143,7 +143,7 @@ export type DatiProfiloBadante = {
   visibile: boolean
 }
 export type ProfiloBadante = DatiProfiloBadante & { aggiornatoIl: string }
-export type SchedaBadante = Omit<ProfiloBadante, 'visibile'> & { id: number; nome: string; cognome: string; contattoId: number | null }
+export type SchedaBadante = Omit<ProfiloBadante, 'visibile'> & { id: number; nome: string; cognome: string; contattoId: number | null; foto: string | null }
 
 // "Cerco una badante" e proposte
 export type StatoProposta = 'INVIATA' | 'SCELTA' | 'NON_SCELTA' | 'RITIRATA'
@@ -165,12 +165,12 @@ export type PropostaPerFamiglia = {
   stato: StatoProposta
   creataIl: string
   contattoId: number | null
-  badante: Omit<ProfiloBadante, 'visibile' | 'aggiornatoIl'> & { id: number; nome: string; cognome: string }
+  badante: Omit<ProfiloBadante, 'visibile' | 'aggiornatoIl'> & { id: number; nome: string; cognome: string; foto: string | null }
 }
 export type MiaProposta = { id: number; messaggio: string; stato: StatoProposta; creataIl: string; contattoId: number | null; ricerca: BaseRicerca }
 export type Conversazione = {
   id: number
-  altro: { id: number; nome: string; cognome: string; tipo: TipoUtente }
+  altro: { id: number; nome: string; cognome: string; tipo: TipoUtente; foto: string | null }
   ultimoTesto: string | null
   ultimoIl: string
   nonLetti: number
@@ -181,9 +181,9 @@ export type DettaglioConversazione = { conversazione: Conversazione; messaggi: M
 
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
-  anziano: { id: number; nome: string; cognome: string }
+  anziano: { id: number; nome: string; cognome: string; foto: string | null }
   cerchio: string
-  famiglia: { nome: string; ruolo: Ruolo }[]
+  famiglia: { nome: string; ruolo: Ruolo; foto: string | null }[]
   richieste: Richiesta[]
   medicine: Occorrenza[]
   appuntamenti: Appuntamento[]
@@ -232,6 +232,21 @@ async function inviaAudio(url: string, audio: Blob, durata: number): Promise<{ i
     method: 'POST',
     headers: { 'Content-Type': audio.type || 'audio/webm' },
     body: audio,
+    credentials: 'same-origin',
+  })
+  if (!risposta.ok) {
+    const errore = await risposta.json().catch(() => null)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+  }
+  return risposta.json()
+}
+
+/** Manda una foto profilo (già rimpicciolita) e restituisce il suo indirizzo. */
+async function inviaFoto(url: string, foto: Blob): Promise<{ foto: string }> {
+  const risposta = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': foto.type || 'image/jpeg' },
+    body: foto,
     credentials: 'same-origin',
   })
   if (!risposta.ok) {
@@ -333,6 +348,11 @@ export const api = {
   // Documenti sanitari
   documenti: (anzianoId: number) => chiama<ArchivioDocumenti>('GET', `/api/anziani/${anzianoId}/documenti`),
   caricaDocumento: inviaDocumento,
+  // Foto profilo
+  caricaMiaFoto: (foto: Blob) => inviaFoto('/api/auth/io/foto', foto),
+  togliMiaFoto: () => chiama<void>('DELETE', '/api/auth/io/foto'),
+  caricaFotoAnziano: (id: number, foto: Blob) => inviaFoto(`/api/anziani/${id}/foto`, foto),
+  togliFotoAnziano: (id: number) => chiama<void>('DELETE', `/api/anziani/${id}/foto`),
   modificaDocumento: (id: number, dati: Partial<DatiDocumento>) => chiama<Documento>('PATCH', `/api/documenti/${id}`, dati),
   eliminaDocumento: (id: number) => chiama<void>('DELETE', `/api/documenti/${id}`),
   fileDocumento: (id: number) => `/api/documenti/${id}/file`,

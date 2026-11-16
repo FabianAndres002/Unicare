@@ -30,7 +30,7 @@ describe('stato', () => {
   it('risponde con le 21 tabelle create dalle migrazioni', async () => {
     const r = await request(app).get('/api/stato')
     expect(r.status).toBe(200)
-    expect(r.body).toEqual({ app: 'Unicare', database: 'ok', tabelle: 21 })
+    expect(r.body).toEqual({ app: 'Unicare', database: 'ok', tabelle: 22 })
   })
 
   it('indirizzo sconosciuto: 404 in JSON', async () => {

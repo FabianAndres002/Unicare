@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Check, LogOut, Mail, Plus } from 'lucide-react'
 import { api, messaggioErrore, type Profilo, type RiassuntoCerchio } from '../comune/api'
 import { Collegamento } from '../comune/router'
-import Avatar from '../comune/Avatar'
+import ScegliFoto from '../comune/ScegliFoto'
 import NotificheTelefono from './NotificheTelefono'
 import PrivacyProfilo from './PrivacyProfilo'
 import { nomeRuolo } from '../comune/utili'
@@ -38,7 +38,9 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
   return (
     <div className="pagina-app entra">
       <div className="profilo-testa">
-        <Avatar nome={profilo.nome} grande />
+        <ScegliFoto nome={profilo.nome} foto={profilo.foto} etichetta="la tua foto"
+          onCarica={async (f) => { const { foto } = await api.caricaMiaFoto(f); onProfilo({ ...profilo, foto }) }}
+          onTogli={async () => { await api.togliMiaFoto(); onProfilo({ ...profilo, foto: null }) }} />
         <h1>{profilo.nome}</h1>
         <p className="sottotitolo">{profilo.email} · {profilo.tipo === 'FAMILIARE' ? 'familiare' : 'badante'}</p>
       </div>

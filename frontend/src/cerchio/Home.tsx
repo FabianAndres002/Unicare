@@ -31,7 +31,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
           return (
             <article key={a.id} className="scheda-anziano">
               <div className="scheda-anziano-alto">
-                <Avatar nome={a.nome} cognome={a.cognome} grande className="avatar-chiaro" />
+                <Avatar nome={a.nome} cognome={a.cognome} foto={a.foto} grande className="avatar-chiaro" />
                 <div>
                   <p className="etichetta-chiara">La persona che assistete</p>
                   <h2>{a.nome} {a.cognome}</h2>
@@ -132,7 +132,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
         <div className="titolo-sezione"><h2>Il cerchio</h2></div>
         <Collegamento a="/cerchio" className="riga-cerchio scheda">
           <span className="avatar-impilati">
-            {cerchio.membri.slice(0, 4).map((m) => <Avatar key={m.id} nome={m.nome} cognome={m.cognome} />)}
+            {cerchio.membri.slice(0, 4).map((m) => <Avatar key={m.id} nome={m.nome} cognome={m.cognome} foto={m.foto} />)}
           </span>
           <span className="riga-testo">
             <strong>{cerchio.membri.length === 1 ? 'Solo tu, per ora' : `${cerchio.membri.length} persone`}</strong>

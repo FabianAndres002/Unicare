@@ -67,7 +67,7 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
             {conversazioni.slice(0, 3).map((c) => (
               <li key={c.id}>
                 <Collegamento a={`/contatti/${c.id}`} className="riga-scelta">
-                  <Avatar nome={c.altro.nome} cognome={c.altro.cognome} />
+                  <Avatar nome={c.altro.nome} cognome={c.altro.cognome} foto={c.altro.foto} />
                   <span className="riga-testo"><strong>{c.altro.nome} {c.altro.cognome}</strong><span>{c.ultimoTesto}</span></span>
                   <span className="conversazione-destra">
                     <small>{tempoFa(c.ultimoIl)}</small>

@@ -82,7 +82,7 @@ export default function TrovaBadante() {
           <div className="pila-appuntamenti">
             {dati.map((b) => (
               <Collegamento key={b.id} a={`/badanti/${b.id}`} className="scheda carta-link">
-                <CartaBadante nome={b.nome} cognome={b.cognome} p={b} breve />
+                <CartaBadante nome={b.nome} cognome={b.cognome} foto={b.foto} p={b} breve />
                 {b.contattoId && <span className="stato stato-corso">Le hai già scritto</span>}
               </Collegamento>
             ))}

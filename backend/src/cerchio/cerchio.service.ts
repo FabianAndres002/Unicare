@@ -1,5 +1,6 @@
 // Cerchi, membri e scheda dell'anziano. Non sa nulla di HTTP: riceve dati e restituisce dati.
 
+import { fotoAnziano, fotoUtente } from '../foto/foto.ts'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
@@ -43,9 +44,11 @@ export type Anziano = {
   cognome: string
   dataNascita: string | null
   comune: string | null
+  /** Indirizzo della foto, se c'è. */
+  foto: string | null
 }
 
-export type Membro = { id: number; nome: string; cognome: string; email: string; ruolo: Ruolo }
+export type Membro = { id: number; nome: string; cognome: string; email: string; ruolo: Ruolo; foto: string | null }
 
 export type InvitoInAttesa = { id: number; email: string; ruolo: Ruolo; scadeIl: string }
 
@@ -61,7 +64,7 @@ export type DettaglioCerchio = {
   invitiInAttesa: InvitoInAttesa[]
 }
 
-const COLONNE_ANZIANO = `id, nome, cognome, to_char(data_nascita, 'YYYY-MM-DD') AS "dataNascita", comune`
+const COLONNE_ANZIANO = `id, nome, cognome, to_char(data_nascita, 'YYYY-MM-DD') AS "dataNascita", comune, ${fotoAnziano('anziano.id')} AS foto`
 
 export function creaServizioCerchio(db: Database) {
   async function anzianiDi(cerchioIds: number[]) {
@@ -113,7 +116,7 @@ export function creaServizioCerchio(db: Database) {
       const mioRuolo = await ruoloNelCerchio(db, cerchioId, utenteId)
       const [cerchio] = await db.query<{ nome: string }>('SELECT nome FROM cerchio WHERE id = $1', [cerchioId])
       const membri = await db.query<Membro>(
-        `SELECT u.id, u.nome, u.cognome, u.email, m.ruolo
+        `SELECT u.id, u.nome, u.cognome, u.email, m.ruolo, ${fotoUtente('u.id')} AS foto
          FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
          WHERE m.cerchio_id = $1 ORDER BY m.entrato_il, u.id`,
         [cerchioId],

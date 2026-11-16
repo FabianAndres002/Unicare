@@ -79,7 +79,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
           style={{ left: `${x}%`, top: `${y}%` }} aria-pressed={scelta?.tipo === 'anziano' && scelta.id === a.id}
           onClick={() => onScegli({ tipo: 'anziano', id: a.id })}>
           <span className="rete-alone" aria-hidden="true" />
-          <Avatar nome={a.nome} cognome={a.cognome} className="rete-avatar" />
+          <Avatar nome={a.nome} cognome={a.cognome} foto={a.foto} className="rete-avatar" />
           <span className="rete-nome">{a.nome}</span>
         </button>
       ))}
@@ -100,7 +100,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
             style={{ left: `${n.x}%`, top: `${n.y}%`, ...ritardo(i), '--fluttua': `${-(i * 0.7)}s` } as CSSProperties} aria-pressed={scelto}
             onClick={() => onScegli(n.membro ? { tipo: 'membro', id: n.membro.id } : { tipo: 'invito', id: n.invito!.id })}>
             {n.membro
-              ? <Avatar nome={n.membro.nome} cognome={n.membro.cognome} className="rete-avatar" />
+              ? <Avatar nome={n.membro.nome} cognome={n.membro.cognome} foto={n.membro.foto} className="rete-avatar" />
               : <span className="rete-avatar avatar avatar-attesa"><Clock size={20} /></span>}
             <span className="rete-nome">
               {n.membro ? (n.membro.id === mioId ? 'Tu' : n.membro.nome) : 'Invitato'}

@@ -33,7 +33,7 @@ export default function PaginaBadante({ id }: { id: number }) {
       {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
       {dati && (
         <>
-          <div className="scheda"><CartaBadante nome={dati.nome} cognome={dati.cognome} p={dati} /></div>
+          <div className="scheda"><CartaBadante nome={dati.nome} cognome={dati.cognome} foto={dati.foto} p={dati} /></div>
           {dati.contattoId ? (
             <Collegamento a={`/contatti/${dati.contattoId}`} className="pulsante con-icona"><MessageCircle size={20} /> Apri la conversazione con {dati.nome}</Collegamento>
           ) : (

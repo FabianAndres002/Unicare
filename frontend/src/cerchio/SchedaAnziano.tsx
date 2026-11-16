@@ -6,6 +6,7 @@ import { Collegamento, naviga } from '../comune/router'
 import ModuloAnziano from './ModuloAnziano'
 import TelefonoAnziano from './TelefonoAnziano'
 import EliminaScheda from './EliminaScheda'
+import ScegliFoto from '../comune/ScegliFoto'
 
 type Props = { cerchio: Cerchio; anzianoId: number | 'nuovo'; onCambiato: () => void }
 
@@ -21,6 +22,14 @@ export default function SchedaAnziano({ cerchio, anzianoId, onCambiato }: Props)
         <h1>{anziano ? `${anziano.nome} ${anziano.cognome}` : 'Nuova scheda'}</h1>
         <p className="sottotitolo">Solo dati utili all'organizzazione. I documenti sanitari stanno nella sezione Documenti.</p>
       </header>
+      {anziano && (
+        <div className="scheda scheda-foto-anziano">
+          <ScegliFoto nome={anziano.nome} cognome={anziano.cognome} foto={anziano.foto} etichetta={`la foto di ${anziano.nome}`}
+            onCarica={async (f) => { await api.caricaFotoAnziano(anziano.id, f); onCambiato() }}
+            onTogli={async () => { await api.togliFotoAnziano(anziano.id); onCambiato() }} />
+          <p className="nota">Una foto aiuta tutti, soprattutto chi è nuovo nel cerchio, a riconoscere {anziano.nome}. La vede solo chi fa parte del cerchio.</p>
+        </div>
+      )}
       {anziano && <TelefonoAnziano anziano={anziano} />}
       {anziano && <div className="titolo-sezione"><h2>I dati di {anziano.nome}</h2></div>}
       <div className="scheda">

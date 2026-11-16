@@ -34,6 +34,8 @@ import { creaServizioTraduzione, traduttorePredefinito, type Traduttore } from '
 import { rotteTraduzione } from './traduzione/traduzione.routes.ts'
 import { creaDiretta, type Diretta } from './diretta/diretta.ts'
 import { rotteDiretta } from './diretta/diretta.routes.ts'
+import { creaServizioFoto } from './foto/foto.ts'
+import { rotteFoto } from './foto/foto.routes.ts'
 
 /** postino, spingitore, traduttore: chi consegna email e push e chi traduce (i test ne passano di finti). */
 export function creaApp(
@@ -97,6 +99,7 @@ export function creaApp(
   app.use('/api', rotteRicerche(creaServizioRicerche(db, avvisi)))
   app.use('/api', rotteTraduzione(traduzione))
   app.use('/api', rotteDiretta(diretta))
+  app.use('/api', rotteFoto(creaServizioFoto(db)))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {

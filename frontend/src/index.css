@@ -914,3 +914,26 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
   .rete-giro, .rete-stella, .rete-palco .rete-nodo:not(.centro) .rete-avatar { animation: none; }
   .rete-impulso { display: none; }
 }
+
+/* ---- Foto profilo ---- */
+.avatar.con-foto { overflow: hidden; background: var(--sfondo-scuro) !important; }
+.avatar.con-foto img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+.scegli-foto { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 12px; }
+.scegli-foto-pulsante { position: relative; padding: 0; border: 0; background: none; border-radius: 50%; cursor: pointer; }
+.scegli-foto-pulsante:focus-visible { outline: 3px solid var(--primario); outline-offset: 4px; }
+.scegli-foto .avatar-foto.avatar { width: 104px; height: 104px; font-size: 2rem; box-shadow: 0 0 0 4px var(--bianco), 0 0 0 7px var(--primario-chiaro), var(--ombra-m); }
+.scegli-foto-camera {
+  position: absolute; right: -2px; bottom: -2px; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--accento-scuro); color: var(--bianco);
+  box-shadow: 0 0 0 3px var(--bianco), var(--ombra-m);
+}
+.scegli-foto-camera.gira svg { animation: gira 1s linear infinite; }
+.scegli-foto .collegamento-piccolo {
+  display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 6px 10px;
+  color: var(--accento-testo); font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.scegli-foto .nota-piccola { color: var(--testo-tenue); font-size: 0.9rem; }
+.profilo-testa .scegli-foto .avatar { margin-bottom: 0; }
+.scheda-foto-anziano { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 16px; }
+.scheda-foto-anziano .nota { margin: 0; }
+.rete-avatar.avatar.con-foto { background: #fff !important; }
