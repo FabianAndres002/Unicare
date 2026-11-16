@@ -97,20 +97,20 @@ describe('foto profilo', () => {
     const { anna, maria, cerchioId, anzianoId } = await famiglia()
     await carica(anna, '/api/auth/io/foto', JPEG).expect(200)
     const r = await anna.put('/api/auth/io/disegno').send({ disegno: 'gatto' }).expect(200)
-    expect(r.body.foto).toBe('/avatar/gatto.svg')
-    expect((await anna.get('/api/auth/io')).body.foto).toBe('/avatar/gatto.svg')
+    expect(r.body.foto).toBe('/avatar/gatto.webp')
+    expect((await anna.get('/api/auth/io')).body.foto).toBe('/avatar/gatto.webp')
     // Una nuova foto prende il posto del disegno.
     const { foto } = (await carica(anna, '/api/auth/io/foto', PNG)).body
     expect((await anna.get('/api/auth/io')).body.foto).toBe(foto)
     // Togli: niente foto e niente disegno.
-    await anna.put('/api/auth/io/disegno').send({ disegno: 'sole' }).expect(200)
+    await anna.put('/api/auth/io/disegno').send({ disegno: 'cane' }).expect(200)
     await anna.delete('/api/auth/io/foto').expect(204)
     expect((await anna.get('/api/auth/io')).body.foto).toBeNull()
     // Solo disegni dell'elenco.
     await anna.put('/api/auth/io/disegno').send({ disegno: '../../segreto' }).expect(400)
 
     await anna.put(`/api/anziani/${anzianoId}/disegno`).send({ disegno: 'nonna' }).expect(200)
-    expect((await maria.get(`/api/cerchi/${cerchioId}`)).body.anziani[0].foto).toBe('/avatar/nonna.svg')
+    expect((await maria.get(`/api/cerchi/${cerchioId}`)).body.anziani[0].foto).toBe('/avatar/nonna.webp')
     await maria.put(`/api/anziani/${anzianoId}/disegno`).send({ disegno: 'cane' }).expect(403)
   })
 })

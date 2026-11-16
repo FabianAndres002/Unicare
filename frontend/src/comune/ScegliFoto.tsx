@@ -23,8 +23,10 @@ const LATO = 512
 
 /** I disegni che si possono scegliere (stessi nomi del backend, foto.ts). */
 const DISEGNI = [
-  ['nonna', 'Nonna'], ['nonno', 'Nonno'], ['donna', 'Donna'], ['uomo', 'Uomo'], ['ragazza', 'Ragazza'], ['ragazzo', 'Ragazzo'],
-  ['gatto', 'Gatto'], ['cane', 'Cane'], ['girasole', 'Girasole'], ['sole', 'Sole'], ['albero', 'Albero'], ['uccellino', 'Uccellino'],
+  ['nonna', 'Nonna'], ['nonno', 'Nonno'], ['nonno-baffi', 'Nonno coi baffi'], ['donna', 'Donna'],
+  ['donna-ricci', 'Donna riccia'], ['donna-treccine', 'Donna con treccine'], ['ragazza', 'Ragazza'], ['ragazza-viola', 'Ragazza viola'],
+  ['uomo', 'Uomo'], ['uomo-elegante', 'Uomo elegante'], ['uomo-cuffia', 'Uomo con cuffia'], ['uomo-viola', 'Uomo viola'],
+  ['ragazzo', 'Ragazzo'], ['gatto', 'Gatto'], ['cane', 'Cane'], ['cane-felice', 'Cane felice'],
 ] as const
 
 /** Ritaglia al centro un quadrato e lo rimpicciolisce a 512×512 JPEG. */
@@ -83,7 +85,7 @@ export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, onD
       {disegni && (
         <div className="griglia-disegni" role="group" aria-label="Disegni">
           {DISEGNI.map(([chiave, titolo]) => {
-            const url = `/avatar/${chiave}.svg`
+            const url = `/avatar/${chiave}.webp`
             return (
               <button key={chiave} type="button" className={`disegno ${foto === url ? 'scelto' : ''}`} aria-pressed={foto === url} disabled={occupato}
                 onClick={() => void esegui(async () => { await onDisegno(chiave); setDisegni(false) })}>

@@ -16,16 +16,18 @@ import { PUO_MODIFICARE_ANZIANO, ruoloPerAnziano } from '../cerchio/permessi.ts'
 export const DIMENSIONE_MASSIMA_FOTO = 1024 * 1024 // 1 MB
 
 /** I disegni che si possono scegliere al posto della foto (file in frontend/public/avatar). */
-export const DISEGNI = ['nonna', 'nonno', 'donna', 'uomo', 'ragazza', 'ragazzo', 'gatto', 'cane', 'girasole', 'sole', 'albero', 'uccellino'] as const
+export const DISEGNI = [
+  'nonna', 'nonno', 'nonno-baffi', 'donna', 'donna-ricci', 'donna-treccine', 'ragazza', 'ragazza-viola', 'uomo', 'uomo-elegante', 'uomo-cuffia', 'uomo-viola', 'ragazzo', 'gatto', 'cane', 'cane-felice',
+] as const
 
 /** Espressione SQL: la foto dell'utente con quell'id, o il disegno scelto, o null. */
 export const fotoUtente = (colonnaId: string) =>
   `COALESCE((SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.utente_id = ${colonnaId}),
-            (SELECT '/avatar/' || x.avatar || '.svg' FROM utente x WHERE x.id = ${colonnaId}))`
+            (SELECT '/avatar/' || x.avatar || '.webp' FROM utente x WHERE x.id = ${colonnaId}))`
 /** Espressione SQL: la foto dell'anziano con quell'id, o il disegno scelto, o null. */
 export const fotoAnziano = (colonnaId: string) =>
   `COALESCE((SELECT '/api/foto/' || f.chiave FROM foto f WHERE f.anziano_id = ${colonnaId}),
-            (SELECT '/avatar/' || x.avatar || '.svg' FROM anziano x WHERE x.id = ${colonnaId}))`
+            (SELECT '/avatar/' || x.avatar || '.webp' FROM anziano x WHERE x.id = ${colonnaId}))`
 
 export const schemaDisegno = z.object({ disegno: z.enum(DISEGNI) })
 
@@ -65,7 +67,7 @@ export function creaServizioFoto(db: Database) {
       await tx.query(`DELETE FROM foto WHERE ${colonna} = $1`, [id])
       await tx.query(`UPDATE ${TABELLA[colonna]} SET avatar = $2 WHERE id = $1`, [id, disegno])
     })
-    return `/avatar/${disegno}.svg`
+    return `/avatar/${disegno}.webp`
   }
 
   async function togli(colonna: 'utente_id' | 'anziano_id', id: number) {
