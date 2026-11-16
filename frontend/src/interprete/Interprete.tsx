@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowLeftRight, Keyboard, Mic, Square, Volume2 } from 'lucide-react'
 import { messaggioErrore } from '../comune/api'
-import { ELENCO_LINGUE, LINGUE, lingueSalvate, salvaLingue, type Lingua } from './lingue'
+import { ELENCO_LINGUE, LINGUE, lingueSalvate, nomeLingua, salvaLingue, type Lingua } from './lingue'
 import { ascolta, parla, riconoscimentoDisponibile, sbloccaVoce, zitto } from './voce'
 
 type Chi = 'mia' | 'altra'
@@ -91,7 +91,7 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
         // Se scelgo la lingua dell'altro, le scambio.
         cambiaLingue(l === lingue[altro] ? { mia: lingue.altra, altra: lingue.mia } : { ...lingue, [chi]: l })
       }}>
-        {ELENCO_LINGUE.map((l) => <option key={l} value={l}>{LINGUE[l].nome}</option>)}
+        {ELENCO_LINGUE.map((l) => <option key={l} value={l}>{nomeLingua(l)}</option>)}
       </select>
     </label>
   )
@@ -102,10 +102,10 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
     return (
       <button key={chi} type="button" className={`interprete-microfono ${chi} ${attivo ? 'attivo' : ''}`} lang={l.voce}
         disabled={Boolean(ascolto) && !attivo} onClick={() => microfono(chi)}
-        aria-label={attivo ? 'Ferma' : `${l.parla} (${l.nome})`}>
+        aria-label={attivo ? 'Ferma' : `${l.parla} (${LINGUE[lingue[chi]].italiano})`}>
         {attivo ? <Square size={grande ? 34 : 26} /> : <Mic size={grande ? 40 : 30} />}
         <strong>{attivo ? l.ascolto : l.parla}</strong>
-        <small>{l.nome}</small>
+        <small>{nomeLingua(lingue[chi])}</small>
       </button>
     )
   }
@@ -127,8 +127,8 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
           <textarea className="campo" rows={2} maxLength={500} value={testo} onChange={(e) => setTesto(e.target.value)}
             placeholder="Scrivi la frase…" aria-label="Frase da tradurre" />
           <div className="riga-pulsanti">
-            <button className="pulsante" disabled={!testo.trim()}>{LINGUE[lingue.mia].nome} → {LINGUE[lingue.altra].nome}</button>
-            <button type="button" className="pulsante secondario" disabled={!testo.trim()} onClick={inviaScritto('altra')}>{LINGUE[lingue.altra].nome} → {LINGUE[lingue.mia].nome}</button>
+            <button className="pulsante" disabled={!testo.trim()}>{LINGUE[lingue.mia].italiano} → {LINGUE[lingue.altra].italiano}</button>
+            <button type="button" className="pulsante secondario" disabled={!testo.trim()} onClick={inviaScritto('altra')}>{LINGUE[lingue.altra].italiano} → {LINGUE[lingue.mia].italiano}</button>
           </div>
           {riconoscimentoDisponibile() && <button type="button" className="pulsante fantasma con-icona" onClick={() => setScrivi(false)}><Mic size={18} /> Torna alla voce</button>}
         </form>
