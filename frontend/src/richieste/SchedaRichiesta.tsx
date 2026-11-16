@@ -1,18 +1,18 @@
 // Una richiesta in un elenco: icona, cosa serve, chi se ne occupa, e il pulsante "Me ne occupo io".
 
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { api, messaggioErrore, type Richiesta } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { tempoFa } from '../comune/utili'
 import { CATEGORIE, STATI } from './aspetto'
 
-type Props = { richiesta: Richiesta; mioId: number; onCambiata: () => void }
+type Props = { richiesta: Richiesta; mioId: number; onCambiata: () => void; indice?: number }
 
-export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata }: Props) {
+export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata, indice = 0 }: Props) {
   const [invio, setInvio] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
-  const { etichetta, Icona, colore } = CATEGORIE[r.categoria]
+  const { etichetta, Icona } = CATEGORIE[r.categoria]
   const stato = STATI[r.stato]
 
   async function prendi() {
@@ -33,19 +33,21 @@ export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata }: Pro
   if (r.chiusaIl) chi = `${stato.etichetta} ${tempoFa(r.chiusaIl)}${r.presaDa && r.stato === 'COMPLETATA' ? ` da ${r.presaDa.nome}` : ''}`
 
   return (
-    <article className={`richiesta ${r.stato === 'APERTA' ? 'richiesta-aperta' : ''}`}>
+    <article className={`richiesta viva cat-${r.categoria.toLowerCase()} fase-${r.stato.toLowerCase().replace(/_/g, '-')}`}
+      style={{ '--ritardo': `${0.06 * indice}s` } as CSSProperties}>
       <Collegamento a={`/richieste/${r.id}`} className="richiesta-corpo">
-        <span className={`funzione-icona ${colore}`}><Icona size={22} /></span>
+        <span className="tessera-icona richiesta-icona"><Icona size={22} /></span>
         <span className="riga-testo">
           <span className="richiesta-titolo">
             <strong>{etichetta}</strong>
-            <span className={`stato ${stato.classe}`}>{stato.etichetta}</span>
+            <span className={`stato ${stato.classe}`}><i className="stato-punto" aria-hidden="true" />{stato.etichetta}</span>
           </span>
           {r.testo && <span className="richiesta-testo">{r.testo}</span>}
           <span>Per {r.anziano.nome} · {chi}</span>
         </span>
         <ChevronRight size={20} className="freccia" />
       </Collegamento>
+      {r.stato === 'PRESA_IN_CARICO' && <span className="richiesta-barra" aria-hidden="true" />}
       {r.azioni.includes('PRENDI') && (
         <div className="richiesta-azione">
           {errore && <p className="errore piccolo">{errore}</p>}

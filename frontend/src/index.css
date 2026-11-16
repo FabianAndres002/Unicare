@@ -1160,3 +1160,93 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .accesso-logo-mobile[src$="infinito.svg"] { border-radius: 0; box-shadow: none; width: auto; }
 .accesso-pannello .marchio img.marchio-segno { background: #fff; border-radius: 14px; padding: 6px 8px; box-sizing: content-box; }
 .accesso-pannello .marchio-nome b, .accesso-pannello .marchio-nome i { color: #fff; }
+
+/* ---- Richieste: schede vive, colori per categoria e per stato ---- */
+.richiesta.viva { position: relative; border: 0; box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.8), var(--ombra-s); animation: entra 0.35s ease-out both; animation-delay: var(--ritardo, 0s); transition: transform 0.18s, box-shadow 0.18s; }
+.richiesta.viva:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.8), var(--ombra-m); }
+.richiesta.viva:active { transform: scale(0.985); }
+.richiesta.viva::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(var(--c1), var(--c2)); }
+.richiesta.viva::after {
+  content: ''; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; border-radius: 50%;
+  background: var(--chiaro); opacity: 0.7; pointer-events: none;
+}
+.richiesta.viva > * { position: relative; z-index: 1; }
+.richiesta-icona.tessera-icona { width: 48px; height: 48px; border-radius: 15px; flex: none; }
+.richiesta.viva .stato { display: inline-flex; align-items: center; gap: 6px; }
+.stato-punto { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.richiesta.fase-aperta .stato-punto { animation: richiesta-pulsa 1.4s ease-in-out infinite; }
+@keyframes richiesta-pulsa { 0%, 100% { box-shadow: 0 0 0 0 currentColor; } 50% { box-shadow: 0 0 0 4px transparent; opacity: 0.6; } }
+.richiesta.fase-aperta { box-shadow: 0 0 0 1.5px rgba(255, 116, 87, 0.45), 0 10px 24px -12px rgba(217, 80, 47, 0.5); }
+.richiesta.fase-completata, .richiesta.fase-annullata { opacity: 0.85; }
+.richiesta.fase-completata .richiesta-icona { filter: saturate(0.6); }
+/* "in corso": una barra sottile che scorre in fondo alla scheda */
+.richiesta-barra { position: absolute !important; left: 5px; right: 0; bottom: 0; height: 3px; overflow: hidden; background: var(--primario-chiaro); }
+.richiesta-barra::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 35%; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--primario), transparent); animation: richiesta-scorre-barra 1.8s ease-in-out infinite;
+}
+@keyframes richiesta-scorre-barra { from { left: -35%; } to { left: 100%; } }
+
+.richieste-palco {
+  position: relative; overflow: hidden; isolation: isolate; margin: 6px -4px 16px; padding: 20px 18px 18px; border-radius: 28px; color: #fff;
+  background:
+    radial-gradient(55% 50% at 95% 0%, rgba(255, 116, 87, 0.55), transparent 65%),
+    radial-gradient(50% 50% at 0% 100%, rgba(170, 150, 255, 0.6), transparent 65%),
+    linear-gradient(155deg, #7360F0 0%, #5D46EC 50%, #3A26A8 100%);
+  box-shadow: 0 16px 36px rgba(69, 48, 201, 0.3);
+}
+.richieste-palco::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.45; background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px) 0 0 / 18px 18px; mask-image: linear-gradient(90deg, transparent, #000); }
+.richieste-palco-titolo { display: flex; align-items: center; gap: 14px; }
+.richieste-palco-icona { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 17px; flex: none; background: linear-gradient(150deg, #FF8E75, #D9502F); box-shadow: 0 10px 22px -8px rgba(217, 80, 47, 0.8); }
+.richieste-palco h1 { margin: 0; font-size: 1.55rem; line-height: 1.1; }
+.richieste-palco p { margin: 4px 0 0; opacity: 0.88; font-size: 0.95rem; }
+.richieste-conti { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 14px; }
+.richieste-conto { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border-radius: 16px; background: rgba(255, 255, 255, 0.13); border: 1px solid rgba(255, 255, 255, 0.18); }
+.richieste-conto strong { font-size: 1.5rem; line-height: 1.1; }
+.richieste-conto span { font-size: 0.75rem; font-weight: 700; opacity: 0.85; }
+.richieste-conto svg { opacity: 0.85; }
+.richieste-conto.da-fare.acceso { background: rgba(255, 116, 87, 0.35); border-color: rgba(255, 180, 160, 0.6); animation: calendario-batte 2.4s ease-in-out infinite; }
+.richieste-nuova {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 16px;
+  background: #fff; color: var(--primario-scuro); font-weight: 800; box-shadow: 0 10px 22px -10px rgba(20, 10, 80, 0.6);
+  transition: transform 0.15s;
+}
+.richieste-nuova:active { transform: scale(0.97); }
+
+/* Le schede "Attive / Concluse" con l'indicatore che scorre */
+.schede-vista.scorrevole { position: relative; }
+.schede-vista.scorrevole::before {
+  content: ''; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 11px;
+  background: var(--bianco); box-shadow: var(--ombra-s); transition: transform 0.3s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.schede-vista.scorrevole.concluse::before { transform: translateX(100%); }
+.schede-vista.scorrevole button { position: relative; z-index: 1; transition: color 0.2s; }
+.schede-vista.scorrevole button.attiva { background: none; box-shadow: none; }
+
+/* Home: "Chiedi aiuto al cerchio" e funzioni colorate */
+.chiedi-aiuto {
+  display: flex; align-items: center; gap: 14px; margin-top: 4px; padding: 14px 16px; border-radius: 20px; color: var(--primario-scuro);
+  background: linear-gradient(var(--bianco), var(--bianco)) padding-box, linear-gradient(110deg, #5D46EC, #FF7457, #5D46EC) border-box;
+  border: 2px solid transparent; background-size: 100% 100%, 200% 100%; animation: chiedi-scorre 4s linear infinite;
+  transition: transform 0.15s;
+}
+@keyframes chiedi-scorre { to { background-position: 0 0, 200% 0; } }
+.chiedi-aiuto:active { transform: scale(0.98); }
+.chiedi-aiuto > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; }
+.chiedi-aiuto small { color: var(--testo-tenue); font-size: 0.82rem; }
+.chiedi-aiuto-piu { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; flex: none; color: #fff; background: linear-gradient(150deg, #7C6BF5, #4530C9); box-shadow: 0 8px 16px -6px #4530C9; }
+
+.griglia-funzioni .funzione { position: relative; overflow: hidden; border: 0; box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.8), var(--ombra-s); transition: transform 0.18s, box-shadow 0.18s; animation: entra 0.4s ease-out both; }
+.griglia-funzioni .funzione:nth-child(2) { animation-delay: 0.05s; } .griglia-funzioni .funzione:nth-child(3) { animation-delay: 0.1s; }
+.griglia-funzioni .funzione:nth-child(4) { animation-delay: 0.15s; } .griglia-funzioni .funzione:nth-child(5) { animation-delay: 0.2s; }
+.griglia-funzioni .funzione::after { content: ''; position: absolute; right: -30px; top: -30px; width: 100px; height: 100px; border-radius: 50%; background: var(--chiaro, var(--sfondo)); transition: transform 0.35s; }
+.griglia-funzioni .funzione > * { position: relative; z-index: 1; }
+.griglia-funzioni .funzione:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.8), var(--ombra-m); }
+.griglia-funzioni .funzione:hover::after { transform: scale(1.4); }
+.griglia-funzioni .funzione:active { transform: scale(0.97); }
+.griglia-funzioni .funzione[class*='cat-'] .funzione-icona { width: 50px; height: 50px; border-radius: 16px; color: #fff; background: linear-gradient(150deg, var(--c1), var(--c2)); box-shadow: 0 8px 16px -6px var(--c2); }
+.griglia-funzioni .funzione-distintivo { position: absolute !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .richiesta.viva, .griglia-funzioni .funzione, .chiedi-aiuto, .richiesta-barra::after, .stato-punto, .richieste-conto.da-fare.acceso { animation: none !important; }
+}

@@ -9,7 +9,7 @@ export default function MessaggiFunzione({ anziano }: { anziano: Anziano }) {
   const { dati } = useCarica(() => api.vocali(anziano.id), anziano.id, 30)
   const nuovi = dati?.filter((v) => v.dallAnziano && !v.ascoltatoDa).length ?? 0
   return (
-    <Collegamento a={`/anziano/${anziano.id}/messaggi`} className={`funzione ${nuovi ? 'con-novita' : ''}`}>
+    <Collegamento a={`/anziano/${anziano.id}/messaggi`} className={`funzione cat-farmacia ${nuovi ? 'con-novita' : ''}`}>
       <span className="funzione-icona arancio"><Mic size={22} /></span>
       {nuovi > 0 && <span className="distintivo urgente funzione-distintivo">{nuovi} {nuovi === 1 ? 'nuovo' : 'nuovi'}</span>}
       <strong>Messaggi vocali</strong>

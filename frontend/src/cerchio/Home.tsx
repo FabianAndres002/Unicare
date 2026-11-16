@@ -86,10 +86,10 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
           )}
           {richieste && richieste.length > 0 && (
             <div className="elenco-richieste">
-              {richieste.slice(0, 3).map((r) => <SchedaRichiesta key={r.id} richiesta={r} mioId={profilo.id} onCambiata={ricarica} />)}
+              {richieste.slice(0, 3).map((r, i) => <SchedaRichiesta key={r.id} richiesta={r} indice={i} mioId={profilo.id} onCambiata={ricarica} />)}
             </div>
           )}
-          <Collegamento a="/richieste/nuova" className="pulsante secondario con-icona"><Plus size={20} /> Chiedi aiuto al cerchio</Collegamento>
+          <Collegamento a="/richieste/nuova" className="chiedi-aiuto"><span className="chiedi-aiuto-piu"><Plus size={22} /></span><span><strong>Chiedi aiuto al cerchio</strong><small>Spesa, farmacia, un passaggio…</small></span><ChevronRight size={20} /></Collegamento>
         </section>
       )}
 
@@ -98,7 +98,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
         <div className="griglia-funzioni">
           {cerchio.anziani[0] && (
             <>
-              <Collegamento a={`/anziano/${cerchio.anziani[0].id}/appuntamenti`} className="funzione">
+              <Collegamento a={`/anziano/${cerchio.anziani[0].id}/appuntamenti`} className="funzione cat-accompagnamento">
                 <span className="funzione-icona blu"><CalendarDays size={22} /></span>
                 <strong>Appuntamenti</strong>
                 <span>Visite ed esami</span>
@@ -107,20 +107,20 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
             </>
           )}
           {profilo.tipo === 'FAMILIARE' && (
-            <Collegamento a="/badanti" className="funzione">
+            <Collegamento a="/badanti" className="funzione cat-compagnia">
               <span className="funzione-icona viola"><UserSearch size={22} /></span>
               <strong>Trova una badante</strong>
               <span>Chi si propone nella tua zona</span>
             </Collegamento>
           )}
           {cerchio.anziani[0] && puoModificare && (
-            <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione">
+            <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione cat-spesa">
               <span className="funzione-icona verde"><Receipt size={22} /></span>
               <strong>Documenti</strong>
               <span>Ricette, analisi, ecografie, ricevute</span>
             </Collegamento>
           )}
-          <Collegamento a="/interprete" className="funzione">
+          <Collegamento a="/interprete" className="funzione cat-casa">
             <span className="funzione-icona arancio"><Languages size={22} /></span>
             <strong>Interprete</strong>
             <span>{profilo.tipo === 'BADANTE' ? 'Parla con la famiglia nella tua lingua' : 'Parla con la badante nella sua lingua'}</span>
