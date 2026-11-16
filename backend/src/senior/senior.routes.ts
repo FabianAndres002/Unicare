@@ -2,6 +2,7 @@
 //
 // Dal telefono dell'anziano (cookie "unicare_senior"):
 // POST /api/senior/collega                  scambia il codice a 6 cifre con il collegamento
+// GET  /api/senior/diretta                  aggiornamenti in diretta (text/event-stream)
 // GET  /api/senior/io                       nome, famiglia e richieste dell'anziano
 // POST /api/senior/richieste                "Chiedi aiuto" con una categoria        (201, 200 se già chiesta)
 // POST /api/senior/richieste/:id/annulla    "Non serve più"                          (204)
@@ -25,6 +26,7 @@ import { config } from '../config.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { schemaId } from '../comune/validazione.ts'
 import { richiedeAccesso } from '../accesso/sessione.ts'
+import type { Diretta } from '../diretta/diretta.ts'
 import { CATEGORIE, type ServizioRichieste } from '../richieste/richieste.service.ts'
 import { schemaCodice, type AnzianoCollegato, type ServizioTelefono } from './telefono.service.ts'
 import type { ServizioMedicine } from '../medicine/medicine.service.ts'
@@ -40,7 +42,7 @@ const COOKIE = 'unicare_senior'
 const schemaRichiestaSenior = z.object({ categoria: z.enum(CATEGORIE.filter((c) => c !== 'ALTRO') as [string, ...string[]]) })
 
 export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste: ServizioRichieste, medicine: ServizioMedicine, push: Push,
-  appuntamenti: ServizioAppuntamenti, vocali: ServizioVocali, traduzione: ServizioTraduzione): Router {
+  appuntamenti: ServizioAppuntamenti, vocali: ServizioVocali, traduzione: ServizioTraduzione, diretta: Diretta): Router {
   const router = Router()
 
   /** Come richiedeAccesso, ma per il telefono dell'anziano. */
@@ -71,6 +73,11 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
 
   router.post('/senior/traduci', richiedeTelefono, async (req, res) => {
     res.json(await traduzione.traduci(`a${senior(res).anzianoId}`, schemaTraduzione.parse(req.body)))
+  })
+
+  // Aggiornamenti in diretta: per esempio "Maria se ne occupa" compare subito.
+  router.get('/senior/diretta', richiedeTelefono, (req, res) => {
+    diretta.apri(`a${senior(res).anzianoId}`, req, res)
   })
 
   router.get('/senior/io', richiedeTelefono, async (_req, res) => {

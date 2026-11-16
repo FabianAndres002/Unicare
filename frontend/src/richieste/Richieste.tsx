@@ -5,11 +5,14 @@ import { Inbox, Plus } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
+import { useDiretta } from '../comune/diretta'
 import SchedaRichiesta from './SchedaRichiesta'
 
 export default function Richieste({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const [vista, setVista] = useState<'attive' | 'concluse'>('attive')
   const { dati, errore, ricarica } = useCarica(() => api.richieste(cerchio.id, vista), `${cerchio.id}-${vista}`)
+  // Quando qualcuno crea, prende o chiude una richiesta, l'elenco si aggiorna da solo.
+  useDiretta('/api/diretta', 'richiesta', ricarica)
 
   return (
     <div className="pagina-app entra">

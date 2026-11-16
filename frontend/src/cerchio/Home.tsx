@@ -3,6 +3,7 @@
 import { Cake, CalendarDays, ChevronRight, Languages, MapPin, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
+import { useDiretta } from '../comune/diretta'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
 import { Collegamento } from '../comune/router'
 import MedicineOggi from '../medicine/MedicineOggi'
@@ -15,6 +16,7 @@ import { dataEstesa, eta, saluto } from '../comune/utili'
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const puoModificare = cerchio.mioRuolo !== 'BADANTE'
   const { dati: richieste, ricarica } = useCarica(() => api.richieste(cerchio.id, 'attive'), cerchio.id)
+  useDiretta('/api/diretta', 'richiesta', ricarica)
   const daFare = richieste?.filter((r) => r.stato === 'APERTA').length ?? 0
   return (
     <div className="pagina-app entra">

@@ -5,6 +5,7 @@ import { ArrowLeft, Check, CircleCheck, Hand, Plus, Undo2, X } from 'lucide-reac
 import { api, messaggioErrore, type AzioneRichiesta, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
+import { useDiretta } from '../comune/diretta'
 import { tempoFa } from '../comune/utili'
 import { CATEGORIE, STATI } from './aspetto'
 
@@ -18,7 +19,11 @@ const TESTO_EVENTO = {
 const ICONA_EVENTO = { CREATA: Plus, PRESA: Hand, RILASCIATA: Undo2, COMPLETATA: Check, ANNULLATA: X }
 
 export default function DettaglioRichiesta({ id, profilo }: { id: number; profilo: Profilo }) {
-  const { dati: r, errore, setDati } = useCarica(() => api.richiesta(id), id, 20)
+  const { dati: r, errore, setDati, ricarica } = useCarica(() => api.richiesta(id), id, 20)
+  // Se un altro la prende o la chiude mentre la guardi, la pagina si aggiorna (dati null = ci siamo ricollegati).
+  useDiretta('/api/diretta', 'richiesta', (dati) => {
+    if (!dati || (dati as { id?: number }).id === id) ricarica()
+  })
   const [erroreAzione, setErroreAzione] = useState<string | null>(null)
   const [invio, setInvio] = useState<AzioneRichiesta | null>(null)
   const [nota, setNota] = useState('')

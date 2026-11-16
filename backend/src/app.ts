@@ -32,16 +32,26 @@ import { creaServizioRicerche } from './badanti/ricerche.service.ts'
 import { rotteRicerche } from './badanti/ricerche.routes.ts'
 import { creaServizioTraduzione, traduttorePredefinito, type Traduttore } from './traduzione/traduzione.service.ts'
 import { rotteTraduzione } from './traduzione/traduzione.routes.ts'
+import { creaDiretta, type Diretta } from './diretta/diretta.ts'
+import { rotteDiretta } from './diretta/diretta.routes.ts'
 
 /** postino, spingitore, traduttore: chi consegna email e push e chi traduce (i test ne passano di finti). */
 export function creaApp(
   db: Database,
   opzioni: { postino?: Postino; spingitore?: Spingitore; traduttore?: Traduttore | null } = {},
-): express.Express & { avvisi: Avvisi; pianificatore: Pianificatore } {
+): express.Express & { avvisi: Avvisi; pianificatore: Pianificatore; diretta: Diretta } {
   const app = express()
   const push = creaPush(db, opzioni.spingitore ?? spingitoreWebPush())
   const avvisi = creaAvvisi(db, opzioni.postino ?? postinoPredefinito(), push)
-  const richieste = creaServizioRichieste(db, avvisi)
+  const diretta = creaDiretta(db)
+  // Quando una richiesta cambia: avvisi (email e push) e, in più, la diretta per i telefoni aperti.
+  const richieste = creaServizioRichieste(db, {
+    ...avvisi,
+    richiesta(evento, id, autoreId) {
+      avvisi.richiesta(evento, id, autoreId)
+      diretta.richiestaCambiata(id)
+    },
+  })
   const medicine = creaServizioMedicine(db, avvisi)
   const appuntamenti = creaServizioAppuntamenti(db, avvisi)
   const vocali = creaServizioVocali(db, avvisi)
@@ -79,13 +89,14 @@ export function creaApp(
   const inviti = creaServizioInviti(db)
   app.use('/api', rotteCerchio(creaServizioCerchio(db), inviti))
   app.use('/api', rotteRichieste(richieste))
-  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali, traduzione))
+  app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali, traduzione, diretta))
   app.use('/api', rotteMedicine(medicine, pianificatore, push))
   app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
   app.use('/api', rotteDocumenti(creaServizioDocumenti(db)))
   app.use('/api', rotteBadanti(creaServizioBadanti(db, avvisi, inviti)))
   app.use('/api', rotteRicerche(creaServizioRicerche(db, avvisi)))
   app.use('/api', rotteTraduzione(traduzione))
+  app.use('/api', rotteDiretta(diretta))
 
   // Qualsiasi altro indirizzo /api: 404 in JSON.
   app.use('/api', () => {
@@ -93,5 +104,5 @@ export function creaApp(
   })
 
   app.use(gestoreErrori)
-  return Object.assign(app, { avvisi, pianificatore })
+  return Object.assign(app, { avvisi, pianificatore, diretta })
 }

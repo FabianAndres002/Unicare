@@ -17,6 +17,11 @@ famiglie e badanti e l'interprete. Novità della settimana 11:
   (fino a 10). Mattino, pranzo e sera restano, ma in ognuno si possono mettere più orari (per esempio
   8:00 e 10:00). I nomi si vedono nell'app della famiglia e dell'anziano, mai nel testo delle notifiche,
   che si legge anche a telefono bloccato.
+- **richieste in diretta**: quando qualcuno chiede aiuto, se ne occupa o chiude una richiesta, l'elenco,
+  la Home, il dettaglio e il telefono dell'anziano si aggiornano subito, senza ricaricare. Il telefono
+  tiene aperta una connessione (`/api/diretta`, Server-Sent Events) e il server dice solo "la richiesta
+  12 è cambiata"; i dati arrivano poi dalle solite rotte, che controllano i permessi. Se la linea cade,
+  il telefono si ricollega da solo e intanto resta il controllo ogni 20-30 secondi.
 
 Settimana 10:
 
@@ -41,7 +46,7 @@ Settimana 9:
 La messa online è rimandata alla fine del progetto. I file dei documenti sono nel database:
 online, con molti utenti, andranno spostati in uno spazio file a parte.
 
-112 test automatici.
+115 test automatici.
 
 ### Le email in sviluppo
 
@@ -174,6 +179,7 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/inviti/token/:token/accetta` | Entra nel cerchio | Sì |
 | GET | `/api/cerchi/:id/richieste?vista=attive\|concluse` | Richieste di aiuto del cerchio | Sì, membro |
 | POST | `/api/cerchi/:id/richieste` | Nuova richiesta | Sì, membro |
+| GET | `/api/diretta` | Aggiornamenti in diretta: "questa richiesta è cambiata" (text/event-stream) | Sì |
 | GET | `/api/richieste/:id` | Dettaglio con lo storico | Sì, membro |
 | POST | `/api/richieste/:id/prendi` | "Me ne occupo io" | Sì, membro |
 | POST | `/api/richieste/:id/rilascia` | "Non riesco più" | Chi l'ha presa |
@@ -184,6 +190,7 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/anziani/:id/telefono/codice` | Nuovo codice di 6 cifre (24 ore, monouso) | Amministratore, familiare |
 | DELETE | `/api/anziani/:id/telefono/:dispositivoId` | Scollega un telefono | Amministratore, familiare |
 | POST | `/api/senior/collega` | Il telefono dell'anziano scambia il codice (5 errori → 15 minuti di attesa) | No |
+| GET | `/api/senior/diretta` | Aggiornamenti in diretta per il telefono dell'anziano (text/event-stream) | Telefono collegato |
 | GET | `/api/senior/io` | Nome, famiglia e richieste dell'anziano | Telefono collegato |
 | POST | `/api/senior/richieste` | "Chiedi aiuto" | Telefono collegato |
 | POST | `/api/senior/richieste/:id/annulla` | "Non serve più" | Telefono collegato |

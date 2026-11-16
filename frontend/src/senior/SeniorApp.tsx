@@ -12,6 +12,7 @@ import { Phone } from 'lucide-react'
 import { api, ErroreApi, type SeniorIo } from '../comune/api'
 import { usePercorso } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
+import { useDiretta } from '../comune/diretta'
 import CodiceSenior from './CodiceSenior'
 import HomeSenior from './HomeSenior'
 import ChiediAiuto from './ChiediAiuto'
@@ -28,6 +29,8 @@ export default function SeniorApp() {
     'senior',
     20,
   )
+  // Appena qualcuno risponde a una richiesta, la Home lo mostra (solo se il telefono è collegato).
+  useDiretta(dati && dati !== 'scollegato' ? '/api/senior/diretta' : null, 'richiesta', ricarica)
   const [appenaCollegato, setAppenaCollegato] = useState(false)
 
   let schermata

@@ -33,6 +33,7 @@ const server = app.listen(config.porta, () => {
 async function spegni() {
   console.log('Spegnimento in corso...')
   clearInterval(timer)
+  app.diretta.chiudiTutto()
   server.close()
   await db.chiudi()
   process.exit(0)
