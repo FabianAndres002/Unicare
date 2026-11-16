@@ -254,7 +254,7 @@ button { font: inherit; color: inherit; }
 
 .titolo-sezione { display: flex; align-items: center; gap: 10px; }
 .titolo-sezione h2 { font-size: 1.1rem; margin: 0; }
-.distintivo { padding: 2px 10px; border-radius: 999px; background: #FFEBE5; color: #B4580F; font-size: 0.75rem; font-weight: 800; }
+.distintivo { padding: 2px 10px; border-radius: 999px; background: #FFEBE5; color: #B8401F; font-size: 0.75rem; font-weight: 800; }
 
 /* Scheda dell'anziano: il pezzo più importante della home */
 .anziani { display: grid; gap: 14px; }
@@ -289,8 +289,8 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .funzione strong { margin-top: 8px; }
 .funzione span:last-child { font-size: 0.82rem; color: var(--testo-tenue); }
 .funzione-icona { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; flex: none; }
-.funzione-icona.arancio { background: #FFEBE5; color: #C8611A; }
-.funzione-icona.blu { background: #e4eefa; color: #2f6fb0; }
+.funzione-icona.arancio { background: #FFEBE5; color: #D9502F; }
+.funzione-icona.blu { background: #ECE8FF; color: #4530C9; }
 .funzione-icona.viola { background: #ece8f7; color: #6b5ca5; }
 .funzione-icona.verde { background: var(--primario-chiaro); color: var(--primario); }
 .funzione-icona.grigio { background: var(--sfondo-scuro); color: var(--testo-tenue); }
@@ -316,8 +316,8 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .tu { font-weight: 400; color: var(--testo-tenue); }
 .ruolo { padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 800; flex: none; }
 .ruolo-admin { background: var(--primario-chiaro); color: var(--primario); }
-.ruolo-familiare { background: #e4eefa; color: #2f6fb0; }
-.ruolo-badante { background: #FFEBE5; color: #B4580F; }
+.ruolo-familiare { background: #ECE8FF; color: #4530C9; }
+.ruolo-badante { background: #FFEBE5; color: #B8401F; }
 @media (max-width: 420px) { .elenco li { padding: 12px 14px; } .riga-testo > span { max-width: 40vw; } }
 
 .riga-scelta { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; }
@@ -355,8 +355,8 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .richiesta-azione { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 16px 14px; }
 
 .stato { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em; }
-.stato-aperta { background: #FFEBE5; color: #B4580F; }
-.stato-corso { background: #e4eefa; color: #2f6fb0; }
+.stato-aperta { background: #FFEBE5; color: #B8401F; }
+.stato-corso { background: #ECE8FF; color: #4530C9; }
 .stato-fatta { background: var(--primario-chiaro); color: var(--primario); }
 .stato-annullata { background: var(--sfondo-scuro); color: var(--testo-tenue); }
 
@@ -387,7 +387,7 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .dettaglio-testa h1 { margin: 6px 0 2px; font-size: 1.5rem; }
 .dettaglio-testa .nota { margin: 0; }
 .dettaglio-testo { margin: 0; padding: 14px 16px; border-radius: var(--raggio-s); background: var(--sfondo); font-size: 1.05rem; white-space: pre-wrap; }
-.chi-se-ne-occupa { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 700; color: #2f6fb0; }
+.chi-se-ne-occupa { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 700; color: #4530C9; }
 .chi-se-ne-occupa.fatta { color: var(--primario); }
 .azioni-richiesta { padding-top: 4px; }
 
@@ -396,9 +396,9 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .storia li:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 30px; bottom: 2px; width: 2px; background: var(--bordo); }
 .storia p { margin: 0; }
 .storia-punto { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--sfondo-scuro); color: var(--testo-tenue); }
-.evento-presa { background: #e4eefa; color: #2f6fb0; }
+.evento-presa { background: #ECE8FF; color: #4530C9; }
 .evento-completata { background: var(--primario); color: var(--bianco); }
-.evento-creata { background: #FFEBE5; color: #B4580F; }
+.evento-creata { background: #FFEBE5; color: #B8401F; }
 .storia-nota { font-style: italic; color: var(--testo-tenue); }
 
 @media (max-width: 380px) { .voce span { font-size: 0.68rem; } }
@@ -472,7 +472,7 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 
 .senior-elenco, .senior-famiglia { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .senior-richiesta { padding: 18px; border-radius: 22px; background: var(--bianco); box-shadow: var(--ombra-s); border-left: 6px solid var(--accento); display: flex; flex-direction: column; gap: 12px; }
-.senior-richiesta.stato-presa_in_carico { border-left-color: #2f6fb0; }
+.senior-richiesta.stato-presa_in_carico { border-left-color: #4530C9; }
 .senior-richiesta.stato-completata { border-left-color: var(--primario); }
 .senior-richiesta.stato-annullata { border-left-color: var(--bordo); opacity: 0.75; }
 .senior-richiesta-alto { display: flex; gap: 16px; align-items: center; }
@@ -572,7 +572,7 @@ a.scheda-vuota:hover { border-color: var(--primario); background: var(--bianco);
 .appuntamento-chi { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .appuntamento-chi .stato { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; padding: 4px 10px; }
 .appuntamento > .link { align-self: flex-start; font-size: 0.85rem; }
-.foglietto { flex: none; display: flex; flex-direction: column; align-items: center; width: 54px; padding: 4px 0 6px; border-radius: 14px; background: #e4eefa; color: #2f6fb0; line-height: 1.1; }
+.foglietto { flex: none; display: flex; flex-direction: column; align-items: center; width: 54px; padding: 4px 0 6px; border-radius: 14px; background: #ECE8FF; color: #4530C9; line-height: 1.1; }
 .foglietto small { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
 .foglietto strong { font-size: 1.45rem; font-weight: 800; }
 .foglietto.grande { width: 68px; border-radius: 18px; }
@@ -625,10 +625,10 @@ a.funzione:hover { box-shadow: var(--ombra-m); }
 /* Senior App: appuntamenti e messaggi */
 .senior-appuntamenti, .senior-vocali-nuovi, .senior-vocali-vecchi { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .senior-appuntamenti li { display: flex; gap: 16px; align-items: flex-start; padding: 18px; border-radius: 24px; background: var(--bianco); box-shadow: var(--ombra-s); }
-.senior-appuntamenti li.oggi { border: 3px solid #2f6fb0; }
+.senior-appuntamenti li.oggi { border: 3px solid #4530C9; }
 .senior-appuntamenti strong { display: block; font-size: 1.25rem; line-height: 1.25; }
 .senior-appuntamenti p { margin: 4px 0 0; display: flex; align-items: center; gap: 6px; font-size: 1.02rem; color: var(--testo-tenue); }
-.senior-appuntamenti p.senior-quando { margin: 0 0 2px; font-weight: 800; color: #2f6fb0; }
+.senior-appuntamenti p.senior-quando { margin: 0 0 2px; font-weight: 800; color: #4530C9; }
 .senior-appuntamenti p.senior-accompagna { color: var(--primario); font-weight: 700; }
 .senior-messaggi { display: flex; flex-direction: column; gap: 14px; }
 .senior-vocale { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 24px; background: var(--bianco); box-shadow: var(--ombra-s); }
@@ -697,7 +697,7 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .carta-badante-testo.breve { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--testo-tenue); font-size: 0.92rem; }
 .chip-elenco { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: var(--sfondo-scuro); font-size: 0.78rem; font-weight: 700; color: var(--testo-tenue); }
-.chip.forte { background: #e4eefa; color: #2f6fb0; }
+.chip.forte { background: #ECE8FF; color: #4530C9; }
 .carta-badante-dettagli { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
 .carta-badante-dettagli li { display: flex; gap: 8px; align-items: flex-start; }
 .carta-badante-dettagli svg { flex: none; margin-top: 3px; color: var(--testo-tenue); }
@@ -763,7 +763,7 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .interprete-traduzione .pulsante-icona { flex: none; width: 36px; height: 36px; margin: -4px -6px 0 0; }
 .interprete-pulsanti { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .interprete-microfono { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 120px; padding: 14px 8px; border: none; border-radius: 26px; color: var(--bianco); font: inherit; cursor: pointer; box-shadow: 0 8px 20px rgba(93, 70, 236, 0.25); transition: transform 0.15s; }
-.interprete-microfono.mia { background: linear-gradient(160deg, #1a7f74, var(--primario)); }
+.interprete-microfono.mia { background: linear-gradient(160deg, #7A66F2, var(--primario)); }
 .interprete-microfono.altra { background: linear-gradient(160deg, #F06A48, var(--accento-scuro)); box-shadow: 0 8px 20px rgba(255, 116, 87, 0.3); }
 .interprete-microfono strong { font-size: 1.15rem; }
 .interprete-microfono small { opacity: 0.85; font-size: 0.8rem; }
