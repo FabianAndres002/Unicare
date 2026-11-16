@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { Sparkles } from 'lucide-react'
 import { api, messaggioErrore } from '../comune/api'
 import ModuloAnziano from './ModuloAnziano'
+import EntraConInvito from './EntraConInvito'
 
 type Props = { nomeUtente: string; onFatto: (cerchioId: number) => void; onAnnulla?: () => void }
 
@@ -49,6 +50,8 @@ export default function NuovoCerchio({ nomeUtente, onFatto, onAnnulla }: Props) 
             <button className="pulsante" type="submit" disabled={invio}>{invio ? 'Creazione…' : 'Continua'}</button>
             {onAnnulla && <button type="button" className="pulsante fantasma" onClick={onAnnulla}>Annulla</button>}
           </form>
+          <p className="separatore-o">oppure</p>
+          <EntraConInvito />
         </>
       ) : (
         <>

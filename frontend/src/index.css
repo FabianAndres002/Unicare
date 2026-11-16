@@ -782,3 +782,7 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .senior-interprete { display: flex; align-items: center; gap: 16px; padding: 20px 22px; border-radius: 26px; background: var(--bianco); color: var(--petrolio); box-shadow: var(--ombra-s); border: 2px solid var(--petrolio-chiaro); }
 .senior-interprete span { display: flex; flex-direction: column; font-size: 1.35rem; font-weight: 800; }
 .senior-interprete small { font-size: 1rem; font-weight: 600; color: var(--testo-tenue); }
+
+/* "oppure" tra due scelte */
+.separatore-o { display: flex; align-items: center; gap: 12px; margin: 4px 0; color: var(--testo-tenue); font-size: 0.85rem; font-weight: 700; }
+.separatore-o::before, .separatore-o::after { content: ''; flex: 1; height: 1px; background: var(--bordo); }
