@@ -1,8 +1,9 @@
 // "Vuoi che il telefono suoni per le medicine?": attiva le notifiche sul telefono dell'anziano.
 
 import { useEffect, useState } from 'react'
-import { BellRing } from 'lucide-react'
+import { BellRing, Volume2 } from 'lucide-react'
 import { api } from '../comune/api'
+import { suonaCampanello } from '../comune/campanello'
 import { attivaNotifiche, SPIEGAZIONE, statoNotifiche, type StatoNotifiche } from '../comune/notifiche'
 
 export default function NotificheSenior() {
@@ -20,7 +21,15 @@ export default function NotificheSenior() {
     )
   }, [])
 
-  if (!stato || stato === 'attive') return null
+  if (!stato) return null
+  // Notifiche attive: si può provare il campanello (e alzare il volume se serve).
+  if (stato === 'attive') {
+    return (
+      <button type="button" className="senior-prova-suono" onClick={() => void suonaCampanello()}>
+        <Volume2 size={22} /> Prova il suono delle medicine
+      </button>
+    )
+  }
 
   async function attiva() {
     setInvio(true)

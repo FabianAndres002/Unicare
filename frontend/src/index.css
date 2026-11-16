@@ -956,3 +956,10 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .disegno.scelto span { color: var(--primario); }
 .disegno-spunta { position: absolute; top: 2px; right: 6px; background: var(--primario); color: #fff; border-radius: 50%; padding: 2px; }
 @media (prefers-reduced-motion: reduce) { .griglia-disegni { animation: none; } }
+
+/* Senior App: prova del campanello delle medicine */
+.senior-prova-suono {
+  display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+  margin: 8px 0 0; padding: 14px; border: 2px solid var(--bordo); border-radius: 18px;
+  background: var(--bianco); color: var(--primario); font: inherit; font-size: 1.1rem; font-weight: 800; cursor: pointer;
+}
