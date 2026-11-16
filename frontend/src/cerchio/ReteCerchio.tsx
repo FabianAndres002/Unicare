@@ -46,13 +46,32 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
   const ritardo = (i: number) => ({ '--ritardo': `${0.08 * i}s` }) as CSSProperties
 
   return (
+    <div className="rete-palco">
+    <span className="rete-stella s1" aria-hidden="true" />
+    <span className="rete-stella s2" aria-hidden="true" />
+    <span className="rete-stella s3" aria-hidden="true" />
     <div className="rete" role="group" aria-label="Le persone del cerchio">
       <svg className="rete-linee" viewBox="0 0 100 100" aria-hidden="true">
-        <circle cx="50" cy="50" r={RAGGIO} className="rete-anello" />
-        {nodi.filter((n) => n.tipo !== 'aggiungi').map((n, i) => (
-          <line key={n.chiave} x1="50" y1="50" x2={n.x} y2={n.y} style={ritardo(i)}
-            className={`rete-linea ${n.tipo === 'invito' ? 'attesa' : n.membro?.ruolo === 'BADANTE' ? 'badante' : 'familiare'}`} />
-        ))}
+        {/* Decorazioni: cerchi concentrici e l'anello che gira piano */}
+        <circle cx="50" cy="50" r="18" className="rete-onda" />
+        <circle cx="50" cy="50" r="27" className="rete-onda lontana" />
+        <g className="rete-giro"><circle cx="50" cy="50" r={RAGGIO} className="rete-anello" /></g>
+        <circle cx="50" cy="50" r={RAGGIO + 8} className="rete-anello esterno" />
+        {nodi.filter((n) => n.tipo !== 'aggiungi').map((n, i) => {
+          const attiva = scelta !== null && scelta.tipo === n.tipo && scelta.id === (n.membro?.id ?? n.invito?.id)
+          const tipo = n.tipo === 'invito' ? 'attesa' : n.membro?.ruolo === 'BADANTE' ? 'badante' : 'familiare'
+          return (
+            <g key={n.chiave}>
+              <line x1="50" y1="50" x2={n.x} y2={n.y} style={ritardo(i)} className={`rete-linea ${tipo} ${attiva ? 'attiva' : ''}`} />
+              {/* Un impulso di luce che va da ogni persona verso il centro: la cura che arriva */}
+              {n.tipo === 'membro' && (
+                <circle r={attiva ? 1.5 : 1.1} className={`rete-impulso ${tipo}`}>
+                  <animateMotion dur={`${2.6 + (i % 3) * 0.4}s`} begin={`${0.8 + i * 0.35}s`} repeatCount="indefinite" path={`M ${n.x} ${n.y} L 50 50`} />
+                </circle>
+              )}
+            </g>
+          )
+        })}
       </svg>
 
       {centri.map(({ anziano: a, x, y }) => (
@@ -78,7 +97,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
         const scelto = scelta?.tipo === n.tipo && scelta.id === (n.membro?.id ?? n.invito?.id)
         return (
           <button key={n.chiave} type="button" className={`rete-nodo ${n.tipo} ${scelto ? 'scelto' : ''}`}
-            style={{ left: `${n.x}%`, top: `${n.y}%`, ...ritardo(i) }} aria-pressed={scelto}
+            style={{ left: `${n.x}%`, top: `${n.y}%`, ...ritardo(i), '--fluttua': `${-(i * 0.7)}s` } as CSSProperties} aria-pressed={scelto}
             onClick={() => onScegli(n.membro ? { tipo: 'membro', id: n.membro.id } : { tipo: 'invito', id: n.invito!.id })}>
             {n.membro
               ? <Avatar nome={n.membro.nome} cognome={n.membro.cognome} className="rete-avatar" />
@@ -89,6 +108,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
           </button>
         )
       })}
+    </div>
     </div>
   )
 }

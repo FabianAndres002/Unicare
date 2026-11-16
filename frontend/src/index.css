@@ -859,3 +859,58 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 @media (prefers-reduced-motion: reduce) {
   .rete-linea, .rete-nodo, .rete-alone { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Rete su palco viola: più colore e movimento */
+.rete-palco {
+  position: relative; overflow: hidden; margin: 6px -4px 0; padding: 26px 10px 40px; border-radius: 32px; isolation: isolate;
+  background:
+    radial-gradient(55% 45% at 88% 8%, rgba(255, 116, 87, 0.6), transparent 65%),
+    radial-gradient(50% 45% at 8% 96%, rgba(170, 150, 255, 0.65), transparent 65%),
+    radial-gradient(40% 40% at 50% 50%, rgba(255, 255, 255, 0.12), transparent 70%),
+    linear-gradient(160deg, #7360F0 0%, #5D46EC 45%, #3A26A8 100%);
+  box-shadow: 0 20px 44px rgba(69, 48, 201, 0.35);
+}
+.rete-palco::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0.5;
+  background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px) 0 0 / 18px 18px;
+  mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
+}
+.rete-stella { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.6); animation: rete-brilla 3.2s ease-in-out infinite; }
+.rete-stella.s1 { top: 9%; left: 12%; }
+.rete-stella.s2 { top: 16%; right: 9%; width: 4px; height: 4px; animation-delay: 1.1s; }
+.rete-stella.s3 { bottom: 10%; right: 22%; width: 5px; height: 5px; animation-delay: 2s; background: #FFD5C8; }
+
+.rete-palco .rete-onda { fill: none; stroke: rgba(255, 255, 255, 0.16); stroke-width: 0.5; }
+.rete-palco .rete-onda.lontana { stroke: rgba(255, 255, 255, 0.1); }
+.rete-palco .rete-anello { stroke: rgba(255, 255, 255, 0.45); stroke-width: 0.6; stroke-dasharray: 1.4 2.2; }
+.rete-palco .rete-anello.esterno { stroke: rgba(255, 255, 255, 0.12); stroke-dasharray: none; }
+.rete-giro { transform-box: view-box; transform-origin: 50% 50%; animation: rete-gira 60s linear infinite; }
+.rete-palco .rete-linea.familiare { stroke: #D9D1FF; opacity: 0.7; }
+.rete-palco .rete-linea.badante { stroke: #FFB39F; opacity: 0.9; }
+.rete-palco .rete-linea.attesa { stroke: #fff; opacity: 0.45; }
+.rete-palco .rete-linea.attiva { stroke: #fff; opacity: 1; stroke-width: 1.5; filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.9)); }
+.rete-impulso { fill: #fff; filter: drop-shadow(0 0 1.2px #fff); }
+.rete-impulso.badante { fill: #FFE3DB; }
+
+.rete-palco .rete-nodo { color: #fff; }
+.rete-palco .rete-avatar.avatar { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.95), 0 10px 24px rgba(20, 10, 80, 0.35); }
+.rete-palco .rete-nodo:not(.centro) .rete-avatar { animation: rete-fluttua 4.5s ease-in-out infinite; animation-delay: var(--fluttua, 0s); }
+.rete-palco .rete-nome { background: rgba(255, 255, 255, 0.18); color: #fff; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.rete-palco .rete-nodo.scelto .rete-avatar { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(255, 255, 255, 0.45), 0 0 26px 6px rgba(255, 255, 255, 0.45); }
+.rete-palco .rete-nodo.scelto .rete-nome { background: #fff; color: var(--primario-scuro); }
+.rete-palco .rete-nodo.centro .rete-avatar.avatar { box-shadow: 0 0 0 5px #fff, 0 0 0 10px var(--accento), 0 0 40px 10px rgba(255, 116, 87, 0.55); }
+.rete-palco .rete-nodo.centro.scelto .rete-avatar { box-shadow: 0 0 0 5px #fff, 0 0 0 10px var(--accento), 0 0 0 16px rgba(255, 255, 255, 0.25), 0 0 50px 14px rgba(255, 116, 87, 0.6); }
+.rete-palco .rete-alone { inset: -22px; background: radial-gradient(circle, rgba(255, 116, 87, 0.55), rgba(255, 116, 87, 0) 70%); }
+.rete-palco .rete-nodo.invito .rete-avatar { background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.8); box-shadow: none; }
+.rete-palco .rete-nodo.aggiungi .rete-avatar.avatar { background: rgba(255, 255, 255, 0.14); color: #fff; border-color: #fff; }
+.rete-palco .rete-nodo.aggiungi .rete-nome { color: #fff; }
+.rete-legenda .segno { border-color: #A493F8; opacity: 1; }
+.rete-legenda .segno.badante { border-color: #FF8E75; }
+
+@keyframes rete-gira { to { transform: rotate(360deg); } }
+@keyframes rete-fluttua { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes rete-brilla { 0%, 100% { opacity: 0.25; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.15); } }
+@media (prefers-reduced-motion: reduce) {
+  .rete-giro, .rete-stella, .rete-palco .rete-nodo:not(.centro) .rete-avatar { animation: none; }
+  .rete-impulso { display: none; }
+}
