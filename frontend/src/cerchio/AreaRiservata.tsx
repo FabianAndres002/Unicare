@@ -30,6 +30,7 @@ import LavoroBadante from '../ricerche/LavoroBadante'
 import RicercaPerBadante from '../ricerche/RicercaPerBadante'
 import CercoBadante from '../ricerche/CercoBadante'
 import ProposteRicerca from '../ricerche/ProposteRicerca'
+import InterpretePagina from '../interprete/InterpretePagina'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -77,6 +78,7 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
   let paginaLavoro = null
   if (chat) paginaLavoro = <Chat key={chat[1]} id={Number(chat[1])} profilo={profilo} />
   else if (percorso === '/contatti') paginaLavoro = <Conversazioni profilo={profilo} />
+  else if (percorso === '/interprete') paginaLavoro = <InterpretePagina badante={profilo.tipo === 'BADANTE'} />
   else if (percorso === '/lavoro' && profilo.tipo === 'BADANTE') paginaLavoro = <LavoroBadante profilo={profilo} />
   else if (percorso === '/lavoro/profilo' && profilo.tipo === 'BADANTE') paginaLavoro = <IlMioProfilo profilo={profilo} />
   else if (ricercaLavoro && profilo.tipo === 'BADANTE') paginaLavoro = <RicercaPerBadante key={ricercaLavoro[1]} id={Number(ricercaLavoro[1])} />

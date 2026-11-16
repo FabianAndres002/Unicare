@@ -3,6 +3,7 @@
 //
 //   /senior          la home: "Chiedi aiuto" e le richieste in corso
 //   /senior/chiedi   "Di cosa hai bisogno?" e conferma
+//   /senior/interprete   parlare con la badante nella sua lingua
 //
 // Se il telefono non è ancora collegato mostra la schermata del codice a 6 cifre.
 
@@ -14,6 +15,7 @@ import { useCarica } from '../comune/useCarica'
 import CodiceSenior from './CodiceSenior'
 import HomeSenior from './HomeSenior'
 import ChiediAiuto from './ChiediAiuto'
+import InterpreteSenior from '../interprete/InterpreteSenior'
 
 export default function SeniorApp() {
   const percorso = usePercorso()
@@ -35,6 +37,8 @@ export default function SeniorApp() {
       : <div className="senior-centro"><span className="rotella" aria-label="Caricamento" /></div>
   } else if (dati === 'scollegato') {
     schermata = <CodiceSenior onCollegato={async () => { setAppenaCollegato(true); setDati(await api.senior.io()) }} />
+  } else if (percorso === '/senior/interprete') {
+    schermata = <InterpreteSenior />
   } else if (percorso === '/senior/chiedi') {
     schermata = <ChiediAiuto io={dati} onInviata={ricarica} />
   } else {

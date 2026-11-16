@@ -7,6 +7,7 @@ import { eseguiMigrazioni } from '../src/db/migrazioni.ts'
 import { creaApp } from '../src/app.ts'
 import { postinoMemoria } from '../src/notifiche/postino.ts'
 import { spingitoreMemoria } from '../src/notifiche/push.ts'
+import type { Traduttore } from '../src/traduzione/traduzione.service.ts'
 
 /** App con database in memoria e un postino finto: le email finiscono in "posta". */
 export async function preparaApp() {
@@ -14,7 +15,17 @@ export async function preparaApp() {
   await eseguiMigrazioni(db, () => {})
   const postino = postinoMemoria()
   const spingitore = spingitoreMemoria()
-  const app = creaApp(db, { postino, spingitore })
+  // Traduttore finto: non chiama nessun servizio esterno.
+  const traduzioni: { testo: string; da: string; a: string }[] = []
+  const traduttore: Traduttore = {
+    nome: 'finto',
+    async traduci(testo, da, a) {
+      traduzioni.push({ testo, da, a })
+      if (testo === 'errore') throw new Error('servizio giù')
+      return `[${a}] ${testo}`
+    },
+  }
+  const app = creaApp(db, { postino, spingitore, traduttore })
   /** Le email spedite finora (aspetta quelle ancora in viaggio). */
   async function posta() {
     await app.avvisi.attendi()
@@ -25,7 +36,7 @@ export async function preparaApp() {
     await app.avvisi.attendi()
     return spingitore.inviate
   }
-  return { db, app: app as Express, posta, postino, notifiche, pianificatore: app.pianificatore }
+  return { db, app: app as Express, posta, postino, notifiche, pianificatore: app.pianificatore, traduzioni }
 }
 
 /** Registra un utente e restituisce un "browser" già collegato (ricorda il cookie). */

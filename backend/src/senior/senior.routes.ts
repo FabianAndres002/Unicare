@@ -11,6 +11,7 @@
 // POST /api/senior/push                     questo telefono riceve le notifiche       (204)
 // POST /api/senior/vocali?durata=12         messaggio vocale al cerchio (corpo: audio) (201)
 // GET  /api/senior/vocali/:id/audio         ascolta un messaggio
+// POST /api/senior/traduci                  interprete {testo, da, a} → {traduzione}
 //
 // Dai familiari (login normale, ruolo familiare o amministratore):
 // GET    /api/anziani/:id/telefono                   telefoni collegati e codice in attesa
@@ -31,6 +32,7 @@ import { schemaIscrizione, type Push } from '../notifiche/push.ts'
 import type { ServizioAppuntamenti } from '../appuntamenti/appuntamenti.service.ts'
 import { corpoAudio } from '../appuntamenti/appuntamenti.routes.ts'
 import { schemaDurata, schemaTipoAudio, type ServizioVocali } from '../vocali/vocali.service.ts'
+import { schemaTraduzione, type ServizioTraduzione } from '../traduzione/traduzione.service.ts'
 
 const COOKIE = 'unicare_senior'
 
@@ -38,7 +40,7 @@ const COOKIE = 'unicare_senior'
 const schemaRichiestaSenior = z.object({ categoria: z.enum(CATEGORIE.filter((c) => c !== 'ALTRO') as [string, ...string[]]) })
 
 export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste: ServizioRichieste, medicine: ServizioMedicine, push: Push,
-  appuntamenti: ServizioAppuntamenti, vocali: ServizioVocali): Router {
+  appuntamenti: ServizioAppuntamenti, vocali: ServizioVocali, traduzione: ServizioTraduzione): Router {
   const router = Router()
 
   /** Come richiedeAccesso, ma per il telefono dell'anziano. */
@@ -65,6 +67,10 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
       path: '/',
     })
     res.status(204).end()
+  })
+
+  router.post('/senior/traduci', richiedeTelefono, async (req, res) => {
+    res.json(await traduzione.traduci(`a${senior(res).anzianoId}`, schemaTraduzione.parse(req.body)))
   })
 
   router.get('/senior/io', richiedeTelefono, async (_req, res) => {

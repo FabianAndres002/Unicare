@@ -1,6 +1,6 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { CalendarDays, Cake, UserSearch, ChevronRight, MapPin, Pencil, Plus, Receipt, UserPlus, Watch, Smartphone } from 'lucide-react'
+import { Cake, CalendarDays, ChevronRight, Languages, MapPin, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
 import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
@@ -118,6 +118,11 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <span>Ricette, analisi, ecografie, ricevute</span>
             </Collegamento>
           )}
+          <Collegamento a="/interprete" className="funzione">
+            <span className="funzione-icona arancio"><Languages size={22} /></span>
+            <strong>Interprete</strong>
+            <span>{profilo.tipo === 'BADANTE' ? 'Parla con la famiglia nella tua lingua' : 'Parla con la badante nella sua lingua'}</span>
+          </Collegamento>
         </div>
       </section>
 

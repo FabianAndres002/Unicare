@@ -3,9 +3,18 @@
 App per cellulare che unisce anziani, familiari e badanti: richieste di aiuto, promemoria, calendario, documenti sanitari.
 Stack: **React + TypeScript** (PWA) · **Node.js + TypeScript + Express** · **PostgreSQL**.
 
-Stato: **Fase 4, settimana 10**: tutto il coordinamento della famiglia (cerchio, richieste di aiuto,
-Senior App, medicine, appuntamenti, messaggi vocali, documenti sanitari, privacy) e l'incontro tra
-famiglie e badanti. Novità della settimana 10:
+Stato: **Fase 4, settimana 11**: tutto il coordinamento della famiglia (cerchio, richieste di aiuto,
+Senior App, medicine, appuntamenti, messaggi vocali, documenti sanitari, privacy), l'incontro tra
+famiglie e badanti e l'interprete. Novità della settimana 11:
+
+- **interprete a voce** (`/interprete` per famiglia e badante, `/senior/interprete` per l'anziano):
+  due pulsanti grandi, uno per lingua. Si tocca, si parla: il telefono scrive la frase, il server la
+  traduce (DeepL) e il telefono la legge ad alta voce nell'altra lingua. 10 lingue (italiano, rumeno,
+  ucraino, russo, spagnolo, inglese, polacco, portoghese, bulgaro, francese). Se il telefono non
+  riconosce la voce si può scrivere. Le frasi non vengono salvate. Massimo 120 frasi all'ora a persona.
+  Per attivarlo con persone vere serve la chiave DeepL: vedi "L'interprete e la chiave DeepL" più sotto.
+
+Settimana 10:
 
 - **"Cerco una badante"**: la famiglia scrive di cosa ha bisogno (comune, orari, servizi, due righe).
   Le badanti della provincia ricevono un avviso e la leggono in "Lavoro", **senza** il nome della
@@ -93,6 +102,17 @@ Usa sempre Ctrl+C sul backend: così anche il database si chiude bene.
 **Test automatici:** Ctrl+Shift+P → "Tasks: Run Task" → **Test del backend**.
 Ogni test usa un database in memoria tutto suo: i tuoi dati non si toccano.
 
+## L'interprete e la chiave DeepL
+
+- **Senza chiave** (sviluppo): l'interprete usa MyMemory, un servizio di traduzione gratuito senza
+  registrazione. Va bene per provare, non per persone vere.
+- **Con la chiave** (consigliato): crea un account su https://www.deepl.com/pro-api, piano
+  **DeepL API Free** (500.000 caratteri al mese gratis). Copia la chiave (finisce con `:fx`),
+  copia `backend/.env.example` come `backend/.env` e scrivila dopo `DEEPL_API_KEY=`. Riavvia Unicare.
+- In produzione senza chiave l'interprete resta spento.
+- Il riconoscimento della voce e la lettura ad alta voce li fa il telefono (Safari su iPhone,
+  Chrome su Android) e servono https: in prova usa il comando "Prova sui telefoni".
+
 ## Avviare tutto a mano (dal terminale)
 
 ```bash
@@ -169,6 +189,7 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/senior/push` | Il telefono dell'anziano riceve le notifiche | Telefono collegato |
 | POST | `/api/senior/vocali?durata=12` | Messaggio vocale al cerchio (il corpo è l'audio) | Telefono collegato |
 | GET | `/api/senior/vocali/:id/audio` | Ascolta un messaggio | Telefono collegato |
+| POST | `/api/senior/traduci` | Interprete `{testo, da, a}` → `{traduzione}` | Telefono collegato |
 | GET | `/api/anziani/:id/appuntamenti` | Appuntamenti in programma e passati | Sì, membro |
 | POST | `/api/anziani/:id/appuntamenti` | Nuovo appuntamento | Amministratore, familiare |
 | PATCH | `/api/appuntamenti/:id` | Cambia un appuntamento | Amministratore, familiare |
@@ -193,6 +214,8 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/contatti/:id/messaggi` | Risponde | Chi partecipa |
 | POST | `/api/contatti/:id/chiudi` | Chiude o riapre la conversazione | La badante |
 | POST | `/api/contatti/:id/invita` | Invita la badante nel cerchio | Familiare amministratore |
+| GET | `/api/traduci` | L'interprete è attivo? Quale servizio usa | Login |
+| POST | `/api/traduci` | Interprete `{testo, da, a}` → `{traduzione}` (max 120 frasi/ora) | Login |
 | GET | `/api/anziani/:id/vocali` | Messaggi vocali degli ultimi 30 giorni | Sì, membro |
 | POST | `/api/anziani/:id/vocali?durata=12` | Vocale all'anziano (il corpo è l'audio) | Sì, membro |
 | GET | `/api/vocali/:id/audio` | Ascolta un messaggio | Sì, membro |

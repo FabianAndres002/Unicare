@@ -2,7 +2,7 @@
 // lo stato delle sue richieste ("Se ne occupa Maria"), gli appuntamenti e le medicine.
 
 import { useEffect, useState } from 'react'
-import { Check, Clock, HandHeart, UserRound, X } from 'lucide-react'
+import { Check, Clock, HandHeart, Languages, UserRound, X } from 'lucide-react'
 import { api, messaggioErrore, type Richiesta, type SeniorIo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
@@ -83,6 +83,11 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
       </Collegamento>
 
       <MessaggiSenior vocali={io.vocali} onCambiata={onCambiata} />
+
+      <Collegamento a="/senior/interprete" className="senior-interprete">
+        <Languages size={34} />
+        <span>Parla con la badante<small>nella sua lingua</small></span>
+      </Collegamento>
 
       {io.richieste.length > 0 && (
         <section>

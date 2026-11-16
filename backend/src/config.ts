@@ -1,5 +1,15 @@
 // Impostazioni del backend, lette dalle variabili d'ambiente con valori comodi per lo sviluppo.
 
+// Le chiavi segrete (per esempio DEEPL_API_KEY) si possono scrivere nel file backend/.env,
+// che NON va su GitHub. Nei test non lo leggiamo: lì si usano servizi finti.
+if (!process.env.VITEST) {
+  try {
+    process.loadEnvFile('.env')
+  } catch {
+    // nessun file .env: va bene così
+  }
+}
+
 const inProduzione = process.env.NODE_ENV === 'production'
 
 export const config = {
@@ -39,6 +49,10 @@ export const config = {
     chiavePrivata: process.env.VAPID_PRIVATE_KEY ?? '',
     contatto: process.env.VAPID_SUBJECT ?? 'mailto:avvisi@unicare.app',
   },
+
+  // Interprete: chiave di DeepL (gratuita fino a 500.000 caratteri al mese, finisce con ":fx").
+  // Senza chiave, in sviluppo si usa un servizio di prova gratuito; in produzione l'interprete resta spento.
+  deeplChiave: process.env.DEEPL_API_KEY ?? '',
 
   // Il telefono dell'anziano resta collegato a lungo: non deve rifare il codice ogni mese.
   durataTelefonoAnzianoGiorni: 365,

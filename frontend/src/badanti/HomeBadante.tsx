@@ -2,7 +2,7 @@
 // il suo profilo ("Mi propongo"), i messaggi delle famiglie e come entrare in un cerchio.
 
 import { useState } from 'react'
-import { ChevronRight, Eye, EyeOff, HeartHandshake, Megaphone, MessagesSquare, Search } from 'lucide-react'
+import { ChevronRight, Eye, EyeOff, HeartHandshake, Languages, Megaphone, MessagesSquare, Search } from 'lucide-react'
 import { api, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
@@ -79,6 +79,12 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
           </ul>
         )}
       </section>
+
+      <Collegamento a="/interprete" className="scheda riga-cerchio">
+        <span className="funzione-icona arancio"><Languages size={22} /></span>
+        <span className="riga-testo"><strong>Interprete</strong><span>Parla con la famiglia, ognuno nella sua lingua</span></span>
+        <ChevronRight size={20} />
+      </Collegamento>
 
       <div className="scheda riga-cerchio">
         <span className="funzione-icona arancio"><HeartHandshake size={22} /></span>

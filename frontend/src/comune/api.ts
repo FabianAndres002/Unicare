@@ -1,5 +1,7 @@
 // Tutte le chiamate al backend passano da qui.
 
+import type { Lingua } from '../interprete/lingue'
+
 export type Stato = { app: string; database: string; tabelle: number }
 
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
@@ -347,6 +349,10 @@ export const api = {
   chiudiConversazione: (id: number, chiusa: boolean) => chiama<void>('POST', `/api/contatti/${id}/chiudi`, { chiusa }),
   invitaDaConversazione: (id: number, cerchioId: number) => chiama<void>('POST', `/api/contatti/${id}/invita`, { cerchioId }),
 
+  // Interprete
+  interprete: () => chiama<{ disponibile: boolean; servizio: string | null }>('GET', '/api/traduci'),
+  traduci: (testo: string, da: Lingua, a: Lingua) => chiama<{ traduzione: string }>('POST', '/api/traduci', { testo, da, a }),
+
   // Cerco una badante: famiglia
   ricercheBadante: (cerchioId: number) => chiama<RicercaFamiglia[]>('GET', `/api/cerchi/${cerchioId}/ricerche-badante`),
   pubblicaRicerca: (cerchioId: number, dati: DatiRicerca) => chiama<{ id: number }>('POST', `/api/cerchi/${cerchioId}/ricerche-badante`, dati),
@@ -376,6 +382,7 @@ export const api = {
 
   // Senior App (il telefono dell'anziano)
   senior: {
+    traduci: (testo: string, da: Lingua, a: Lingua) => chiama<{ traduzione: string }>('POST', '/api/senior/traduci', { testo, da, a }),
     fatto: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/fatto`),
     rimanda: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/rimanda`),
     iscriviPush: (s: IscrizionePush) => chiama<void>('POST', '/api/senior/push', s),
