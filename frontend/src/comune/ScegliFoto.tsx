@@ -24,9 +24,10 @@ const LATO = 512
 /** I disegni che si possono scegliere (stessi nomi del backend, foto.ts). */
 const DISEGNI = [
   ['nonna', 'Nonna'], ['nonno', 'Nonno'], ['nonno-baffi', 'Nonno coi baffi'], ['donna', 'Donna'],
-  ['donna-ricci', 'Donna riccia'], ['donna-treccine', 'Donna con treccine'], ['ragazza', 'Ragazza'], ['ragazza-viola', 'Ragazza viola'],
-  ['uomo', 'Uomo'], ['uomo-elegante', 'Uomo elegante'], ['uomo-cuffia', 'Uomo con cuffia'], ['uomo-viola', 'Uomo viola'],
-  ['ragazzo', 'Ragazzo'], ['gatto', 'Gatto'], ['cane', 'Cane'], ['cane-felice', 'Cane felice'],
+  ['donna-ricci', 'Donna riccia'], ['donna-treccine', 'Donna con treccine'], ['donna-bionda', 'Donna bionda'], ['ragazza', 'Ragazza'],
+  ['ragazza-viola', 'Ragazza viola'], ['uomo', 'Uomo'], ['uomo-elegante', 'Uomo elegante'], ['uomo-cuffia', 'Uomo con cuffia'],
+  ['uomo-viola', 'Uomo viola'], ['ragazzo', 'Ragazzo'], ['ragazzo-righe', 'Ragazzo a righe'], ['gatto', 'Gatto'],
+  ['cane', 'Cane'], ['cane-felice', 'Cane felice'], ['carlino', 'Carlino'], ['leone', 'Leone'],
 ] as const
 
 /** Ritaglia al centro un quadrato e lo rimpicciolisce a 512×512 JPEG. */
