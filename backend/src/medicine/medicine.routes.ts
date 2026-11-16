@@ -1,8 +1,8 @@
 // Endpoint dei promemoria delle medicine (lato famiglia) e delle notifiche push.
 //
 // GET    /api/anziani/:id/medicine     promemoria, cosa è successo oggi, consenso    (tutti i membri)
-// POST   /api/anziani/:id/promemoria   nuovo promemoria {momento, ora, consenso}      (familiari, admin) 201
-// PATCH  /api/promemoria/:id           cambia orario o lo spegne {ora?, attivo?}      (familiari, admin)
+// POST   /api/anziani/:id/promemoria   nuovo promemoria {momento, ora, medicine, consenso} (familiari, admin) 201
+// PATCH  /api/promemoria/:id           cambia {momento?, ora?, medicine?, attivo?}    (familiari, admin)
 // DELETE /api/promemoria/:id           toglie il promemoria                           (familiari, admin) 204
 //
 // GET    /api/push/chiave              chiave pubblica per iscriversi alle notifiche  (nessun login)

@@ -1,12 +1,15 @@
 // Promemoria delle medicine.
 //
-// La famiglia imposta fino a tre promemoria al giorno: "Medicine del mattino", "del pranzo",
-// "della sera", ognuno con il suo orario. All'orario il telefono dell'anziano suona e mostra
+// La famiglia imposta i promemoria: momento della giornata ("Medicine del mattino", "del pranzo",
+// "della sera"), orario e i nomi delle medicine. Nello stesso momento ce ne possono essere più
+// d'uno (per esempio alle 8:00 e alle 10:00), ma non due alla stessa ora. All'orario il telefono dell'anziano suona e mostra
 // "Fatto" e "Ricordamelo tra 15 minuti". Se dopo un'ora non ha confermato, i familiari
 // ricevono un avviso.
 //
-// Il nome dei farmaci non si salva e non compare mai: è un dato sanitario.
-// Prima del primo promemoria serve il consenso: la famiglia vedrà se l'anziano ha preso le medicine.
+// I nomi delle medicine sono dati sanitari: si vedono dentro l'app (famiglia, badante, anziano)
+// ma MAI nel testo delle notifiche, che compare anche a telefono bloccato.
+// Prima del primo promemoria serve il consenso: si salvano i nomi delle medicine e la famiglia
+// vedrà se l'anziano le ha prese.
 //
 // Chi può fare cosa:
 //   vedere i promemoria e chi li ha confermati   tutti i membri del cerchio (badante compresa)
@@ -36,26 +39,32 @@ export const TITOLO_MOMENTO: Record<Momento, string> = {
 
 const MINUTI_PRIMA_DI_AVVISARE_LA_FAMIGLIA = 60
 const MINUTI_RIMANDO = 15
-export const VERSIONE_CONSENSO_MEDICINE = '2026-11'
+export const VERSIONE_CONSENSO_MEDICINE = '2026-11-nomi'
 
 const schemaOra = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'ora non valida (HH:MM)')
+const schemaMedicine = z
+  .array(z.string().trim().max(80, 'Nome della medicina troppo lungo.'))
+  .max(10, 'Al massimo 10 medicine per orario.')
+  .transform((v) => [...new Set(v.filter(Boolean))])
 
 export const schemaNuovoPromemoria = z.object({
   momento: z.enum(MOMENTI),
   ora: schemaOra,
+  medicine: schemaMedicine.default([]),
   /** Va mandato true la prima volta: l'anziano è d'accordo. */
   consenso: z.boolean().optional(),
 })
 
 export const schemaModificaPromemoria = z
-  .object({ ora: schemaOra.optional(), attivo: z.boolean().optional() })
-  .refine((d) => d.ora !== undefined || d.attivo !== undefined, 'niente da modificare')
+  .object({ momento: z.enum(MOMENTI).optional(), ora: schemaOra.optional(), medicine: schemaMedicine.optional(), attivo: z.boolean().optional() })
+  .refine((d) => Object.values(d).some((v) => v !== undefined), 'niente da modificare')
 
-export type Promemoria = { id: number; momento: Momento; ora: string; attivo: boolean }
+export type Promemoria = { id: number; momento: Momento; ora: string; medicine: string[]; attivo: boolean }
 export type Occorrenza = {
   id: number
   promemoriaId: number
   momento: Momento
+  medicine: string[]
   previstoIl: string
   stato: 'IN_ATTESA' | 'FATTO' | 'NON_CONFERMATO'
   confermatoIl: string | null
@@ -73,7 +82,7 @@ export type MedicineAnziano = {
 const ISO = (colonna: string) => `to_char(${colonna} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`
 
 const SELECT_OGGI = `
-  SELECT o.id, o.promemoria_id AS "promemoriaId", p.momento, ${ISO('o.previsto_il')} AS "previstoIl",
+  SELECT o.id, o.promemoria_id AS "promemoriaId", p.momento, p.medicine, ${ISO('o.previsto_il')} AS "previstoIl",
          o.stato, ${ISO('o.confermato_il')} AS "confermatoIl", o.rimandi, ${ISO('o.avvisare_il')} AS "avvisareIl"
   FROM occorrenza o JOIN promemoria p ON p.id = o.promemoria_id
   WHERE p.anziano_id = $1 AND (o.previsto_il AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date
@@ -111,7 +120,7 @@ export function creaServizioMedicine(db: Database, avvisi: Avvisi) {
     async perFamiglia(anzianoId: number, utenteId: number): Promise<MedicineAnziano> {
       const ruolo = await ruoloPer(anzianoId, utenteId)
       const promemoria = await db.query<Promemoria>(
-        `SELECT id, momento, to_char(ora, 'HH24:MI') AS ora, attivo FROM promemoria WHERE anziano_id = $1 ORDER BY ora`,
+        `SELECT id, momento, to_char(ora, 'HH24:MI') AS ora, medicine, attivo FROM promemoria WHERE anziano_id = $1 ORDER BY ora`,
         [anzianoId],
       )
       const [consenso] = await db.query(
@@ -137,22 +146,31 @@ export function creaServizioMedicine(db: Database, avvisi: Avvisi) {
             [anzianoId, VERSIONE_CONSENSO_MEDICINE, utenteId],
           )
         }
-        const [doppio] = await tx.query('SELECT 1 FROM promemoria WHERE anziano_id = $1 AND momento = $2', [anzianoId, dati.momento])
-        if (doppio) throw new ErroreApplicativo(409, 'PROMEMORIA_GIA_PRESENTE', 'C’è già un promemoria per questo momento: cambia l’orario di quello.')
-        await tx.query('INSERT INTO promemoria (anziano_id, momento, ora, creato_da) VALUES ($1, $2, $3, $4)', [anzianoId, dati.momento, dati.ora, utenteId])
+        const [doppio] = await tx.query('SELECT 1 FROM promemoria WHERE anziano_id = $1 AND ora = $2', [anzianoId, dati.ora])
+        if (doppio) throw new ErroreApplicativo(409, 'PROMEMORIA_GIA_PRESENTE', 'C’è già un promemoria a quest’ora: aggiungi le medicine a quello.')
+        await tx.query('INSERT INTO promemoria (anziano_id, momento, ora, medicine, creato_da) VALUES ($1, $2, $3, $4, $5)',
+          [anzianoId, dati.momento, dati.ora, dati.medicine, utenteId])
       })
     },
 
     async modifica(id: number, utenteId: number, dati: z.infer<typeof schemaModificaPromemoria>): Promise<void> {
       const { anzianoId } = await promemoriaDi(id)
       await ruoloPer(anzianoId, utenteId, PUO_MODIFICARE_ANZIANO)
+      if (dati.ora) {
+        const [doppio] = await db.query('SELECT 1 FROM promemoria WHERE anziano_id = $1 AND ora = $2 AND id <> $3', [anzianoId, dati.ora, id])
+        if (doppio) throw new ErroreApplicativo(409, 'PROMEMORIA_GIA_PRESENTE', 'C’è già un promemoria a quest’ora: aggiungi le medicine a quello.')
+      }
+      const cambiaOrario = dati.ora !== undefined || dati.attivo !== undefined
       await db.transazione(async (tx) => {
         await tx.query(
-          `UPDATE promemoria SET ora = COALESCE($2::time, ora), attivo = COALESCE($3, attivo), modificato_il = now() WHERE id = $1`,
-          [id, dati.ora ?? null, dati.attivo ?? null],
+          `UPDATE promemoria SET ora = COALESCE($2::time, ora), attivo = COALESCE($3, attivo),
+                  momento = COALESCE($4, momento), medicine = COALESCE($5, medicine),
+                  modificato_il = CASE WHEN $6 THEN now() ELSE modificato_il END
+           WHERE id = $1`,
+          [id, dati.ora ?? null, dati.attivo ?? null, dati.momento ?? null, dati.medicine ?? null, cambiaOrario],
         )
         // Le notifiche di oggi non ancora arrivate con il vecchio orario non servono più.
-        await tx.query(`DELETE FROM occorrenza WHERE promemoria_id = $1 AND stato = 'IN_ATTESA' AND previsto_il > now()`, [id])
+        if (cambiaOrario) await tx.query(`DELETE FROM occorrenza WHERE promemoria_id = $1 AND stato = 'IN_ATTESA' AND previsto_il > now()`, [id])
       })
     },
 

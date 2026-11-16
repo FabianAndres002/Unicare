@@ -81,27 +81,38 @@ describe('impostare i promemoria', () => {
     expect((await ugo.get(`/api/anziani/${anzianoId}/medicine`)).status).toBe(404)
   })
 
-  it('un solo promemoria per momento; si può cambiare orario, spegnere e togliere', async () => {
+  it('con i nomi delle medicine; più orari nello stesso momento, ma non due alla stessa ora', async () => {
     const { marco, anzianoId } = await famiglia()
-    await marco.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'PRANZO', ora: '12:30', consenso: true }).expect(201)
-    expect((await marco.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'PRANZO', ora: '13:00' })).status).toBe(409)
-    const [p] = (await marco.get(`/api/anziani/${anzianoId}/medicine`)).body.promemoria
+    await marco.post(`/api/anziani/${anzianoId}/promemoria`)
+      .send({ momento: 'MATTINO', ora: '08:00', medicine: [' Cardioaspirina 100 mg ', 'Eutirox', '', 'Eutirox'], consenso: true }).expect(201)
+    await marco.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'MATTINO', ora: '10:30', medicine: ['Lasix'] }).expect(201)
+    expect((await marco.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'PRANZO', ora: '08:00' })).status).toBe(409)
+    expect((await marco.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'SERA', ora: '20:00', medicine: Array(11).fill('x') })).status).toBe(400)
+    let { promemoria } = (await marco.get(`/api/anziani/${anzianoId}/medicine`)).body
+    expect(promemoria).toEqual([
+      expect.objectContaining({ momento: 'MATTINO', ora: '08:00', medicine: ['Cardioaspirina 100 mg', 'Eutirox'], attivo: true }),
+      expect.objectContaining({ momento: 'MATTINO', ora: '10:30', medicine: ['Lasix'] }),
+    ])
+    const p = promemoria[1]
+    await marco.patch(`/api/promemoria/${p.id}`).send({ medicine: ['Lasix 25 mg', 'Pantoprazolo'], momento: 'PRANZO' }).expect(204)
+    expect((await marco.patch(`/api/promemoria/${p.id}`).send({ ora: '08:00' })).status).toBe(409)
     await marco.patch(`/api/promemoria/${p.id}`).send({ ora: '13:15', attivo: false }).expect(204)
-    expect((await marco.get(`/api/anziani/${anzianoId}/medicine`)).body.promemoria[0]).toMatchObject({ ora: '13:15', attivo: false })
+    ;({ promemoria } = (await marco.get(`/api/anziani/${anzianoId}/medicine`)).body)
+    expect(promemoria[1]).toMatchObject({ momento: 'PRANZO', ora: '13:15', medicine: ['Lasix 25 mg', 'Pantoprazolo'], attivo: false })
     expect((await marco.patch(`/api/promemoria/${p.id}`).send({ ora: '25:00' })).status).toBe(400)
     await marco.delete(`/api/promemoria/${p.id}`).expect(204)
-    expect((await marco.get(`/api/anziani/${anzianoId}/medicine`)).body.promemoria).toEqual([])
+    expect((await marco.get(`/api/anziani/${anzianoId}/medicine`)).body.promemoria).toHaveLength(1)
   })
 })
 
 describe('il promemoria scatta', () => {
   it('all\'orario la nonna riceve la notifica, una volta sola; "Fatto" chiude', async () => {
     const { anna, nonna, anzianoId } = await famiglia()
-    await anna.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'MATTINO', ora: oraRoma(3), consenso: true }).expect(201)
+    await anna.post(`/api/anziani/${anzianoId}/promemoria`).send({ momento: 'MATTINO', ora: oraRoma(3), medicine: ['Cardioaspirina'], consenso: true }).expect(201)
 
     let io = (await nonna.get('/api/senior/io')).body
     expect(io.medicine).toHaveLength(1)
-    expect(io.medicine[0]).toMatchObject({ momento: 'MATTINO', stato: 'IN_ATTESA' })
+    expect(io.medicine[0]).toMatchObject({ momento: 'MATTINO', stato: 'IN_ATTESA', medicine: ['Cardioaspirina'] })
     const previsto = new Date(io.medicine[0].previstoIl)
 
     await pianificatore.giro(new Date(previsto.getTime() - MINUTO))
@@ -112,6 +123,8 @@ describe('il promemoria scatta', () => {
     const arrivate = await notifiche()
     expect(arrivate).toHaveLength(1)
     expect(arrivate[0]).toMatchObject({ endpoint: 'https://push.example/nonna', messaggio: { titolo: 'È ora: medicine del mattino', url: '/senior', insistente: true } })
+    // Il nome della medicina non compare mai nella notifica (si vede a telefono bloccato).
+    expect(JSON.stringify(arrivate)).not.toContain('Cardioaspirina')
 
     await nonna.post(`/api/senior/medicine/${io.medicine[0].id}/fatto`).expect(204)
     io = (await nonna.get('/api/senior/io')).body

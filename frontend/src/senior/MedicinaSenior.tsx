@@ -2,7 +2,7 @@
 // più l'elenco delle medicine di oggi.
 
 import { useState } from 'react'
-import { Check, Clock } from 'lucide-react'
+import { Check, Clock, Pill } from 'lucide-react'
 import { api, messaggioErrore, type Occorrenza } from '../comune/api'
 import { MOMENTI, oraBreve } from '../medicine/aspetto'
 
@@ -52,6 +52,9 @@ function SchedaMedicina({ o, onCambiata }: { o: Occorrenza; onCambiata: () => vo
           <p>Erano previste alle {oraBreve(o.previstoIl)}</p>
         </div>
       </div>
+      {o.medicine.length > 0 && (
+        <ul className="senior-nomi-medicine">{o.medicine.map((m) => <li key={m}><Pill size={22} /> {m}</li>)}</ul>
+      )}
       {errore && <p className="senior-errore">{errore}</p>}
       <button className="senior-pulsante fatto" disabled={invio} onClick={() => rispondi(true)}>
         <Check size={34} strokeWidth={3} /> Fatto, le ho prese
@@ -84,7 +87,10 @@ export function MedicineDiOggi({ medicine }: { medicine: Occorrenza[] }) {
           return (
             <li key={o.id}>
               <span className={`funzione-icona ${colore}`}><Icona size={26} /></span>
-              <strong>{titolo}</strong>
+              <span className="senior-oggi-testo">
+                <strong>{titolo}</strong>
+                {o.medicine.length > 0 && <small>{o.medicine.join(', ')}</small>}
+              </span>
               {o.stato === 'FATTO'
                 ? <span className="ok"><Check size={20} /> Fatto</span>
                 : <span><Clock size={18} className="senior-icona-stato" /> {oraBreve(o.previstoIl)}</span>}

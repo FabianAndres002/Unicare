@@ -61,13 +61,14 @@ export type StatoTelefono = {
   codiceScadeIl: string | null
 }
 
-/** Promemoria delle medicine: solo il momento e l'orario, mai il nome dei farmaci. */
+/** Promemoria delle medicine: momento, orario e nomi (i nomi non compaiono mai nelle notifiche). */
 export type Momento = 'MATTINO' | 'PRANZO' | 'SERA'
-export type Promemoria = { id: number; momento: Momento; ora: string; attivo: boolean }
+export type Promemoria = { id: number; momento: Momento; ora: string; medicine: string[]; attivo: boolean }
 export type Occorrenza = {
   id: number
   promemoriaId: number
   momento: Momento
+  medicine: string[]
   previstoIl: string
   stato: 'IN_ATTESA' | 'FATTO' | 'NON_CONFERMATO'
   confermatoIl: string | null
@@ -310,9 +311,9 @@ export const api = {
 
   // Medicine (lato famiglia)
   medicine: (anzianoId: number) => chiama<MedicineAnziano>('GET', `/api/anziani/${anzianoId}/medicine`),
-  creaPromemoria: (anzianoId: number, momento: Momento, ora: string, consenso?: boolean) =>
-    chiama<MedicineAnziano>('POST', `/api/anziani/${anzianoId}/promemoria`, { momento, ora, consenso }),
-  modificaPromemoria: (id: number, dati: { ora?: string; attivo?: boolean }) => chiama<void>('PATCH', `/api/promemoria/${id}`, dati),
+  creaPromemoria: (anzianoId: number, momento: Momento, ora: string, medicine: string[], consenso?: boolean) =>
+    chiama<MedicineAnziano>('POST', `/api/anziani/${anzianoId}/promemoria`, { momento, ora, medicine, consenso }),
+  modificaPromemoria: (id: number, dati: { momento?: Momento; ora?: string; medicine?: string[]; attivo?: boolean }) => chiama<void>('PATCH', `/api/promemoria/${id}`, dati),
   eliminaPromemoria: (id: number) => chiama<void>('DELETE', `/api/promemoria/${id}`),
 
   // Appuntamenti

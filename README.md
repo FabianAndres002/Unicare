@@ -13,6 +13,10 @@ famiglie e badanti e l'interprete. Novità della settimana 11:
   ucraino, russo, spagnolo, inglese, polacco, portoghese, bulgaro, francese). Se il telefono non
   riconosce la voce si può scrivere. Le frasi non vengono salvate. Massimo 120 frasi all'ora a persona.
   Per attivarlo con persone vere serve la chiave DeepL: vedi "L'interprete e la chiave DeepL" più sotto.
+- **nomi delle medicine e più orari**: ogni promemoria ha l'orario e i nomi delle medicine da prendere
+  (fino a 10). Mattino, pranzo e sera restano, ma in ognuno si possono mettere più orari (per esempio
+  8:00 e 10:00). I nomi si vedono nell'app della famiglia e dell'anziano, mai nel testo delle notifiche,
+  che si legge anche a telefono bloccato.
 
 Settimana 10:
 
@@ -37,7 +41,7 @@ Settimana 9:
 La messa online è rimandata alla fine del progetto. I file dei documenti sono nel database:
 online, con molti utenti, andranno spostati in uno spazio file a parte.
 
-97 test automatici.
+112 test automatici.
 
 ### Le email in sviluppo
 
@@ -220,8 +224,8 @@ Imposta queste variabili d'ambiente prima di avviare il backend:
 | POST | `/api/anziani/:id/vocali?durata=12` | Vocale all'anziano (il corpo è l'audio) | Sì, membro |
 | GET | `/api/vocali/:id/audio` | Ascolta un messaggio | Sì, membro |
 | GET | `/api/anziani/:id/medicine` | Promemoria, medicine di oggi, consenso | Sì, membro |
-| POST | `/api/anziani/:id/promemoria` | Nuovo promemoria (mattino, pranzo o sera) | Amministratore, familiare |
-| PATCH | `/api/promemoria/:id` | Cambia orario o lo spegne | Amministratore, familiare |
+| POST | `/api/anziani/:id/promemoria` | Nuovo promemoria: momento, orario e nomi delle medicine | Amministratore, familiare |
+| PATCH | `/api/promemoria/:id` | Cambia orario o medicine, o lo spegne | Amministratore, familiare |
 | DELETE | `/api/promemoria/:id` | Toglie il promemoria | Amministratore, familiare |
 | GET | `/api/push/chiave` | Chiave pubblica per le notifiche | No |
 | POST | `/api/push/iscrizione` | Questo browser riceve le notifiche | Sì |
