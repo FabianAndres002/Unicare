@@ -1439,3 +1439,9 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .profilo-lingua .riga-testo > span { white-space: normal; }
 .senior-lingua-alto { align-self: flex-end; }
 .senior-lingua { position: relative; }
+.prova-voce { margin-top: 18px; padding: 12px 16px; border-radius: 18px; background: var(--bianco); box-shadow: var(--ombra-s); }
+.prova-voce summary { cursor: pointer; font-weight: 800; color: var(--testo-tenue); }
+.prova-voce-riga { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--bordo); }
+.prova-voce-riga div { display: flex; flex-direction: column; min-width: 0; }
+.prova-voce-riga small { color: var(--testo-tenue); overflow-wrap: anywhere; }
+.prova-voce .nota { margin-top: 10px; }

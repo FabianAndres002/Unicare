@@ -125,3 +125,35 @@ export async function haVoce(voce: string): Promise<boolean> {
 export function zitto() {
   if (sintesiDisponibile()) window.speechSynthesis.cancel()
 }
+
+/** Per la prova della voce: che voci ci sono per questa lingua e quale useremmo. */
+export async function infoVoce(voce: string): Promise<{ totali: number; dellaLingua: string[]; scelta: string | null }> {
+  if (!sintesiDisponibile()) return { totali: 0, dellaLingua: [], scelta: null }
+  const voci = await vociPronte()
+  const prefisso = norma(voce).slice(0, 2)
+  return {
+    totali: voci.length,
+    dellaLingua: voci.filter((v) => norma(v.lang).startsWith(prefisso)).map((v) => `${v.name} (${v.lang})`),
+    scelta: scegliVoce(voci, voce)?.name ?? null,
+  }
+}
+
+/** Legge una frase di prova e racconta cosa succede (parte, finisce, errore). */
+export function provaVoce(testo: string, voce: string, onStato: (stato: string) => void) {
+  if (!sintesiDisponibile()) return onStato('speechSynthesis assente')
+  const s = window.speechSynthesis
+  s.cancel()
+  void vociPronte().then((voci) => {
+    const scelta = scegliVoce(voci, voce)
+    const u = new SpeechSynthesisUtterance(testo)
+    u.lang = scelta?.lang ?? voce
+    if (scelta) u.voice = scelta
+    u.onstart = () => onStato('parla')
+    u.onend = () => onStato('fine')
+    u.onerror = (e) => onStato(`errore: ${e.error}`)
+    setTimeout(() => {
+      s.speak(u)
+      setTimeout(() => { if (!s.speaking && !s.pending) onStato('non partita') }, 2500)
+    }, 60)
+  })
+}

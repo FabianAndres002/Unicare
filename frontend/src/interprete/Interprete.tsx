@@ -8,6 +8,7 @@ import { messaggioErrore } from '../comune/api'
 import { ELENCO_LINGUE, LINGUE, lingueSalvate, nomeLingua, salvaLingue, type Lingua } from './lingue'
 import { ascolta, haVoce, parla, riconoscimentoDisponibile, sbloccaVoce, zitto } from './voce'
 import { t } from '../comune/lingua'
+import ProvaVoce from './ProvaVoce'
 
 type Chi = 'mia' | 'altra'
 type Riga = { id: number; chi: Chi; originale: string; traduzione: string | null; errore: string | null }
@@ -174,6 +175,7 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
         })}
       </div>
 
+      <ProvaVoce lingue={[lingue.mia, lingue.altra]} />
     </div>
   )
 }
