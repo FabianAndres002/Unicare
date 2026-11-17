@@ -8,6 +8,7 @@ import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import Avatar from '../comune/Avatar'
 import { dataEstesa, saluto, tempoFa } from '../comune/utili'
+import { t } from '../comune/lingua'
 
 export default function HomeBadante({ profilo }: { profilo: Profilo }) {
   const { dati: mio } = useCarica(() => api.mioProfiloBadante(), 'mio-profilo', 300)
@@ -28,7 +29,7 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
       {mio && !p && (
         <Collegamento a="/lavoro/profilo" className="scheda-proponiti">
           <Megaphone size={30} />
-          <span><strong>Proponiti alle famiglie</strong><br />Compila il tuo profilo in 3 minuti: le famiglie della tua zona ti trovano e ti scrivono.</span>
+          <span><strong>{t('Proponiti alle famiglie')}</strong><br />{t('Compila il tuo profilo in 3 minuti: le famiglie della tua zona ti trovano e ti scrivono.')}</span>
           <ChevronRight size={22} />
         </Collegamento>
       )}
@@ -36,8 +37,8 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
         <Collegamento a="/lavoro/profilo" className="scheda riga-cerchio">
           <span className={`funzione-icona ${p.visibile ? 'verde' : 'grigio'}`}>{p.visibile ? <Eye size={22} /> : <EyeOff size={22} />}</span>
           <span className="riga-testo">
-            <strong>{p.visibile ? 'Ti stai proponendo' : 'Profilo nascosto'}</strong>
-            <span>{p.visibile ? `Le famiglie di ${p.comune} e dintorni ti vedono` : 'Accendi “Mi propongo” per farti trovare'}</span>
+            <strong>{p.visibile ? t('Ti stai proponendo') : t('Profilo nascosto')}</strong>
+            <span>{p.visibile ? t('Le famiglie di {0} e dintorni ti vedono', p.comune) : t('Accendi “Mi propongo” per farti trovare')}</span>
           </span>
           <ChevronRight size={20} />
         </Collegamento>
@@ -47,8 +48,8 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
         <Collegamento a="/lavoro" className="scheda riga-cerchio">
           <span className="funzione-icona blu"><Search size={22} /></span>
           <span className="riga-testo">
-            <strong>{ricerche.ricerche.length === 0 ? 'Famiglie che cercano' : ricerche.ricerche.length === 1 ? '1 famiglia cerca una badante' : `${ricerche.ricerche.length} famiglie cercano una badante`}</strong>
-            <span>{ricerche.ricerche.length === 0 ? 'Per ora nessuna nella tua provincia: ti avvisiamo noi' : 'Nella tua provincia: leggi e proponiti'}</span>
+            <strong>{ricerche.ricerche.length === 0 ? t('Famiglie che cercano') : ricerche.ricerche.length === 1 ? t('1 famiglia cerca una badante') : t('{0} famiglie cercano una badante', ricerche.ricerche.length)}</strong>
+            <span>{ricerche.ricerche.length === 0 ? t('Per ora nessuna nella tua provincia: ti avvisiamo noi') : t('Nella tua provincia: leggi e proponiti')}</span>
           </span>
           {daVedere > 0 && <span className="distintivo urgente">{daVedere}</span>}
           <ChevronRight size={20} />
@@ -57,11 +58,11 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
 
       <section>
         <div className="titolo-sezione">
-          <h2>Messaggi delle famiglie</h2>
-          {nonLetti > 0 && <span className="distintivo urgente">{nonLetti} {nonLetti === 1 ? 'nuovo' : 'nuovi'}</span>}
-          <Collegamento a="/contatti" className="link-sezione">Vedi tutti</Collegamento>
+          <h2>{t('Messaggi delle famiglie')}</h2>
+          {nonLetti > 0 && <span className="distintivo urgente">{nonLetti} {nonLetti === 1 ? t('nuovo') : t('nuovi')}</span>}
+          <Collegamento a="/contatti" className="link-sezione">{t('Vedi tutti')}</Collegamento>
         </div>
-        {conversazioni && conversazioni.length === 0 && <p className="nota">Ancora nessun messaggio.</p>}
+        {conversazioni && conversazioni.length === 0 && <p className="nota">{t('Ancora nessun messaggio.')}</p>}
         {conversazioni && conversazioni.length > 0 && (
           <ul className="elenco scheda">
             {conversazioni.slice(0, 3).map((c) => (
@@ -82,15 +83,15 @@ export default function HomeBadante({ profilo }: { profilo: Profilo }) {
 
       <Collegamento a="/interprete" className="scheda riga-cerchio">
         <span className="funzione-icona arancio"><Languages size={22} /></span>
-        <span className="riga-testo"><strong>Interprete</strong><span>Parla con la famiglia, ognuno nella sua lingua</span></span>
+        <span className="riga-testo"><strong>{t('Interprete')}</strong><span>{t('Parla con la famiglia, ognuno nella sua lingua')}</span></span>
         <ChevronRight size={20} />
       </Collegamento>
 
       <div className="scheda riga-cerchio">
         <span className="funzione-icona arancio"><HeartHandshake size={22} /></span>
         <span className="riga-testo testo-a-capo">
-          <strong>Lavori già con una famiglia?</strong>
-          <span>Chiedi di invitarti con l’email {profilo.email}, oppure ti mandano l’invito qui nei messaggi. Così vedrai richieste, appuntamenti e promemoria.</span>
+          <strong>{t('Lavori già con una famiglia?')}</strong>
+          <span>{t('Chiedi di invitarti con l’email {0}, oppure ti mandano l’invito qui nei messaggi. Così vedrai richieste, appuntamenti e promemoria.', profilo.email)}</span>
         </span>
       </div>
     </div>

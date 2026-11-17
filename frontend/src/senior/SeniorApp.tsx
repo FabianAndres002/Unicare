@@ -17,6 +17,7 @@ import CodiceSenior from './CodiceSenior'
 import HomeSenior from './HomeSenior'
 import ChiediAiuto from './ChiediAiuto'
 import InterpreteSenior from '../interprete/InterpreteSenior'
+import { t } from '../comune/lingua'
 
 export default function SeniorApp() {
   const percorso = usePercorso()
@@ -36,8 +37,8 @@ export default function SeniorApp() {
   let schermata
   if (dati === null) {
     schermata = errore
-      ? <div className="senior-centro"><p className="senior-grande">Non riesco a collegarmi.</p><button className="senior-pulsante" onClick={ricarica}>Riprova</button></div>
-      : <div className="senior-centro"><span className="rotella" aria-label="Caricamento" /></div>
+      ? <div className="senior-centro"><p className="senior-grande">{t('Non riesco a collegarmi.')}</p><button className="senior-pulsante" onClick={ricarica}>{t('Riprova')}</button></div>
+      : <div className="senior-centro"><span className="rotella" aria-label={t('Caricamento')} /></div>
   } else if (dati === 'scollegato') {
     schermata = <CodiceSenior onCollegato={async () => { setAppenaCollegato(true); setDati(await api.senior.io()) }} />
   } else if (percorso === '/senior/interprete') {
@@ -52,7 +53,7 @@ export default function SeniorApp() {
     <div className="senior">
       <main className="senior-contenuto">{schermata}</main>
       <a className="senior-112" href="tel:112">
-        <Phone size={26} /> Emergenza? Chiama il 112
+        <Phone size={26} />{' '}{t('Emergenza? Chiama il 112')}
       </a>
     </div>
   )

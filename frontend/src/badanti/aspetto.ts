@@ -1,23 +1,24 @@
 // Etichette di servizi, disponibilità e province per la sezione badanti.
 
 import type { Disponibilita, Servizio } from '../comune/api'
+import { locale, t } from '../comune/lingua'
 
 export const SERVIZI: Record<Servizio, string> = {
-  COMPAGNIA: 'Compagnia',
-  IGIENE: 'Igiene personale',
-  PASTI: 'Pasti',
-  PULIZIE: 'Pulizie di casa',
-  SPESA: 'Spesa e commissioni',
-  ACCOMPAGNAMENTO: 'Accompagnamento a visite',
-  FARMACI: 'Ricordare i farmaci',
-  NOTTE: 'Assistenza notturna',
+  COMPAGNIA: t('Compagnia'),
+  IGIENE: t('Igiene personale'),
+  PASTI: t('Pasti'),
+  PULIZIE: t('Pulizie di casa'),
+  SPESA: t('Spesa e commissioni'),
+  ACCOMPAGNAMENTO: t('Accompagnamento a visite'),
+  FARMACI: t('Ricordare i farmaci'),
+  NOTTE: t('Assistenza notturna'),
 }
 
 export const DISPONIBILITA: Record<Disponibilita, string> = {
-  CONVIVENTE: 'Convivente',
-  A_ORE: 'A ore',
-  NOTTE: 'Di notte',
-  WEEKEND: 'Nel weekend',
+  CONVIVENTE: t('Convivente'),
+  A_ORE: t('A ore'),
+  NOTTE: t('Di notte'),
+  WEEKEND: t('Nel weekend'),
 }
 
 export const PROVINCE: [string, string][] = Object.entries({
@@ -40,4 +41,4 @@ export const PROVINCE: [string, string][] = Object.entries({
 export const nomeProvincia = (sigla: string) => PROVINCE.find(([s]) => s === sigla)?.[1] ?? sigla
 
 export const tariffa = (centesimi: number | null) =>
-  centesimi === null ? null : `${(centesimi / 100).toLocaleString('it-IT', { minimumFractionDigits: centesimi % 100 ? 2 : 0 })} €/ora`
+  centesimi === null ? null : t('{0} €/ora', (centesimi / 100).toLocaleString(locale(), { minimumFractionDigits: centesimi % 100 ? 2 : 0 }))

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { Check, Phone } from 'lucide-react'
 import { api, messaggioErrore, type Profilo } from '../comune/api'
+import { t } from '../comune/lingua'
 
 export default function TelefonoProfilo({ profilo, onProfilo }: { profilo: Profilo; onProfilo: (p: Profilo) => void }) {
   const [numero, setNumero] = useState(profilo.telefono ?? '')
@@ -31,15 +32,15 @@ export default function TelefonoProfilo({ profilo, onProfilo }: { profilo: Profi
       <div className="telefono-profilo-testa">
         <span className="funzione-icona verde"><Phone size={22} /></span>
         <span className="riga-testo">
-          <strong>Il tuo numero di telefono</strong>
-          <span>Nella Senior App compare il pulsante grande “Chiama {profilo.nome}”. Lo vede solo il telefono della persona assistita.</span>
+          <strong>{t('Il tuo numero di telefono')}</strong>
+          <span>{t('Nella Senior App compare il pulsante grande “Chiama {0}”. Lo vede solo il telefono della persona assistita.', profilo.nome)}</span>
         </span>
       </div>
       <div className="telefono-profilo-riga">
-        <input className="campo" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} placeholder="Es. 333 123 4567"
-          value={numero} onChange={(e) => setNumero(e.target.value)} aria-label="Numero di telefono" />
+        <input className="campo" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} placeholder={t('Es. 333 123 4567')}
+          value={numero} onChange={(e) => setNumero(e.target.value)} aria-label={t('Numero di telefono')} />
         <button className="pulsante piccolo" disabled={invio || numero.replace(/ /g, '') === (profilo.telefono ?? '')}>
-          {salvato ? <><Check size={18} /> Salvato</> : 'Salva'}
+          {salvato ? <><Check size={18} />{' '}{t('Salvato')}</> : t('Salva')}
         </button>
       </div>
       {errore && <p className="errore" role="alert">{errore}</p>}

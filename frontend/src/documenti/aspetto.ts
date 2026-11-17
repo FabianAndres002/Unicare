@@ -2,25 +2,26 @@
 
 import { FileHeart, FlaskConical, Pill, Receipt, ScanLine, FileText, type LucideIcon } from 'lucide-react'
 import type { CategoriaDocumento } from '../comune/api'
+import { locale, t } from '../comune/lingua'
 
 export const CATEGORIE_DOCUMENTO: Record<CategoriaDocumento, { nome: string; esempi: string; Icona: LucideIcon; colore: string }> = {
-  PRESCRIZIONE: { nome: 'Ricette e prescrizioni', esempi: 'Ricette del medico, piani terapeutici', Icona: Pill, colore: 'verde' },
-  ANALISI: { nome: 'Analisi', esempi: 'Analisi del sangue, delle urine', Icona: FlaskConical, colore: 'viola' },
-  IMMAGINI: { nome: 'Ecografie e lastre', esempi: 'Ecografie, radiografie, TAC, risonanze', Icona: ScanLine, colore: 'blu' },
-  REFERTO: { nome: 'Referti e visite', esempi: 'Visite specialistiche, dimissioni', Icona: FileHeart, colore: 'arancio' },
-  RICEVUTA: { nome: 'Ricevute e spese', esempi: 'Ticket, farmacia: utili per il 730', Icona: Receipt, colore: 'grigio' },
-  ALTRO: { nome: 'Altro', esempi: 'Tessera sanitaria, invalidità...', Icona: FileText, colore: 'grigio' },
+  PRESCRIZIONE: { nome: t('Ricette e prescrizioni'), esempi: t('Ricette del medico, piani terapeutici'), Icona: Pill, colore: 'verde' },
+  ANALISI: { nome: t('Analisi'), esempi: t('Analisi del sangue, delle urine'), Icona: FlaskConical, colore: 'viola' },
+  IMMAGINI: { nome: t('Ecografie e lastre'), esempi: t('Ecografie, radiografie, TAC, risonanze'), Icona: ScanLine, colore: 'blu' },
+  REFERTO: { nome: t('Referti e visite'), esempi: t('Visite specialistiche, dimissioni'), Icona: FileHeart, colore: 'arancio' },
+  RICEVUTA: { nome: t('Ricevute e spese'), esempi: t('Ticket, farmacia: utili per il 730'), Icona: Receipt, colore: 'grigio' },
+  ALTRO: { nome: t('Altro'), esempi: t('Tessera sanitaria, invalidità...'), Icona: FileText, colore: 'grigio' },
 }
 
 export const ORDINE_CATEGORIE: CategoriaDocumento[] = ['PRESCRIZIONE', 'ANALISI', 'IMMAGINI', 'REFERTO', 'RICEVUTA', 'ALTRO']
 
-export const euro = (centesimi: number) => (centesimi / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
+export const euro = (centesimi: number) => (centesimi / 100).toLocaleString(locale(), { style: 'currency', currency: 'EUR' })
 
 /** "12 marzo 2026" da AAAA-MM-GG. */
 export const dataDocumento = (d: string) =>
-  new Date(`${d}T12:00:00`).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
+  new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
 
-export const dimensione = (byte: number) => (byte < 1024 * 1024 ? `${Math.max(1, Math.round(byte / 1024))} KB` : `${(byte / 1024 / 1024).toFixed(1).replace('.', ',')} MB`)
+export const dimensione = (byte: number) => (byte < 1024 * 1024 ? t('{0} KB', Math.max(1, Math.round(byte / 1024))) : t('{0} MB', (byte / 1024 / 1024).toFixed(1).replace('.', ',')))
 
 /**
  * Le foto del telefono pesano anche 5 MB: le rimpiccioliamo (lato lungo 2000 pixel, JPEG)

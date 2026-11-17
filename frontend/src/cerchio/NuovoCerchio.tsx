@@ -5,6 +5,7 @@ import { Sparkles } from 'lucide-react'
 import { api, messaggioErrore } from '../comune/api'
 import ModuloAnziano from './ModuloAnziano'
 import EntraConInvito from './EntraConInvito'
+import { t } from '../comune/lingua'
 
 type Props = { nomeUtente: string; onFatto: (cerchioId: number) => void; onAnnulla?: () => void }
 
@@ -29,43 +30,43 @@ export default function NuovoCerchio({ nomeUtente, onFatto, onAnnulla }: Props) 
 
   return (
     <div className="procedura entra">
-      <div className="passi" aria-label={`Passo ${cerchioId ? 2 : 1} di 2`}>
+      <div className="passi" aria-label={t('Passo {0} di 2', cerchioId ? 2 : 1)}>
         <span className="passo fatto" />
         <span className={`passo ${cerchioId ? 'fatto' : ''}`} />
       </div>
 
       {!cerchioId ? (
         <>
-          <span className="etichetta-sopra"><Sparkles size={16} /> Benvenuto, {nomeUtente}</span>
-          <h1>Creiamo il vostro cerchio</h1>
+          <span className="etichetta-sopra"><Sparkles size={16} />{' '}{t('Benvenuto, {0}', nomeUtente)}</span>
+          <h1>{t('Creiamo il vostro cerchio')}</h1>
           <p className="sottotitolo">
-            Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.
+            {t('Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.')}
           </p>
           <form className="modulo scheda" onSubmit={creaCerchio}>
             <label>
-              Come lo chiamiamo?
-              <input required maxLength={100} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Famiglia Rossi" autoFocus />
+              {t('Come lo chiamiamo?')}
+              <input required maxLength={100} value={nome} onChange={(e) => setNome(e.target.value)} placeholder={t('Famiglia Rossi')} autoFocus />
             </label>
             {errore && <p className="errore" role="alert">{errore}</p>}
-            <button className="pulsante" type="submit" disabled={invio}>{invio ? 'Creazione…' : 'Continua'}</button>
-            {onAnnulla && <button type="button" className="pulsante fantasma" onClick={onAnnulla}>Annulla</button>}
+            <button className="pulsante" type="submit" disabled={invio}>{invio ? t('Creazione…') : t('Continua')}</button>
+            {onAnnulla && <button type="button" className="pulsante fantasma" onClick={onAnnulla}>{t('Annulla')}</button>}
           </form>
-          <p className="separatore-o">oppure</p>
+          <p className="separatore-o">{t('oppure')}</p>
           <EntraConInvito />
         </>
       ) : (
         <>
-          <span className="etichetta-sopra">Passo 2 di 2</span>
-          <h1>Chi assistete?</h1>
-          <p className="sottotitolo">Bastano nome e cognome; il resto puoi aggiungerlo dopo.</p>
+          <span className="etichetta-sopra">{t('Passo 2 di 2')}</span>
+          <h1>{t('Chi assistete?')}</h1>
+          <p className="sottotitolo">{t('Bastano nome e cognome; il resto puoi aggiungerlo dopo.')}</p>
           <div className="scheda">
-            <ModuloAnziano nuovo testoPulsante="Crea la scheda"
+            <ModuloAnziano nuovo testoPulsante={t('Crea la scheda')}
               onSalva={async (dati) => {
                 await api.aggiungiAnziano(cerchioId, dati)
                 onFatto(cerchioId)
               }} />
           </div>
-          <button className="pulsante fantasma" onClick={() => onFatto(cerchioId)}>Lo farò più tardi</button>
+          <button className="pulsante fantasma" onClick={() => onFatto(cerchioId)}>{t('Lo farò più tardi')}</button>
         </>
       )}
     </div>

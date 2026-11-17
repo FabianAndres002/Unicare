@@ -7,6 +7,7 @@ import { api, messaggioErrore, type Categoria, type SeniorIo } from '../comune/a
 import { Collegamento, naviga } from '../comune/router'
 import { CATEGORIE } from '../richieste/aspetto'
 import { COSA_CHIEDO } from './parole'
+import { t } from '../comune/lingua'
 
 type Props = { io: SeniorIo; onInviata: () => void }
 type Scelta = Exclude<Categoria, 'ALTRO'>
@@ -38,12 +39,11 @@ export default function ChiediAiuto({ io, onInviata }: Props) {
     return (
       <div className="senior-pagina senior-centro entra">
         <span className="senior-fatto"><Check size={64} strokeWidth={3} /></span>
-        <h1>Fatto!</h1>
+        <h1>{t('Fatto!')}</h1>
         <p className="senior-testo">
-          Ho avvisato {familiari.length ? familiari.join(', ').replace(/, ([^,]*)$/, ' e $1') : 'la tua famiglia'}.
-          Ti dirò qui chi se ne occupa.
+          {t('Ho avvisato')}{' '}{familiari.length ? familiari.join(', ').replace(/, ([^,]*)$/, ' e $1') : t('la tua famiglia')}{t('. Ti dirò qui chi se ne occupa.')}
         </p>
-        <button className="senior-pulsante" onClick={() => naviga('/senior', true)}>Torna all'inizio</button>
+        <button className="senior-pulsante" onClick={() => naviga('/senior', true)}>{t('Torna all\'inizio')}</button>
       </div>
     )
   }
@@ -55,16 +55,16 @@ export default function ChiediAiuto({ io, onInviata }: Props) {
         <span className={`funzione-icona senior-icona-conferma ${colore}`}><Icona size={56} /></span>
         <h1>{COSA_CHIEDO[scelta].domanda}</h1>
         {errore && <p className="senior-errore" role="alert">{errore}</p>}
-        <button className="senior-pulsante" onClick={conferma} disabled={invio}>{invio ? 'Un momento…' : 'Sì, chiedi'}</button>
-        <button className="senior-pulsante chiaro" onClick={() => setScelta(null)} disabled={invio}>No, torna indietro</button>
+        <button className="senior-pulsante" onClick={conferma} disabled={invio}>{invio ? t('Un momento…') : t('Sì, chiedi')}</button>
+        <button className="senior-pulsante chiaro" onClick={() => setScelta(null)} disabled={invio}>{t('No, torna indietro')}</button>
       </div>
     )
   }
 
   return (
     <div className="senior-pagina entra">
-      <Collegamento a="/senior" className="senior-indietro"><ArrowLeft size={28} /> Indietro</Collegamento>
-      <h1>Di cosa hai bisogno?</h1>
+      <Collegamento a="/senior" className="senior-indietro"><ArrowLeft size={28} />{' '}{t('Indietro')}</Collegamento>
+      <h1>{t('Di cosa hai bisogno?')}</h1>
       <div className="senior-griglia">
         {SCELTE.map((c) => {
           const { Icona, colore } = CATEGORIE[c]

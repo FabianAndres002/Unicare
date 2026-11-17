@@ -6,6 +6,7 @@ import { Clock, Plus } from 'lucide-react'
 import type { Anziano, InvitoInAttesa, Membro } from '../comune/api'
 import Avatar from '../comune/Avatar'
 import { naviga } from '../comune/router'
+import { t } from '../comune/lingua'
 
 export type Scelta = { tipo: 'anziano' | 'membro' | 'invito'; id: number }
 
@@ -50,7 +51,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
     <span className="rete-stella s1" aria-hidden="true" />
     <span className="rete-stella s2" aria-hidden="true" />
     <span className="rete-stella s3" aria-hidden="true" />
-    <div className="rete" role="group" aria-label="Le persone del cerchio">
+    <div className="rete" role="group" aria-label={t('Le persone del cerchio')}>
       <svg className="rete-linee" viewBox="0 0 100 100" aria-hidden="true">
         {/* Decorazioni: cerchi concentrici e l'anello che gira piano */}
         <circle cx="50" cy="50" r="18" className="rete-onda" />
@@ -90,7 +91,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
             <button key={n.chiave} type="button" className="rete-nodo aggiungi" style={{ left: `${n.x}%`, top: `${n.y}%`, ...ritardo(i) }}
               onClick={() => naviga('/invita')}>
               <span className="rete-avatar avatar"><Plus size={24} /></span>
-              <span className="rete-nome">Invita</span>
+              <span className="rete-nome">{t('Invita')}</span>
             </button>
           )
         }
@@ -103,7 +104,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
               ? <Avatar nome={n.membro.nome} cognome={n.membro.cognome} foto={n.membro.foto} className="rete-avatar" />
               : <span className="rete-avatar avatar avatar-attesa"><Clock size={20} /></span>}
             <span className="rete-nome">
-              {n.membro ? (n.membro.id === mioId ? 'Tu' : n.membro.nome) : 'Invitato'}
+              {n.membro ? (n.membro.id === mioId ? t('Tu') : n.membro.nome) : t('Invitato')}
             </span>
           </button>
         )

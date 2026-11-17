@@ -3,6 +3,8 @@
 
 import { useState, type FormEvent } from 'react'
 import { api, messaggioErrore } from '../comune/api'
+import { t } from '../comune/lingua'
+import ScegliLingua from '../comune/ScegliLingua'
 
 type Props = { onCollegato: () => void }
 
@@ -26,10 +28,11 @@ export default function CodiceSenior({ onCollegato }: Props) {
 
   return (
     <form className="senior-pagina entra" onSubmit={invia}>
+      <ScegliLingua grande className="senior-lingua-alto" />
       <img src="/icone/icona-192.png" alt="" width={72} height={72} className="senior-logo" />
-      <h1>Benvenuto in Unicare</h1>
-      <p className="senior-testo">Scrivi il codice di 6 numeri che ti ha dato la tua famiglia.</p>
-      <label className="sr-only" htmlFor="codice">Codice</label>
+      <h1>{t('Benvenuto in Unicare')}</h1>
+      <p className="senior-testo">{t('Scrivi il codice di 6 numeri che ti ha dato la tua famiglia.')}</p>
+      <label className="sr-only" htmlFor="codice">{t('Codice')}</label>
       <input
         id="codice"
         className="senior-codice"
@@ -44,9 +47,9 @@ export default function CodiceSenior({ onCollegato }: Props) {
       />
       {errore && <p className="senior-errore" role="alert">{errore}</p>}
       <button className="senior-pulsante" type="submit" disabled={codice.length !== 6 || invio}>
-        {invio ? 'Un momento…' : 'Entra'}
+        {invio ? t('Un momento…') : t('Entra')}
       </button>
-      <p className="senior-nota">Non hai il codice? Chiedilo a un familiare: lo trova nella tua scheda, alla voce “Collega il telefono”.</p>
+      <p className="senior-nota">{t('Non hai il codice? Chiedilo a un familiare: lo trova nella tua scheda, alla voce “Collega il telefono”.')}</p>
     </form>
   )
 }

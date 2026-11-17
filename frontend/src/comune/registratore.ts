@@ -4,6 +4,7 @@
 // la prima volta. Chrome registra in webm, l'iPhone in mp4: il server li accetta tutti e due.
 
 import { useEffect, useRef, useState } from 'react'
+import { t } from './lingua'
 
 export const DURATA_MASSIMA = 120
 
@@ -42,7 +43,7 @@ export function useRegistratore() {
   async function inizia() {
     setErrore(null)
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      setErrore('Questo telefono non riesce a registrare. Prova ad aggiornare il browser.')
+      setErrore(t('Questo telefono non riesce a registrare. Prova ad aggiornare il browser.'))
       return
     }
     setStato('permesso')
@@ -50,7 +51,7 @@ export function useRegistratore() {
       microfono.current = await navigator.mediaDevices.getUserMedia({ audio: true })
     } catch {
       setStato('fermo')
-      setErrore('Serve il permesso di usare il microfono. Puoi darlo dalle impostazioni del telefono.')
+      setErrore(t('Serve il permesso di usare il microfono. Puoi darlo dalle impostazioni del telefono.'))
       return
     }
     const formato = FORMATI.find((f) => MediaRecorder.isTypeSupported(f))
@@ -65,7 +66,7 @@ export function useRegistratore() {
       const durata = Math.min(DURATA_MASSIMA, (Date.now() - inizio) / 1000)
       if (durata < 1) {
         setStato('fermo')
-        setErrore('Troppo corto: parla un po’ di più prima di fermare.')
+        setErrore(t('Troppo corto: parla un po’ di più prima di fermare.'))
         return
       }
       const audio = new Blob(pezzi, { type: (r.mimeType || formato || 'audio/webm').replace(/\s/g, '') })

@@ -1,3 +1,4 @@
+import { locale, t } from '../comune/lingua'
 // Come si scrivono le date degli appuntamenti: "Oggi", "Domani", "giovedì 19 novembre".
 // Sempre nel fuso italiano, come le ha inserite la famiglia.
 
@@ -7,14 +8,14 @@ const FUSO = 'Europe/Rome'
 export const giornoIso = (d: Date | string) => new Date(d).toLocaleDateString('sv-SE', { timeZone: FUSO })
 
 export const oraAppuntamento = (d: string) =>
-  new Date(d).toLocaleTimeString('it-IT', { timeZone: FUSO, hour: '2-digit', minute: '2-digit', hour12: false })
+  new Date(d).toLocaleTimeString(locale(), { timeZone: FUSO, hour: '2-digit', minute: '2-digit', hour12: false })
 
 /** "Oggi", "Domani", "giovedì 19 novembre". */
 export function giornoInParole(d: string, adesso = new Date()): string {
   const giorno = giornoIso(d)
-  if (giorno === giornoIso(adesso)) return 'Oggi'
-  if (giorno === giornoIso(new Date(adesso.getTime() + 86_400_000))) return 'Domani'
-  const testo = new Date(d).toLocaleDateString('it-IT', { timeZone: FUSO, weekday: 'long', day: 'numeric', month: 'long' })
+  if (giorno === giornoIso(adesso)) return t('Oggi')
+  if (giorno === giornoIso(new Date(adesso.getTime() + 86_400_000))) return t('Domani')
+  const testo = new Date(d).toLocaleDateString(locale(), { timeZone: FUSO, weekday: 'long', day: 'numeric', month: 'long' })
   return testo.charAt(0).toUpperCase() + testo.slice(1)
 }
 
@@ -22,9 +23,9 @@ export function giornoInParole(d: string, adesso = new Date()): string {
 export function foglietto(d: string) {
   const data = new Date(d)
   return {
-    giorno: data.toLocaleDateString('it-IT', { timeZone: FUSO, day: 'numeric' }),
-    mese: data.toLocaleDateString('it-IT', { timeZone: FUSO, month: 'short' }).replace('.', ''),
-    settimana: data.toLocaleDateString('it-IT', { timeZone: FUSO, weekday: 'short' }).replace('.', ''),
+    giorno: data.toLocaleDateString(locale(), { timeZone: FUSO, day: 'numeric' }),
+    mese: data.toLocaleDateString(locale(), { timeZone: FUSO, month: 'short' }).replace('.', ''),
+    settimana: data.toLocaleDateString(locale(), { timeZone: FUSO, weekday: 'short' }).replace('.', ''),
   }
 }
 

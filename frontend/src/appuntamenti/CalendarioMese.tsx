@@ -6,23 +6,24 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react'
 import type { Appuntamento } from '../comune/api'
 import { giorniDaOggi, giornoIso, giornoInParole, oraAppuntamento } from './aspetto'
+import { t } from '../comune/lingua'
 
 const GIORNI = ['L', 'M', 'M', 'G', 'V', 'S', 'D']
-const NOMI_MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
+const NOMI_MESI = [t('Gennaio'), t('Febbraio'), t('Marzo'), t('Aprile'), t('Maggio'), t('Giugno'), t('Luglio'), t('Agosto'), t('Settembre'), t('Ottobre'), t('Novembre'), t('Dicembre')]
 
 function ContoAllaRovescia({ a }: { a: Appuntamento }) {
   const giorni = giorniDaOggi(a.quando)
-  const grande = giorni === 0 ? 'Oggi' : giorni === 1 ? 'Domani' : String(giorni)
+  const grande = giorni === 0 ? t('Oggi') : giorni === 1 ? t('Domani') : String(giorni)
   return (
     <div className="calendario-prossimo">
       <div className={`calendario-conto ${giorni <= 1 ? 'parola' : ''}`} aria-hidden="true">
         <strong>{grande}</strong>
-        {giorni > 1 && <small>giorni</small>}
+        {giorni > 1 && <small>{t('giorni')}</small>}
       </div>
       <div className="calendario-prossimo-testo">
-        <span className="calendario-etichetta">Prossimo appuntamento</span>
+        <span className="calendario-etichetta">{t('Prossimo appuntamento')}</span>
         <strong>{a.titolo}</strong>
-        <span><Clock size={14} /> {giornoInParole(a.quando)} alle {oraAppuntamento(a.quando)}</span>
+        <span><Clock size={14} />{' '}{t('{0} alle', giornoInParole(a.quando))}{' '}{oraAppuntamento(a.quando)}</span>
         {a.luogo && <span><MapPin size={14} /> {a.luogo}</span>}
       </div>
     </div>
@@ -69,12 +70,12 @@ export default function CalendarioMese({ appuntamenti, prossimo, scelto, onScegl
       {prossimo && <ContoAllaRovescia a={prossimo} />}
 
       <div className="calendario-testa">
-        <button type="button" className="calendario-freccia" onClick={() => cambia(-1)} aria-label="Mese prima"><ChevronLeft size={22} /></button>
+        <button type="button" className="calendario-freccia" onClick={() => cambia(-1)} aria-label={t('Mese prima')}><ChevronLeft size={22} /></button>
         <div className="calendario-mese" aria-live="polite">
           <strong>{NOMI_MESI[mese.mese]} {mese.anno}</strong>
-          <small>{nelMese === 0 ? 'nessun appuntamento' : nelMese === 1 ? '1 appuntamento' : `${nelMese} appuntamenti`}</small>
+          <small>{nelMese === 0 ? t('nessun appuntamento') : nelMese === 1 ? t('1 appuntamento') : t('{0} appuntamenti', nelMese)}</small>
         </div>
-        <button type="button" className="calendario-freccia" onClick={() => cambia(1)} aria-label="Mese dopo"><ChevronRight size={22} /></button>
+        <button type="button" className="calendario-freccia" onClick={() => cambia(1)} aria-label={t('Mese dopo')}><ChevronRight size={22} /></button>
       </div>
 
       <div className="calendario-griglia intestazione" aria-hidden="true">
@@ -88,7 +89,7 @@ export default function CalendarioMese({ appuntamenti, prossimo, scelto, onScegl
           const classi = ['calendario-giorno', g === oggi && 'oggi', quanti > 0 && 'con-appuntamenti', g < oggi && 'passato', scelto === g && 'scelto']
           return (
             <button key={g} type="button" className={classi.filter(Boolean).join(' ')} aria-pressed={scelto === g}
-              aria-label={`${i + 1} ${NOMI_MESI[mese.mese]}${quanti ? `, ${quanti} ${quanti === 1 ? 'appuntamento' : 'appuntamenti'}` : ''}`}
+              aria-label={`${i + 1} ${NOMI_MESI[mese.mese]}${quanti ? `, ${quanti} ${quanti === 1 ? t('appuntamento') : t('appuntamenti')}` : ''}`}
               onClick={() => onScegli(scelto === g ? null : g)}>
               {i + 1}
               {quanti > 0 && <span className="calendario-pallini" aria-hidden="true">{Array.from({ length: Math.min(quanti, 3) }, (_, k) => <i key={k} />)}</span>}
@@ -97,7 +98,7 @@ export default function CalendarioMese({ appuntamenti, prossimo, scelto, onScegl
         })}
       </div>
       {mese.anno !== Number(oggi.slice(0, 4)) || mese.mese !== Number(oggi.slice(5, 7)) - 1 ? (
-        <button type="button" className="calendario-torna" onClick={() => { const d = Number(oggi.slice(5, 7)) - 1 + Number(oggi.slice(0, 4)) * 12 - (mese.mese + mese.anno * 12); cambia(d) }}>Torna a oggi</button>
+        <button type="button" className="calendario-torna" onClick={() => { const d = Number(oggi.slice(5, 7)) - 1 + Number(oggi.slice(0, 4)) * 12 - (mese.mese + mese.anno * 12); cambia(d) }}>{t('Torna a oggi')}</button>
       ) : null}
     </div>
   )

@@ -6,6 +6,7 @@ import { api, messaggioErrore } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import CartaBadante from './CartaBadante'
+import { t } from '../comune/lingua'
 
 export default function PaginaBadante({ id }: { id: number }) {
   const { dati, errore } = useCarica(() => api.schedaBadante(id), id, 300)
@@ -28,23 +29,23 @@ export default function PaginaBadante({ id }: { id: number }) {
 
   return (
     <div className="pagina-app entra">
-      <Collegamento a="/badanti" className="indietro"><ArrowLeft size={18} /> Tutte le badanti</Collegamento>
+      <Collegamento a="/badanti" className="indietro"><ArrowLeft size={18} />{' '}{t('Tutte le badanti')}</Collegamento>
       {errore && <p className="errore">{errore}</p>}
-      {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
+      {!dati && !errore && <span className="rotella" aria-label={t('Caricamento')} />}
       {dati && (
         <>
           <div className="scheda"><CartaBadante nome={dati.nome} cognome={dati.cognome} foto={dati.foto} p={dati} /></div>
           {dati.contattoId ? (
-            <Collegamento a={`/contatti/${dati.contattoId}`} className="pulsante con-icona"><MessageCircle size={20} /> Apri la conversazione con {dati.nome}</Collegamento>
+            <Collegamento a={`/contatti/${dati.contattoId}`} className="pulsante con-icona"><MessageCircle size={20} />{' '}{t('Apri la conversazione con {0}', dati.nome)}</Collegamento>
           ) : (
             <form className="modulo scheda" onSubmit={invia}>
-              <label>Scrivi a {dati.nome}
+              <label>{t('Scrivi a {0}', dati.nome)}
                 <textarea rows={4} maxLength={2000} required value={testo} onChange={(e) => setTesto(e.target.value)}
-                  placeholder="Presentati: chi assiste, dove, quali giorni e orari, cosa serve." />
+                  placeholder={t('Presentati: chi assiste, dove, quali giorni e orari, cosa serve.')} />
               </label>
               {erroreInvio && <p className="errore" role="alert">{erroreInvio}</p>}
-              <button className="pulsante con-icona" disabled={invio || !testo.trim()}><MessageCircle size={20} /> {invio ? 'Invio…' : 'Manda il messaggio'}</button>
-              <p className="nota senza-margine"><ShieldCheck size={15} className="icona-inline" /> {dati.nome} non vede la tua email né il tuo telefono: vi scrivete qui, e decidete voi se scambiarvi il numero.</p>
+              <button className="pulsante con-icona" disabled={invio || !testo.trim()}><MessageCircle size={20} /> {invio ? t('Invio…') : t('Manda il messaggio')}</button>
+              <p className="nota senza-margine"><ShieldCheck size={15} className="icona-inline" />{' '}{t('{0} non vede la tua email né il tuo telefono: vi scrivete qui, e decidete voi se scambiarvi il numero.', dati.nome)}</p>
             </form>
           )}
         </>

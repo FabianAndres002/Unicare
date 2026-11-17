@@ -1,3 +1,4 @@
+import { t } from '../comune/lingua'
 // La voce la gestisce il telefono, non il server:
 // - "ascolta": dal microfono al testo (riconoscimento vocale del browser);
 // - "parla": legge ad alta voce un testo nella lingua giusta.
@@ -32,7 +33,7 @@ export class ErroreVoce extends Error {}
 /** Ascolta una frase. "ferma" chiude prima; la promessa dà il testo sentito ('' se niente). */
 export function ascolta(voce: string, onParziale: (testo: string) => void): { fine: Promise<string>; ferma: () => void } {
   const Classe = classeRiconoscitore()
-  if (!Classe) return { fine: Promise.reject(new ErroreVoce('Questo telefono non riconosce la voce: scrivi la frase.')), ferma: () => {} }
+  if (!Classe) return { fine: Promise.reject(new ErroreVoce(t('Questo telefono non riconosce la voce: scrivi la frase.'))), ferma: () => {} }
   const r = new Classe()
   r.lang = voce
   r.interimResults = true
@@ -48,10 +49,10 @@ export function ascolta(voce: string, onParziale: (testo: string) => void): { fi
     }
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') rifiuta(new ErroreVoce('Permetti l’uso del microfono a Unicare (nelle impostazioni del browser) e riprova.'))
-      else if (e.error === 'network') rifiuta(new ErroreVoce('Per riconoscere la voce serve internet. Controlla la connessione.'))
-      else if (e.error === 'language-not-supported') rifiuta(new ErroreVoce('Questo telefono non riconosce ancora questa lingua: scrivi la frase.'))
-      else rifiuta(new ErroreVoce('Non sono riuscito ad ascoltare. Riprova.'))
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') rifiuta(new ErroreVoce(t('Permetti l’uso del microfono a Unicare (nelle impostazioni del browser) e riprova.')))
+      else if (e.error === 'network') rifiuta(new ErroreVoce(t('Per riconoscere la voce serve internet. Controlla la connessione.')))
+      else if (e.error === 'language-not-supported') rifiuta(new ErroreVoce(t('Questo telefono non riconosce ancora questa lingua: scrivi la frase.')))
+      else rifiuta(new ErroreVoce(t('Non sono riuscito ad ascoltare. Riprova.')))
     }
     r.onend = () => risolvi(testo)
   })

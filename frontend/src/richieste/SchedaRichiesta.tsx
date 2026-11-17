@@ -6,6 +6,7 @@ import { api, messaggioErrore, type Richiesta } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { tempoFa } from '../comune/utili'
 import { CATEGORIE, STATI } from './aspetto'
+import { t } from '../comune/lingua'
 
 type Props = { richiesta: Richiesta; mioId: number; onCambiata: () => void; indice?: number }
 
@@ -27,10 +28,10 @@ export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata, indic
     onCambiata()
   }
 
-  const autore = r.creataDa?.nome ?? (r.creataDallAnziano ? `${r.anziano.nome} dal suo telefono` : null)
-  let chi = `Chiesta ${tempoFa(r.creataIl)}${autore ? ` da ${autore}` : ''}`
-  if (r.stato === 'PRESA_IN_CARICO') chi = r.presaDa?.id === mioId ? 'Te ne stai occupando tu' : `Se ne occupa ${r.presaDa?.nome}`
-  if (r.chiusaIl) chi = `${stato.etichetta} ${tempoFa(r.chiusaIl)}${r.presaDa && r.stato === 'COMPLETATA' ? ` da ${r.presaDa.nome}` : ''}`
+  const autore = r.creataDa?.nome ?? (r.creataDallAnziano ? t('{0} dal suo telefono', r.anziano.nome) : null)
+  let chi = t('Chiesta {0}{1}', tempoFa(r.creataIl), autore ? ` da ${autore}` : '')
+  if (r.stato === 'PRESA_IN_CARICO') chi = r.presaDa?.id === mioId ? t('Te ne stai occupando tu') : t('Se ne occupa {0}', r.presaDa?.nome)
+  if (r.chiusaIl) chi = `${stato.etichetta} ${tempoFa(r.chiusaIl)}${r.presaDa && r.stato === 'COMPLETATA' ? t(' da {0}', r.presaDa.nome) : ''}`
 
   return (
     <article className={`richiesta viva cat-${r.categoria.toLowerCase()} fase-${r.stato.toLowerCase().replace(/_/g, '-')}`}
@@ -43,7 +44,7 @@ export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata, indic
             <span className={`stato ${stato.classe}`}><i className="stato-punto" aria-hidden="true" />{stato.etichetta}</span>
           </span>
           {r.testo && <span className="richiesta-testo">{r.testo}</span>}
-          <span>Per {r.anziano.nome} · {chi}</span>
+          <span>{t('Per {0} ·', r.anziano.nome)}{' '}{chi}</span>
         </span>
         <ChevronRight size={20} className="freccia" />
       </Collegamento>
@@ -51,7 +52,7 @@ export default function SchedaRichiesta({ richiesta: r, mioId, onCambiata, indic
       {r.azioni.includes('PRENDI') && (
         <div className="richiesta-azione">
           {errore && <p className="errore piccolo">{errore}</p>}
-          <button className="pulsante piccolo" onClick={prendi} disabled={invio}>{invio ? 'Un momento…' : 'Me ne occupo io'}</button>
+          <button className="pulsante piccolo" onClick={prendi} disabled={invio}>{invio ? t('Un momento…') : t('Me ne occupo io')}</button>
         </div>
       )}
     </article>

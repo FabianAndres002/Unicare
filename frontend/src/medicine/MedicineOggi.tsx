@@ -3,6 +3,7 @@
 import { api } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
+import { t } from '../comune/lingua'
 
 export default function MedicineOggi({ anzianoId }: { anzianoId: number }) {
   const { dati } = useCarica(() => api.medicine(anzianoId), anzianoId)
@@ -16,7 +17,7 @@ export default function MedicineOggi({ anzianoId }: { anzianoId: number }) {
     <div className={mancate ? 'riquadro-allarme' : ''}>
       <Collegamento a={`/anziano/${anzianoId}/medicine`} className="riquadro-link">
         <span className="numero">{numero}</span>
-        <span>{mancate ? 'medicina non confermata' : dati?.promemoria.length === 0 ? 'imposta le medicine' : 'medicine oggi'}</span>
+        <span>{mancate ? t('medicina non confermata') : dati?.promemoria.length === 0 ? t('imposta le medicine') : t('medicine oggi')}</span>
       </Collegamento>
     </div>
   )

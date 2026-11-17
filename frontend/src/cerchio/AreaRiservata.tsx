@@ -31,6 +31,7 @@ import RicercaPerBadante from '../ricerche/RicercaPerBadante'
 import CercoBadante from '../ricerche/CercoBadante'
 import ProposteRicerca from '../ricerche/ProposteRicerca'
 import InterpretePagina from '../interprete/InterpretePagina'
+import { t } from '../comune/lingua'
 
 type Props = { profilo: Profilo; percorso: string; onEsci: () => void; onProfilo: (p: Profilo) => void }
 
@@ -85,11 +86,11 @@ export default function AreaRiservata({ profilo, percorso, onEsci, onProfilo }: 
     return (
       <div className="centro-pagina">
         <p className="errore">{errore}</p>
-        <button className="pulsante" onClick={() => carica()}>Riprova</button>
+        <button className="pulsante" onClick={() => carica()}>{t('Riprova')}</button>
       </div>
     )
   }
-  if (!cerchi) return <div className="centro-pagina"><span className="rotella" aria-label="Caricamento" /></div>
+  if (!cerchi) return <div className="centro-pagina"><span className="rotella" aria-label={t('Caricamento')} /></div>
 
   // Pagine di lavoro (badanti che si propongono, famiglie che cercano), con o senza cerchio.
   const chat = percorso.match(/^\/contatti\/(\d+)$/)

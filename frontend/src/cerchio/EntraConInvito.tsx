@@ -5,6 +5,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link2 } from 'lucide-react'
 import { naviga } from '../comune/router'
+import { t } from '../comune/lingua'
 
 /** Accetta il link intero (anche dentro un messaggio di WhatsApp) o solo il codice. */
 function tokenDa(testo: string): string | null {
@@ -21,22 +22,21 @@ export default function EntraConInvito() {
   function entra(e: FormEvent) {
     e.preventDefault()
     const token = tokenDa(testo)
-    if (!token) return setErrore('Non riconosco il link. Copialo intero dal messaggio che hai ricevuto.')
+    if (!token) return setErrore(t('Non riconosco il link. Copialo intero dal messaggio che hai ricevuto.'))
     naviga(`/invito/${token}`)
   }
 
   return (
     <form className="modulo scheda" onSubmit={entra}>
-      <strong className="con-icona-piccola"><Link2 size={18} /> La tua famiglia usa già Unicare?</strong>
+      <strong className="con-icona-piccola"><Link2 size={18} />{' '}{t('La tua famiglia usa già Unicare?')}</strong>
       <p className="nota senza-margine">
-        Chiedi a chi ha creato il cerchio di invitarti: in “Invita” scrive la tua email e ti manda un link (per esempio su WhatsApp).
-        Apri il link, oppure incollalo qui.
+        {t('Chiedi a chi ha creato il cerchio di invitarti: in “Invita” scrive la tua email e ti manda un link (per esempio su WhatsApp). Apri il link, oppure incollalo qui.')}
       </p>
-      <label>Link d’invito
+      <label>{t('Link d’invito')}
         <input value={testo} onChange={(e) => { setTesto(e.target.value); setErrore(null) }} placeholder="https://…/invito/…" />
       </label>
       {errore && <p className="errore" role="alert">{errore}</p>}
-      <button className="pulsante secondario" disabled={!testo.trim()}>Entra nel cerchio</button>
+      <button className="pulsante secondario" disabled={!testo.trim()}>{t('Entra nel cerchio')}</button>
     </form>
   )
 }

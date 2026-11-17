@@ -1,19 +1,21 @@
 // Le lingue dell'interprete: nome nella lingua stessa, codice per la voce del telefono,
 // e le due parole che servono sul pulsante ("Parla", "Ti ascolto…").
 
+import { t } from '../comune/lingua'
+
 export type Lingua = 'it' | 'ro' | 'uk' | 'ru' | 'es' | 'en' | 'pl' | 'pt' | 'bg' | 'fr'
 
 export const LINGUE: Record<Lingua, { italiano: string; nome: string; voce: string; parla: string; ascolto: string }> = {
-  it: { italiano: 'Italiano', nome: 'Italiano', voce: 'it-IT', parla: 'Parla', ascolto: 'Ti ascolto…' },
-  ro: { italiano: 'Rumeno', nome: 'Română', voce: 'ro-RO', parla: 'Vorbește', ascolto: 'Te ascult…' },
-  uk: { italiano: 'Ucraino', nome: 'Українська', voce: 'uk-UA', parla: 'Говоріть', ascolto: 'Слухаю…' },
-  ru: { italiano: 'Russo', nome: 'Русский', voce: 'ru-RU', parla: 'Говорите', ascolto: 'Слушаю…' },
-  es: { italiano: 'Spagnolo', nome: 'Español', voce: 'es-ES', parla: 'Habla', ascolto: 'Te escucho…' },
-  en: { italiano: 'Inglese', nome: 'English', voce: 'en-GB', parla: 'Speak', ascolto: 'Listening…' },
-  pl: { italiano: 'Polacco', nome: 'Polski', voce: 'pl-PL', parla: 'Mów', ascolto: 'Słucham…' },
-  pt: { italiano: 'Portoghese', nome: 'Português', voce: 'pt-PT', parla: 'Fale', ascolto: 'Estou a ouvir…' },
-  bg: { italiano: 'Bulgaro', nome: 'Български', voce: 'bg-BG', parla: 'Говорете', ascolto: 'Слушам…' },
-  fr: { italiano: 'Francese', nome: 'Français', voce: 'fr-FR', parla: 'Parlez', ascolto: 'Je vous écoute…' },
+  it: { italiano: t('Italiano'), nome: 'Italiano', voce: 'it-IT', parla: 'Parla', ascolto: 'Ti ascolto…' },
+  ro: { italiano: t('Rumeno'), nome: 'Română', voce: 'ro-RO', parla: 'Vorbește', ascolto: 'Te ascult…' },
+  uk: { italiano: t('Ucraino'), nome: 'Українська', voce: 'uk-UA', parla: 'Говоріть', ascolto: 'Слухаю…' },
+  ru: { italiano: t('Russo'), nome: 'Русский', voce: 'ru-RU', parla: 'Говорите', ascolto: 'Слушаю…' },
+  es: { italiano: t('Spagnolo'), nome: 'Español', voce: 'es-ES', parla: 'Habla', ascolto: 'Te escucho…' },
+  en: { italiano: t('Inglese'), nome: 'English', voce: 'en-GB', parla: 'Speak', ascolto: 'Listening…' },
+  pl: { italiano: t('Polacco'), nome: 'Polski', voce: 'pl-PL', parla: 'Mów', ascolto: 'Słucham…' },
+  pt: { italiano: t('Portoghese'), nome: 'Português', voce: 'pt-PT', parla: 'Fale', ascolto: 'Estou a ouvir…' },
+  bg: { italiano: t('Bulgaro'), nome: 'Български', voce: 'bg-BG', parla: 'Говорете', ascolto: 'Слушам…' },
+  fr: { italiano: t('Francese'), nome: 'Français', voce: 'fr-FR', parla: 'Parlez', ascolto: 'Je vous écoute…' },
 }
 
 // Italiano per primo, poi le altre in ordine alfabetico (in italiano).

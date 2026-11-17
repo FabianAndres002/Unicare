@@ -6,6 +6,8 @@ import { Check, Clock, Pill, Volume2 } from 'lucide-react'
 import { parla, sintesiDisponibile, zitto } from '../interprete/voce'
 import { api, messaggioErrore, type Occorrenza } from '../comune/api'
 import { MOMENTI, oraBreve } from '../medicine/aspetto'
+import { lingua, t } from '../comune/lingua'
+import { LINGUE } from '../interprete/lingue'
 
 type Props = { nome: string; medicine: Occorrenza[]; adesso: number; onCambiata: () => void }
 
@@ -18,8 +20,8 @@ function medicineDaPrendere(medicine: Occorrenza[], adesso: number): Occorrenza[
 
 /** La frase che il telefono legge ad alta voce. */
 function fraseMedicina(nome: string, o: Occorrenza): string {
-  const quali = o.medicine.length ? ` Sono: ${o.medicine.join(', ')}.` : ''
-  return `${nome}, è ora delle ${MOMENTI[o.momento].titolo.toLowerCase()}.${quali} Quando le hai prese, tocca il pulsante verde: Fatto.`
+  const quali = o.medicine.length ? t(' Sono: {0}.', o.medicine.join(', ')) : ''
+  return t('{0}, è ora delle {1}.{2} Quando le hai prese, tocca il pulsante verde: Fatto.', nome, MOMENTI[o.momento].titolo.toLowerCase(), quali)
 }
 
 function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; onCambiata: () => void }) {
@@ -32,7 +34,7 @@ function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; 
   // Appena compare, il telefono legge il promemoria ad alta voce (dopo il campanello).
   // Se il telefono non lo permette senza un tocco, resta il pulsante "Ascolta".
   useEffect(() => {
-    const timer = setTimeout(() => parla(frase, 'it-IT'), 2500)
+    const timer = setTimeout(() => parla(frase, LINGUE[lingua()].voce), 2500)
     return () => { clearTimeout(timer); zitto() }
   }, [frase])
 
@@ -53,7 +55,7 @@ function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; 
     return (
       <div className="senior-avviso entra">
         <Check size={28} />
-        {esito === 'fatto' ? 'Benissimo! Ho avvisato la famiglia.' : 'Va bene, te lo ricordo tra 15 minuti.'}
+        {esito === 'fatto' ? t('Benissimo! Ho avvisato la famiglia.') : t('Va bene, te lo ricordo tra 15 minuti.')}
       </div>
     )
   }
@@ -64,12 +66,12 @@ function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; 
         <span className={`funzione-icona ${colore}`}><Icona size={40} /></span>
         <div>
           <h2>{titolo}</h2>
-          <p>Erano previste alle {oraBreve(o.previstoIl)}</p>
+          <p>{t('Erano previste alle {0}', oraBreve(o.previstoIl))}</p>
         </div>
       </div>
       {sintesiDisponibile() && (
-        <button type="button" className="senior-ascolta" onClick={() => parla(frase, 'it-IT')}>
-          <Volume2 size={26} /> Ascolta di nuovo
+        <button type="button" className="senior-ascolta" onClick={() => parla(frase, LINGUE[lingua()].voce)}>
+          <Volume2 size={26} />{' '}{t('Ascolta di nuovo')}
         </button>
       )}
       {o.medicine.length > 0 && (
@@ -77,11 +79,11 @@ function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; 
       )}
       {errore && <p className="senior-errore">{errore}</p>}
       <button className="senior-pulsante fatto" disabled={invio} onClick={() => rispondi(true)}>
-        <Check size={34} strokeWidth={3} /> Fatto, le ho prese
+        <Check size={34} strokeWidth={3} />{' '}{t('Fatto, le ho prese')}
       </button>
       {o.stato === 'IN_ATTESA' && (
         <button className="senior-pulsante chiaro" disabled={invio} onClick={() => rispondi(false)}>
-          Ricordamelo tra 15 minuti
+          {t('Ricordamelo tra 15 minuti')}
         </button>
       )}
     </div>
@@ -100,7 +102,7 @@ export function MedicineDiOggi({ medicine }: { medicine: Occorrenza[] }) {
   if (!medicine.length) return null
   return (
     <section>
-      <h2>Le medicine di oggi</h2>
+      <h2>{t('Le medicine di oggi')}</h2>
       <ul className="senior-oggi">
         {medicine.map((o) => {
           const { titolo, Icona, colore } = MOMENTI[o.momento]
@@ -112,7 +114,7 @@ export function MedicineDiOggi({ medicine }: { medicine: Occorrenza[] }) {
                 {o.medicine.length > 0 && <small>{o.medicine.join(', ')}</small>}
               </span>
               {o.stato === 'FATTO'
-                ? <span className="ok"><Check size={20} /> Fatto</span>
+                ? <span className="ok"><Check size={20} />{' '}{t('Fatto')}</span>
                 : <span><Clock size={18} className="senior-icona-stato" /> {oraBreve(o.previstoIl)}</span>}
             </li>
           )

@@ -7,6 +7,7 @@ import { ArrowLeftRight, Keyboard, Mic, Square, Volume2 } from 'lucide-react'
 import { messaggioErrore } from '../comune/api'
 import { ELENCO_LINGUE, LINGUE, lingueSalvate, nomeLingua, salvaLingue, type Lingua } from './lingue'
 import { ascolta, parla, riconoscimentoDisponibile, sbloccaVoce, zitto } from './voce'
+import { t } from '../comune/lingua'
 
 type Chi = 'mia' | 'altra'
 type Riga = { id: number; chi: Chi; originale: string; traduzione: string | null; errore: string | null }
@@ -62,7 +63,7 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
     try {
       const frase = await fine
       setAscolto(null)
-      if (!frase) setErrore('Non ho sentito niente. Tocca il pulsante e parla vicino al telefono.')
+      if (!frase) setErrore(t('Non ho sentito niente. Tocca il pulsante e parla vicino al telefono.'))
       else await traduciFrase(chi, frase)
     } catch (e) {
       setAscolto(null)
@@ -102,7 +103,7 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
     return (
       <button key={chi} type="button" className={`interprete-microfono ${chi} ${attivo ? 'attivo' : ''}`} lang={l.voce}
         disabled={Boolean(ascolto) && !attivo} onClick={() => microfono(chi)}
-        aria-label={attivo ? 'Ferma' : `${l.parla} (${LINGUE[lingue[chi]].italiano})`}>
+        aria-label={attivo ? t('Ferma') : `${l.parla} (${LINGUE[lingue[chi]].italiano})`}>
         {attivo ? <Square size={grande ? 34 : 26} /> : <Mic size={grande ? 40 : 30} />}
         <strong>{attivo ? l.ascolto : l.parla}</strong>
         <small>{nomeLingua(lingue[chi])}</small>
@@ -113,24 +114,24 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
   return (
     <div className={`interprete ${grande ? 'grande' : ''}`}>
       <div className="interprete-lingue">
-        {!grande && selettore('mia', 'Io parlo')}
+        {!grande && selettore('mia', t('Io parlo'))}
         {!grande && (
-          <button type="button" className="pulsante-icona" aria-label="Scambia le lingue" onClick={() => cambiaLingue({ mia: lingue.altra, altra: lingue.mia })}>
+          <button type="button" className="pulsante-icona" aria-label={t('Scambia le lingue')} onClick={() => cambiaLingue({ mia: lingue.altra, altra: lingue.mia })}>
             <ArrowLeftRight size={20} />
           </button>
         )}
-        {selettore('altra', grande ? 'Lingua della badante' : 'L’altra persona parla')}
+        {selettore('altra', grande ? t('Lingua della badante') : t('L’altra persona parla'))}
       </div>
 
       {scrivi ? (
         <form className="interprete-scrivi" onSubmit={inviaScritto('mia')}>
           <textarea className="campo" rows={2} maxLength={500} value={testo} onChange={(e) => setTesto(e.target.value)}
-            placeholder="Scrivi la frase…" aria-label="Frase da tradurre" />
+            placeholder={t('Scrivi la frase…')} aria-label={t('Frase da tradurre')} />
           <div className="riga-pulsanti">
             <button className="pulsante" disabled={!testo.trim()}>{LINGUE[lingue.mia].italiano} → {LINGUE[lingue.altra].italiano}</button>
             <button type="button" className="pulsante secondario" disabled={!testo.trim()} onClick={inviaScritto('altra')}>{LINGUE[lingue.altra].italiano} → {LINGUE[lingue.mia].italiano}</button>
           </div>
-          {riconoscimentoDisponibile() && <button type="button" className="pulsante fantasma con-icona" onClick={() => setScrivi(false)}><Mic size={18} /> Torna alla voce</button>}
+          {riconoscimentoDisponibile() && <button type="button" className="pulsante fantasma con-icona" onClick={() => setScrivi(false)}><Mic size={18} />{' '}{t('Torna alla voce')}</button>}
         </form>
       ) : (
         <>
@@ -138,14 +139,14 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
             {pulsante('mia')}
             {pulsante('altra')}
           </div>
-          {!grande && <button type="button" className="pulsante fantasma con-icona" onClick={() => setScrivi(true)}><Keyboard size={18} /> Scrivi invece di parlare</button>}
+          {!grande && <button type="button" className="pulsante fantasma con-icona" onClick={() => setScrivi(true)}><Keyboard size={18} />{' '}{t('Scrivi invece di parlare')}</button>}
         </>
       )}
       {errore && <p className="errore" role="alert">{errore}</p>}
 
       <div className="interprete-righe" aria-live="polite">
         {righe.length === 0 && !ascolto && (
-          <p className="interprete-vuoto">Tocca il pulsante della tua lingua e parla. Il telefono traduce e legge ad alta voce per l’altra persona. Qui sotto compare la conversazione.</p>
+          <p className="interprete-vuoto">{t('Tocca il pulsante della tua lingua e parla. Il telefono traduce e legge ad alta voce per l’altra persona. Qui sotto compare la conversazione.')}</p>
         )}
         {ascolto && (
           <div className={`interprete-riga ${ascolto.chi} in-ascolto`}>
@@ -160,12 +161,12 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
               {r.traduzione && (
                 <p className="interprete-traduzione" lang={verso.voce}>
                   {r.traduzione}
-                  <button type="button" className="pulsante-icona tenue" aria-label="Ascolta di nuovo" onClick={() => { sbloccaVoce(); parla(r.traduzione!, verso.voce) }}>
+                  <button type="button" className="pulsante-icona tenue" aria-label={t('Ascolta di nuovo')} onClick={() => { sbloccaVoce(); parla(r.traduzione!, verso.voce) }}>
                     <Volume2 size={20} />
                   </button>
                 </p>
               )}
-              {!r.traduzione && !r.errore && <span className="rotella piccola" aria-label="Traduco" />}
+              {!r.traduzione && !r.errore && <span className="rotella piccola" aria-label={t('Traduco')} />}
               {r.errore && <p className="errore senza-margine">{r.errore}</p>}
             </div>
           )

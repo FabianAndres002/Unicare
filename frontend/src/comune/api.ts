@@ -1,6 +1,7 @@
 // Tutte le chiamate al backend passano da qui.
 
 import type { Lingua } from '../interprete/lingue'
+import { t, traduciErrore } from './lingua'
 export type { Lingua }
 
 export type Stato = { app: string; database: string; tabelle: number }
@@ -13,7 +14,7 @@ export type Profilo = {
   telefono: string | null; lingua: Lingua
 }
 
-export type DatiRegistrazione = { email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
+export type DatiRegistrazione = { lingua?: Lingua; email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
 
 export type Anziano = { id: number; nome: string; cognome: string; dataNascita: string | null; comune: string | null; foto: string | null }
 export type DatiAnziano = Omit<Anziano, 'id' | 'foto'>
@@ -208,7 +209,7 @@ export class ErroreApi extends Error {
 
 /** Il messaggio da mostrare all'utente per qualsiasi errore. */
 export const messaggioErrore = (err: unknown) =>
-  err instanceof ErroreApi ? err.message : 'Connessione non riuscita. Riprova.'
+  err instanceof ErroreApi ? traduciErrore(err.message) : t('Connessione non riuscita. Riprova.')
 
 async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<T> {
   const risposta = await fetch(url, {
@@ -223,7 +224,7 @@ async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<
     throw new ErroreApi(
       risposta.status,
       errore?.codice ?? 'ERRORE',
-      errore?.messaggio ?? `Il server ha risposto ${risposta.status}`,
+      errore?.messaggio ?? t('Il server ha risposto {0}', risposta.status),
     )
   }
   if (risposta.status === 204) return undefined as T
@@ -240,7 +241,7 @@ async function inviaAudio(url: string, audio: Blob, durata: number): Promise<{ i
   })
   if (!risposta.ok) {
     const errore = await risposta.json().catch(() => null)
-    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? t('Il server ha risposto {0}', risposta.status))
   }
   return risposta.json()
 }
@@ -255,7 +256,7 @@ async function inviaFoto(url: string, foto: Blob): Promise<{ foto: string }> {
   })
   if (!risposta.ok) {
     const errore = await risposta.json().catch(() => null)
-    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? t('Il server ha risposto {0}', risposta.status))
   }
   return risposta.json()
 }
@@ -273,7 +274,7 @@ async function inviaDocumento(anzianoId: number, file: Blob, nome: string, dati:
   })
   if (!risposta.ok) {
     const errore = await risposta.json().catch(() => null)
-    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? `Il server ha risposto ${risposta.status}`)
+    throw new ErroreApi(risposta.status, errore?.codice ?? 'ERRORE', errore?.messaggio ?? t('Il server ha risposto {0}', risposta.status))
   }
   return risposta.json()
 }
@@ -281,7 +282,7 @@ async function inviaDocumento(anzianoId: number, file: Blob, nome: string, dati:
 /** Scarica un file (audio di un messaggio, documento). */
 export async function scaricaFile(url: string): Promise<Blob> {
   const risposta = await fetch(url, { credentials: 'same-origin' })
-  if (!risposta.ok) throw new ErroreApi(risposta.status, 'AUDIO', 'Non riesco a caricare il file. Riprova.')
+  if (!risposta.ok) throw new ErroreApi(risposta.status, 'AUDIO', t('Non riesco a caricare il file. Riprova.'))
   return risposta.blob()
 }
 

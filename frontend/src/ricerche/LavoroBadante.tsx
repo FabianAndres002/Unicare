@@ -8,6 +8,7 @@ import { useCarica } from '../comune/useCarica'
 import { PROVINCE } from '../badanti/aspetto'
 import CartaRicerca from './CartaRicerca'
 import { STATO_PROPOSTA } from './statoProposta'
+import { t } from '../comune/lingua'
 
 export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
   const { dati: mio } = useCarica(() => api.mioProfiloBadante(), `mio-profilo-${profilo.id}`, 300)
@@ -22,15 +23,15 @@ export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
       <header className="palco-pagina cat-casa">
         <span className="palco-icona"><Briefcase size={26} /></span>
         <div className="palco-testi">
-          <h1>Lavoro</h1>
-          <p className="sottotitolo">Famiglie che cercano una badante. Se fa per te, proponiti: la famiglia vede il tuo profilo e decide se scriverti.</p>
+          <h1>{t('Lavoro')}</h1>
+          <p className="sottotitolo">{t('Famiglie che cercano una badante. Se fa per te, proponiti: la famiglia vede il tuo profilo e decide se scriverti.')}</p>
         </div>
       </header>
 
       {mio && !p && (
         <Collegamento a="/lavoro/profilo" className="scheda-proponiti">
           <Megaphone size={30} />
-          <span><strong>Prima compila il tuo profilo</strong><br />Le famiglie lo vedono insieme alla tua proposta. Bastano 3 minuti.</span>
+          <span><strong>{t('Prima compila il tuo profilo')}</strong><br />{t('Le famiglie lo vedono insieme alla tua proposta. Bastano 3 minuti.')}</span>
           <ChevronRight size={22} />
         </Collegamento>
       )}
@@ -38,8 +39,8 @@ export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
         <Collegamento a="/lavoro/profilo" className="scheda riga-cerchio">
           <span className={`funzione-icona ${p.visibile ? 'verde' : 'grigio'}`}>{p.visibile ? <Eye size={22} /> : <UserRound size={22} />}</span>
           <span className="riga-testo testo-a-capo">
-            <strong>Il mio profilo</strong>
-            <span>{p.visibile ? 'Ti proponi anche nella lista delle badanti' : 'Non sei nella lista delle badanti: le famiglie ti vedono solo quando ti proponi'}</span>
+            <strong>{t('Il mio profilo')}</strong>
+            <span>{p.visibile ? t('Ti proponi anche nella lista delle badanti') : t('Non sei nella lista delle badanti: le famiglie ti vedono solo quando ti proponi')}</span>
           </span>
           <ChevronRight size={20} />
         </Collegamento>
@@ -47,7 +48,7 @@ export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
 
       {proposte && proposte.length > 0 && (
         <section>
-          <div className="titolo-sezione"><h2>Le mie proposte</h2></div>
+          <div className="titolo-sezione"><h2>{t('Le mie proposte')}</h2></div>
           <ul className="elenco scheda">
             {proposte.slice(0, 5).map((x) => (
               <li key={x.id}>
@@ -65,23 +66,23 @@ export default function LavoroBadante({ profilo }: { profilo: Profilo }) {
       )}
 
       <section>
-        <div className="titolo-sezione"><h2>Famiglie che cercano</h2></div>
-        <select className="campo" value={scelta} onChange={(e) => setProvincia(e.target.value)} aria-label="Provincia">
-          {!scelta && <option value="">Scegli la provincia…</option>}
+        <div className="titolo-sezione"><h2>{t('Famiglie che cercano')}</h2></div>
+        <select className="campo" value={scelta} onChange={(e) => setProvincia(e.target.value)} aria-label={t('Provincia')}>
+          {!scelta && <option value="">{t('Scegli la provincia…')}</option>}
           {PROVINCE.map(([s, n]) => <option key={s} value={s}>{n}</option>)}
         </select>
         {errore && <p className="errore">{errore}</p>}
-        {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
+        {!dati && !errore && <span className="rotella" aria-label={t('Caricamento')} />}
         {dati && dati.ricerche.length === 0 && (
-          <div className="scheda vuoto"><SearchX size={28} /><p>In questo momento nessuna famiglia cerca in questa provincia. Ti avvisiamo noi appena qualcuno pubblica.</p></div>
+          <div className="scheda vuoto"><SearchX size={28} /><p>{t('In questo momento nessuna famiglia cerca in questa provincia. Ti avvisiamo noi appena qualcuno pubblica.')}</p></div>
         )}
         <div className="pila-appuntamenti">
           {dati?.ricerche.map((r) => (
             <Collegamento key={r.id} a={`/lavoro/ricerche/${r.id}`} className="scheda carta-link">
               <CartaRicerca r={r} breve />
               {r.miaProposta
-                ? <span className={`stato ${STATO_PROPOSTA[r.miaProposta.stato].classe}`}>La tua proposta: {STATO_PROPOSTA[r.miaProposta.stato].testo.toLowerCase()}</span>
-                : <span className="link-sezione">Leggi e proponiti <ChevronRight size={16} className="icona-inline" /></span>}
+                ? <span className={`stato ${STATO_PROPOSTA[r.miaProposta.stato].classe}`}>{t('La tua proposta: {0}', STATO_PROPOSTA[r.miaProposta.stato].testo.toLowerCase())}</span>
+                : <span className="link-sezione">{t('Leggi e proponiti')}{' '}<ChevronRight size={16} className="icona-inline" /></span>}
             </Collegamento>
           ))}
         </div>

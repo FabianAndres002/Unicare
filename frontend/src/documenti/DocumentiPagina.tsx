@@ -8,6 +8,7 @@ import { api, messaggioErrore, scaricaFile, type Anziano, type ArchivioDocumenti
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import { CATEGORIE_DOCUMENTO, ORDINE_CATEGORIE, dataDocumento, dimensione, euro, preparaFile } from './aspetto'
+import { t } from '../comune/lingua'
 
 const oggiIso = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' })
 
@@ -40,7 +41,7 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
 
   async function invia(e: FormEvent) {
     e.preventDefault()
-    if (!file) return setErrore('Fai una foto o scegli un file.')
+    if (!file) return setErrore(t('Fai una foto o scegli un file.'))
     setInvio(true)
     setErrore(null)
     try {
@@ -51,7 +52,7 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
       await api.caricaDocumento(props.anziano.id, pronto, nome, dati, props.serveConsenso)
       props.onFatto()
     } catch (err) {
-      setErrore(err instanceof Error && err.message === 'grande' ? 'Il file è troppo grande (massimo 10 MB).' : messaggioErrore(err))
+      setErrore(err instanceof Error && err.message === 'grande' ? t('Il file è troppo grande (massimo 10 MB).') : messaggioErrore(err))
       setInvio(false)
     }
   }
@@ -60,11 +61,11 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
     <form className="modulo scheda entra" onSubmit={invia}>
       <div className="scegli-file">
         <label className="pulsante con-icona">
-          <Camera size={20} /> Fai una foto
+          <Camera size={20} />{' '}{t('Fai una foto')}
           <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => scelto(e.target.files?.[0])} />
         </label>
         <label className="pulsante secondario con-icona">
-          <Upload size={20} /> Scegli foto o PDF
+          <Upload size={20} />{' '}{t('Scegli foto o PDF')}
           <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => scelto(e.target.files?.[0])} />
         </label>
       </div>
@@ -76,7 +77,7 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
       )}
 
       <fieldset className="categorie-documento">
-        <legend>Che documento è?</legend>
+        <legend>{t('Che documento è?')}</legend>
         {ORDINE_CATEGORIE.map((c) => {
           const { nome, Icona, colore } = CATEGORIE_DOCUMENTO[c]
           return (
@@ -88,20 +89,20 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
         })}
       </fieldset>
 
-      <label>Nome
+      <label>{t('Nome')}
         <input value={titolo} onChange={(e) => setTitolo(e.target.value)} required minLength={2} maxLength={120}
-          placeholder={`Es. ${CATEGORIE_DOCUMENTO[categoria].esempi.split(',')[0]}`} />
+          placeholder={t('Es. {0}', CATEGORIE_DOCUMENTO[categoria].esempi.split(',')[0])} />
       </label>
       <div className="due-colonne">
-        <label>Data del documento<input type="date" value={data} max={oggiIso()} onChange={(e) => setData(e.target.value)} required /></label>
+        <label>{t('Data del documento')}<input type="date" value={data} max={oggiIso()} onChange={(e) => setData(e.target.value)} required /></label>
         {categoria === 'RICEVUTA' && (
-          <label><span>Importo <span className="nota">in euro</span></span>
-            <input inputMode="decimal" value={importo} onChange={(e) => setImporto(e.target.value)} placeholder="Es. 36,15" />
+          <label><span>{t('Importo')}{' '}<span className="nota">{t('in euro')}</span></span>
+            <input inputMode="decimal" value={importo} onChange={(e) => setImporto(e.target.value)} placeholder={t('Es. 36,15')} />
           </label>
         )}
       </div>
-      <label><span>Note <span className="nota">facoltative</span></span>
-        <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder="Es. Da portare alla prossima visita" />
+      <label><span>{t('Note')}{' '}<span className="nota">{t('facoltative')}</span></span>
+        <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder={t('Es. Da portare alla prossima visita')} />
       </label>
 
       {props.serveConsenso && (
@@ -109,16 +110,15 @@ function NuovoDocumento(props: { anziano: Anziano; serveConsenso: boolean; onFat
           <input type="checkbox" checked={consenso} onChange={(e) => setConsenso(e.target.checked)} />
           <span>
             <ShieldCheck size={18} className="icona-inline" />
-            <strong>{props.anziano.nome} è d’accordo</strong> che la famiglia conservi qui i suoi documenti sanitari.
-            Li vedono solo i familiari, non la badante. Lo chiediamo una volta sola e lo registriamo con la data.
+            <strong>{t('{0} è d’accordo', props.anziano.nome)}</strong>{' '}{t('che la famiglia conservi qui i suoi documenti sanitari. Li vedono solo i familiari, non la badante. Lo chiediamo una volta sola e lo registriamo con la data.')}
           </span>
         </label>
       )}
 
       {errore && <p className="errore" role="alert">{errore}</p>}
       <div className="riga-pulsanti">
-        <button type="button" className="pulsante fantasma" onClick={props.onAnnulla}>Annulla</button>
-        <button className="pulsante" disabled={invio || !file || (props.serveConsenso && !consenso)}>{invio ? 'Carico…' : 'Salva'}</button>
+        <button type="button" className="pulsante fantasma" onClick={props.onAnnulla}>{t('Annulla')}</button>
+        <button className="pulsante" disabled={invio || !file || (props.serveConsenso && !consenso)}>{invio ? t('Carico…') : t('Salva')}</button>
       </div>
     </form>
   )
@@ -166,23 +166,23 @@ function RigaDocumento({ d, onCambiato }: { d: Documento; onCambiato: () => void
       </button>
       {aperto && (
         <div className="documento-dettaglio entra">
-          {!url && !errore && <span className="rotella piccola" aria-label="Caricamento" />}
+          {!url && !errore && <span className="rotella piccola" aria-label={t('Caricamento')} />}
           {url && immagine && <img src={url} alt={d.titolo} className="documento-immagine" />}
           {url && !immagine && (
-            <a className="pulsante secondario con-icona" href={url} target="_blank" rel="noreferrer"><ExternalLink size={18} /> Apri il {d.tipoFile === 'application/pdf' ? 'PDF' : 'file'}</a>
+            <a className="pulsante secondario con-icona" href={url} target="_blank" rel="noreferrer"><ExternalLink size={18} />{' '}{t('Apri il')}{' '}{d.tipoFile === 'application/pdf' ? 'PDF' : 'file'}</a>
           )}
           {d.note && <p className="appuntamento-note">{d.note}</p>}
-          <p className="nota">Caricato da {d.caricatoDa ?? 'qualcuno che non è più nel cerchio'} · {dimensione(d.dimensione)}</p>
+          <p className="nota">{t('Caricato da {0} ·', d.caricatoDa ?? 'qualcuno che non è più nel cerchio')}{' '}{dimensione(d.dimensione)}</p>
           <div className="appuntamento-chi">
-            {url && <a className="link con-icona-piccola" href={url} download={d.nomeFile}><Download size={15} /> Scarica</a>}
+            {url && <a className="link con-icona-piccola" href={url} download={d.nomeFile}><Download size={15} />{' '}{t('Scarica')}</a>}
             {conferma ? (
               <>
-                <span>Togliere il documento?</span>
-                <button className="pulsante piccolo pericolo" onClick={elimina}>Sì, togli</button>
-                <button className="link" onClick={() => setConferma(false)}>No</button>
+                <span>{t('Togliere il documento?')}</span>
+                <button className="pulsante piccolo pericolo" onClick={elimina}>{t('Sì, togli')}</button>
+                <button className="link" onClick={() => setConferma(false)}>{t('No')}</button>
               </>
             ) : (
-              <button className="link tenue con-icona-piccola" onClick={() => setConferma(true)}><Trash2 size={15} /> Togli</button>
+              <button className="link tenue con-icona-piccola" onClick={() => setConferma(true)}><Trash2 size={15} />{' '}{t('Togli')}</button>
             )}
           </div>
           {errore && <p className="errore piccolo">{errore}</p>}
@@ -206,17 +206,17 @@ export default function DocumentiPagina({ anziano }: { anziano: Anziano }) {
 
   return (
     <div className="pagina-app entra">
-      <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
+      <Collegamento a="/" className="indietro"><ArrowLeft size={18} />{' '}{t('Home')}</Collegamento>
       <header className="palco-pagina cat-spesa">
         <span className="palco-icona"><FileText size={26} /></span>
         <div className="palco-testi">
-          <h1>Documenti di {anziano.nome}</h1>
-          <p className="sottotitolo">Ricette, analisi, ecografie e ricevute sempre a portata di mano. Li vedono solo i familiari.</p>
+          <h1>{t('Documenti di {0}', anziano.nome)}</h1>
+          <p className="sottotitolo">{t('Ricette, analisi, ecografie e ricevute sempre a portata di mano. Li vedono solo i familiari.')}</p>
         </div>
       </header>
 
       {errore && <p className="errore">{errore}</p>}
-      {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
+      {!dati && !errore && <span className="rotella" aria-label={t('Caricamento')} />}
 
       {dati && (
         <>
@@ -224,13 +224,13 @@ export default function DocumentiPagina({ anziano }: { anziano: Anziano }) {
             <NuovoDocumento anziano={anziano} serveConsenso={!dati.consenso} onAnnulla={() => setNuovo(false)}
               onFatto={() => { setNuovo(false); ricarica() }} />
           ) : (
-            <button className="pulsante con-icona" onClick={() => setNuovo(true)}><FilePlus2 size={20} /> Aggiungi un documento</button>
+            <button className="pulsante con-icona" onClick={() => setNuovo(true)}><FilePlus2 size={20} />{' '}{t('Aggiungi un documento')}</button>
           )}
 
           {dati.speseAnno.centesimi > 0 && (
             <div className="scheda spese-anno">
-              <span className="riga-testo"><span>Spese mediche {dati.speseAnno.anno}</span><strong>{euro(dati.speseAnno.centesimi)}</strong></span>
-              <span className="nota">Dalle ricevute caricate: utile per la dichiarazione dei redditi.</span>
+              <span className="riga-testo"><span>{t('Spese mediche {0}', dati.speseAnno.anno)}</span><strong>{euro(dati.speseAnno.centesimi)}</strong></span>
+              <span className="nota">{t('Dalle ricevute caricate: utile per la dichiarazione dei redditi.')}</span>
             </div>
           )}
 
@@ -238,10 +238,10 @@ export default function DocumentiPagina({ anziano }: { anziano: Anziano }) {
             <section>
               <label className="cerca">
                 <Search size={18} />
-                <input type="search" placeholder="Cerca un documento" value={cerca} onChange={(e) => setCerca(e.target.value)} aria-label="Cerca un documento" />
+                <input type="search" placeholder={t('Cerca un documento')} value={cerca} onChange={(e) => setCerca(e.target.value)} aria-label={t('Cerca un documento')} />
               </label>
-              <div className="filtri" role="group" aria-label="Filtra per tipo">
-                <button className={!filtro ? 'attivo' : ''} onClick={() => setFiltro(null)}>Tutti ({dati.documenti.length})</button>
+              <div className="filtri" role="group" aria-label={t('Filtra per tipo')}>
+                <button className={!filtro ? 'attivo' : ''} onClick={() => setFiltro(null)}>{t('Tutti ({0})', dati.documenti.length)}</button>
                 {presenti.map((c) => (
                   <button key={c} className={filtro === c ? 'attivo' : ''} onClick={() => setFiltro(filtro === c ? null : c)}>
                     {CATEGORIE_DOCUMENTO[c].nome} ({dati.documenti.filter((d) => d.categoria === c).length})
@@ -252,14 +252,14 @@ export default function DocumentiPagina({ anziano }: { anziano: Anziano }) {
           )}
 
           {dati.documenti.length === 0 && !nuovo && (
-            <div className="scheda vuoto"><FolderOpen size={28} /><p>Ancora nessun documento. Inizia dall’ultima ricetta o dalle ultime analisi.</p></div>
+            <div className="scheda vuoto"><FolderOpen size={28} /><p>{t('Ancora nessun documento. Inizia dall’ultima ricetta o dalle ultime analisi.')}</p></div>
           )}
           {visibili.length > 0 && (
             <ul className="elenco scheda documenti">
               {visibili.map((d) => <RigaDocumento key={d.id} d={d} onCambiato={ricarica} />)}
             </ul>
           )}
-          {dati.documenti.length > 0 && visibili.length === 0 && <p className="nota">Nessun documento trovato.</p>}
+          {dati.documenti.length > 0 && visibili.length === 0 && <p className="nota">{t('Nessun documento trovato.')}</p>}
         </>
       )}
     </div>

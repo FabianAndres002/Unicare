@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { BellRing } from 'lucide-react'
 import { api } from '../comune/api'
 import { attivaNotifiche, SPIEGAZIONE, spegniNotifiche, statoNotifiche, type StatoNotifiche } from '../comune/notifiche'
+import { t } from '../comune/lingua'
 
 export default function NotificheTelefono() {
   const [stato, setStato] = useState<StatoNotifiche | null>(null)
@@ -24,7 +25,7 @@ export default function NotificheTelefono() {
         setStato('spente')
       }
     } catch {
-      setErrore('Non sono riuscito ad attivare le notifiche. Riprova.')
+      setErrore(t('Non sono riuscito ad attivare le notifiche. Riprova.'))
     }
     setInvio(false)
   }
@@ -33,11 +34,11 @@ export default function NotificheTelefono() {
     <div className="scheda notifiche-riga">
       <span className="funzione-icona verde"><BellRing size={22} /></span>
       <span className="riga-testo">
-        <strong>Notifiche su questo telefono</strong>
-        <span>{stato ? SPIEGAZIONE[stato] : 'Controllo…'}</span>
+        <strong>{t('Notifiche su questo telefono')}</strong>
+        <span>{stato ? SPIEGAZIONE[stato] : t('Controllo…')}</span>
       </span>
-      {stato === 'spente' && <button className="pulsante piccolo" disabled={invio} onClick={() => cambia(true)}>Attiva</button>}
-      {stato === 'attive' && <button className="pulsante piccolo secondario" disabled={invio} onClick={() => cambia(false)}>Spegni</button>}
+      {stato === 'spente' && <button className="pulsante piccolo" disabled={invio} onClick={() => cambia(true)}>{t('Attiva')}</button>}
+      {stato === 'attive' && <button className="pulsante piccolo secondario" disabled={invio} onClick={() => cambia(false)}>{t('Spegni')}</button>}
       {errore && <p className="errore piccolo larga">{errore}</p>}
     </div>
   )

@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { api, messaggioErrore, type Anziano } from '../comune/api'
+import { t } from '../comune/lingua'
 
 export default function EliminaScheda({ anziano, onEliminata }: { anziano: Anziano; onEliminata: () => void }) {
   const [apri, setApri] = useState(false)
@@ -25,21 +26,20 @@ export default function EliminaScheda({ anziano, onEliminata }: { anziano: Anzia
   }
 
   if (!apri) {
-    return <button className="link tenue con-icona-piccola" onClick={() => setApri(true)}><Trash2 size={15} /> Cancella la scheda di {anziano.nome} e tutti i suoi dati</button>
+    return <button className="link tenue con-icona-piccola" onClick={() => setApri(true)}><Trash2 size={15} />{' '}{t('Cancella la scheda di {0} e tutti i suoi dati', anziano.nome)}</button>
   }
   return (
     <div className="modulo scheda pericolo entra">
       <p className="senza-margine">
-        Cancelliamo per sempre la scheda di {anziano.nome} con <strong>documenti, appuntamenti, promemoria, richieste, messaggi</strong> e
-        il collegamento del suo telefono. Non si torna indietro.
+        {t('Cancelliamo per sempre la scheda di {0} con', anziano.nome)}{' '}<strong>{t('documenti, appuntamenti, promemoria, richieste, messaggi')}</strong>{' '}{t('e il collegamento del suo telefono. Non si torna indietro.')}
       </p>
-      <label>Per confermare, scrivi “{anziano.nome}”
+      <label>{t('Per confermare, scrivi “{0}”', anziano.nome)}
         <input value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="off" />
       </label>
       {errore && <p className="errore" role="alert">{errore}</p>}
       <div className="riga-pulsanti">
-        <button className="pulsante fantasma" onClick={() => setApri(false)}>Annulla</button>
-        <button className="pulsante pericolo" disabled={!giusto || invio} onClick={elimina}>{invio ? 'Cancello…' : 'Cancella per sempre'}</button>
+        <button className="pulsante fantasma" onClick={() => setApri(false)}>{t('Annulla')}</button>
+        <button className="pulsante pericolo" disabled={!giusto || invio} onClick={elimina}>{invio ? t('Cancello…') : t('Cancella per sempre')}</button>
       </div>
     </div>
   )

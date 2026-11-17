@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { api, messaggioErrore, type Profilo } from '../comune/api'
+import { t } from '../comune/lingua'
 
 type Props = { onEntrato: (profilo: Profilo) => void; emailIniziale?: string }
 
@@ -24,16 +25,16 @@ export default function ModuloAccedi({ onEntrato, emailIniziale = '' }: Props) {
   return (
     <form className="modulo" onSubmit={invia}>
       <label>
-        Email
+        {t('Email')}
         <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label>
-        Password
+        {t('Password')}
         <input type="password" autoComplete="current-password" required value={password}
           onChange={(e) => setPassword(e.target.value)} />
       </label>
       {errore && <p className="errore" role="alert">{errore}</p>}
-      <button className="pulsante" type="submit" disabled={invio}>{invio ? 'Accesso…' : 'Accedi'}</button>
+      <button className="pulsante" type="submit" disabled={invio}>{invio ? t('Accesso…') : t('Accedi')}</button>
     </form>
   )
 }

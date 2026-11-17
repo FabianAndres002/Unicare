@@ -9,6 +9,7 @@ import LayoutAccesso from '../accesso/LayoutAccesso'
 import ModuloAccedi from '../accesso/ModuloAccedi'
 import ModuloRegistrati from '../accesso/ModuloRegistrati'
 import { scegliCerchio } from './cerchioAttivo'
+import { t } from '../comune/lingua'
 
 type Props = { token: string; profilo: Profilo | null; onEntrato: (p: Profilo) => void; onEsci: () => void }
 
@@ -43,11 +44,11 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
 
   if (!invito) {
     return (
-      <LayoutAccesso titolo="Invito" sottotitolo={errore ? '' : 'Un momento…'}>
+      <LayoutAccesso titolo={t('Invito')} sottotitolo={errore ? '' : t('Un momento…')}>
         {errore && (
           <div className="avviso errore-box">
             <p>{errore}</p>
-            <button className="pulsante secondario" onClick={() => naviga('/', true)}>Vai alla pagina iniziale</button>
+            <button className="pulsante secondario" onClick={() => naviga('/', true)}>{t('Vai alla pagina iniziale')}</button>
           </div>
         )}
       </LayoutAccesso>
@@ -56,12 +57,12 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
 
   const comeBadante = invito.ruolo === 'BADANTE'
   return (
-    <LayoutAccesso titolo="Hai un invito" sottotitolo="">
+    <LayoutAccesso titolo={t('Hai un invito')} sottotitolo="">
       <div className="invito-card">
         <span className="invito-icona"><HeartHandshake size={28} /></span>
         <p>
-          <strong>{invito.invitatoDa}</strong> ti invita nel cerchio <strong>{invito.cerchio}</strong>
-          {comeBadante ? ' come badante' : ' come familiare'}.
+          <strong>{invito.invitatoDa}</strong>{' '}{t('ti invita nel cerchio')}{' '}<strong>{invito.cerchio}</strong>
+          {comeBadante ? t(' come badante') : t(' come familiare')}.
         </p>
       </div>
 
@@ -69,18 +70,18 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
 
       {profilo ? (
         <div className="pila">
-          <button className="pulsante" onClick={accetta} disabled={invio}>{invio ? 'Un momento…' : 'Entra nel cerchio'}</button>
-          {errore && <button className="pulsante secondario" onClick={onEsci}>Esci e usa un altro account</button>}
+          <button className="pulsante" onClick={accetta} disabled={invio}>{invio ? t('Un momento…') : t('Entra nel cerchio')}</button>
+          {errore && <button className="pulsante secondario" onClick={onEsci}>{t('Esci e usa un altro account')}</button>}
         </div>
       ) : modo === 'registrati' ? (
         <>
           <ModuloRegistrati onEntrato={entratoDaQui} emailIniziale={invito.email} tipoFisso={comeBadante ? 'BADANTE' : 'FAMILIARE'} />
-          <p className="cambio">Hai già un account? <button className="link" onClick={() => setModo('accedi')}>Accedi</button></p>
+          <p className="cambio">{t('Hai già un account?')}{' '}<button className="link" onClick={() => setModo('accedi')}>{t('Accedi')}</button></p>
         </>
       ) : (
         <>
           <ModuloAccedi onEntrato={entratoDaQui} emailIniziale={invito.email} />
-          <p className="cambio">Non hai un account? <button className="link" onClick={() => setModo('registrati')}>Registrati</button></p>
+          <p className="cambio">{t('Non hai un account?')}{' '}<button className="link" onClick={() => setModo('registrati')}>{t('Registrati')}</button></p>
         </>
       )}
     </LayoutAccesso>

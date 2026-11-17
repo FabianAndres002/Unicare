@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
 import { scaricaFile } from './api'
 import { minutiSecondi } from './registratore'
+import { t } from './lingua'
 
 /**
  * Pulsante play/pausa. "sorgente" è l'indirizzo dell'audio sul server (si scarica al primo tocco)
@@ -57,12 +58,12 @@ export default function Riproduci(props: {
   return (
     <div className={`riproduci ${props.grande ? 'grande' : ''}`}>
       <button type="button" className="riproduci-tasto" onClick={tocca} disabled={carica}
-        aria-label={suona ? 'Pausa' : props.etichetta ?? 'Ascolta il messaggio'}>
+        aria-label={suona ? t('Pausa') : props.etichetta ?? t('Ascolta il messaggio')}>
         {carica ? <span className="rotella piccola" /> : suona ? <Pause size={props.grande ? 34 : 20} fill="currentColor" /> : <Play size={props.grande ? 34 : 20} fill="currentColor" />}
       </button>
       <span className="riproduci-barra" aria-hidden="true"><span style={{ width: `${avanzamento}%` }} /></span>
       <span className="riproduci-tempo">{minutiSecondi(suona || posizione ? posizione : props.durata)}</span>
-      {errore && <span className="errore piccolo">Non riesco a farlo suonare. Riprova.</span>}
+      {errore && <span className="errore piccolo">{t('Non riesco a farlo suonare. Riprova.')}</span>}
     </div>
   )
 }

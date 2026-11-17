@@ -8,6 +8,7 @@ import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import { foglietto, giorniDaOggi, giornoInParole, giornoIso, oraAppuntamento } from './aspetto'
 import CalendarioMese from './CalendarioMese'
+import { t } from '../comune/lingua'
 
 function Modulo(props: { iniziale?: AppuntamentoFamiglia; onSalva: (d: DatiAppuntamento) => Promise<void>; onAnnulla: () => void }) {
   const i = props.iniziale
@@ -37,23 +38,23 @@ function Modulo(props: { iniziale?: AppuntamentoFamiglia; onSalva: (d: DatiAppun
 
   return (
     <form className="modulo scheda entra" onSubmit={invia}>
-      <label>Che appuntamento è?
-        <input {...campo('titolo')} placeholder="Es. Visita dal cardiologo" required minLength={2} maxLength={120} autoFocus={!i} />
+      <label>{t('Che appuntamento è?')}
+        <input {...campo('titolo')} placeholder={t('Es. Visita dal cardiologo')} required minLength={2} maxLength={120} autoFocus={!i} />
       </label>
       <div className="due-colonne">
-        <label>Giorno<input type="date" {...campo('data')} min={i ? undefined : oggi} required /></label>
-        <label>Ora<input type="time" {...campo('ora')} required /></label>
+        <label>{t('Giorno')}<input type="date" {...campo('data')} min={i ? undefined : oggi} required /></label>
+        <label>{t('Ora')}<input type="time" {...campo('ora')} required /></label>
       </div>
-      <label><span>Dove <span className="nota">facoltativo</span></span>
-        <input {...campo('luogo')} placeholder="Es. Ospedale San Paolo, 2° piano" maxLength={200} />
+      <label><span>{t('Dove')}{' '}<span className="nota">{t('facoltativo')}</span></span>
+        <input {...campo('luogo')} placeholder={t('Es. Ospedale San Paolo, 2° piano')} maxLength={200} />
       </label>
-      <label><span>Note <span className="nota">facoltative</span></span>
-        <textarea {...campo('note')} rows={2} placeholder="Es. Portare le analisi, a digiuno" maxLength={500} />
+      <label><span>{t('Note')}{' '}<span className="nota">{t('facoltative')}</span></span>
+        <textarea {...campo('note')} rows={2} placeholder={t('Es. Portare le analisi, a digiuno')} maxLength={500} />
       </label>
       {errore && <p className="errore" role="alert">{errore}</p>}
       <div className="riga-pulsanti">
-        <button type="button" className="pulsante fantasma" onClick={props.onAnnulla}>Annulla</button>
-        <button className="pulsante" disabled={invio}>{invio ? 'Salvo…' : i ? 'Salva' : 'Aggiungi'}</button>
+        <button type="button" className="pulsante fantasma" onClick={props.onAnnulla}>{t('Annulla')}</button>
+        <button className="pulsante" disabled={invio}>{invio ? t('Salvo…') : i ? t('Salva') : t('Aggiungi')}</button>
       </div>
     </form>
   )
@@ -112,11 +113,11 @@ function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boo
         <span className="foglietto" aria-hidden="true"><small>{f.settimana}</small><strong>{f.giorno}</strong><small>{f.mese}</small></span>
         <div className="riga-testo">
           <strong className="appuntamento-titolo">{a.titolo}</strong>
-          <span>{giornoInParole(a.quando)} alle {oraAppuntamento(a.quando)}</span>
+          <span>{giornoInParole(a.quando)}{' '}{t('alle {0}', oraAppuntamento(a.quando))}</span>
           {a.luogo && <span className="con-icona-piccola"><MapPin size={14} /> {a.luogo}</span>}
         </div>
         {props.puoModificare && !props.passato && (
-          <button className="pulsante-icona tenue" aria-label="Modifica" onClick={() => setModifica(true)}><Pencil size={18} /></button>
+          <button className="pulsante-icona tenue" aria-label={t('Modifica')} onClick={() => setModifica(true)}><Pencil size={18} /></button>
         )}
       </div>
       {a.note && <p className="appuntamento-note"><StickyNote size={15} /> {a.note}</p>}
@@ -125,15 +126,15 @@ function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boo
         <div className="appuntamento-chi">
           {a.accompagnoIo ? (
             <>
-              <span className="stato stato-fatta"><Car size={13} /> Ci vai tu</span>
-              <button className="link" disabled={invio} onClick={() => esegui(() => api.nonCiVado(a.id))}>Non riesco più</button>
+              <span className="stato stato-fatta"><Car size={13} />{' '}{t('Ci vai tu')}</span>
+              <button className="link" disabled={invio} onClick={() => esegui(() => api.nonCiVado(a.id))}>{t('Non riesco più')}</button>
             </>
           ) : a.accompagna ? (
-            <span className="stato stato-corso"><Car size={13} /> Ci va {a.accompagna}</span>
+            <span className="stato stato-corso"><Car size={13} />{' '}{t('Ci va {0}', a.accompagna)}</span>
           ) : (
             <>
-              <span className="stato stato-aperta">Nessuno ci va ancora</span>
-              <button className="pulsante piccolo" disabled={invio} onClick={() => esegui(() => api.ciVadoIo(a.id))}>Ci vado io</button>
+              <span className="stato stato-aperta">{t('Nessuno ci va ancora')}</span>
+              <button className="pulsante piccolo" disabled={invio} onClick={() => esegui(() => api.ciVadoIo(a.id))}>{t('Ci vado io')}</button>
             </>
           )}
         </div>
@@ -141,12 +142,12 @@ function SchedaAppuntamento(props: { a: AppuntamentoFamiglia; puoModificare: boo
 
       {props.puoModificare && !props.passato && (conferma ? (
         <div className="appuntamento-chi">
-          <span>Togliere l’appuntamento?</span>
-          <button className="pulsante piccolo pericolo" disabled={invio} onClick={() => esegui(() => api.eliminaAppuntamento(a.id))}>Sì, togli</button>
-          <button className="link" onClick={() => setConferma(false)}>No</button>
+          <span>{t('Togliere l’appuntamento?')}</span>
+          <button className="pulsante piccolo pericolo" disabled={invio} onClick={() => esegui(() => api.eliminaAppuntamento(a.id))}>{t('Sì, togli')}</button>
+          <button className="link" onClick={() => setConferma(false)}>{t('No')}</button>
         </div>
       ) : (
-        <button className="link tenue con-icona-piccola" onClick={() => setConferma(true)}><Trash2 size={14} /> Togli</button>
+        <button className="link tenue con-icona-piccola" onClick={() => setConferma(true)}><Trash2 size={14} />{' '}{t('Togli')}</button>
       ))}
       {errore && <p className="errore piccolo">{errore}</p>}
     </article>
@@ -161,14 +162,14 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
 
   return (
     <div className="pagina-app entra">
-      <Collegamento a="/" className="indietro"><ArrowLeft size={18} /> Home</Collegamento>
+      <Collegamento a="/" className="indietro"><ArrowLeft size={18} />{' '}{t('Home')}</Collegamento>
       <header className="intestazione-pagina">
-        <h1>Appuntamenti di {anziano.nome}</h1>
-        <p className="sottotitolo">Visite, esami e tutto quello da non dimenticare. Chi ci va lo dice con un tocco.</p>
+        <h1>{t('Appuntamenti di {0}', anziano.nome)}</h1>
+        <p className="sottotitolo">{t('Visite, esami e tutto quello da non dimenticare. Chi ci va lo dice con un tocco.')}</p>
       </header>
 
       {errore && <p className="errore">{errore}</p>}
-      {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
+      {!dati && !errore && <span className="rotella" aria-label={t('Caricamento')} />}
 
       {dati && (
         <>
@@ -176,7 +177,7 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
             <Modulo onAnnulla={() => setNuovo(false)}
               onSalva={async (d) => { setDati(await api.creaAppuntamento(anziano.id, d)); setNuovo(false) }} />
           ) : (
-            <button className="pulsante con-icona" onClick={() => setNuovo(true)}><CalendarPlus size={20} /> Aggiungi un appuntamento</button>
+            <button className="pulsante con-icona" onClick={() => setNuovo(true)}><CalendarPlus size={20} />{' '}{t('Aggiungi un appuntamento')}</button>
           ))}
 
           <CalendarioMese appuntamenti={[...dati.prossimi, ...dati.passati]} prossimo={dati.prossimi[0]} scelto={giorno} onScegli={setGiorno} />
@@ -185,15 +186,15 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
             {giorno ? (
               <div className="titolo-sezione">
                 <h2>{giornoInParole(`${giorno}T12:00:00`)}</h2>
-                <button className="link" onClick={() => setGiorno(null)}>Mostra tutti</button>
+                <button className="link" onClick={() => setGiorno(null)}>{t('Mostra tutti')}</button>
               </div>
             ) : (
-              <div className="titolo-sezione"><h2>In programma</h2></div>
+              <div className="titolo-sezione"><h2>{t('In programma')}</h2></div>
             )}
             {(() => {
               const elenco = giorno ? [...dati.prossimi, ...dati.passati].filter((a) => giornoIso(a.quando) === giorno) : dati.prossimi
               if (elenco.length === 0) {
-                return <div className="scheda vuoto"><CalendarDays size={28} /><p>{giorno ? 'Niente in questo giorno.' : 'Nessun appuntamento in programma.'}</p></div>
+                return <div className="scheda vuoto"><CalendarDays size={28} /><p>{giorno ? t('Niente in questo giorno.') : t('Nessun appuntamento in programma.')}</p></div>
               }
               let n = 0
               return (
@@ -214,14 +215,14 @@ export default function AppuntamentiPagina({ anziano }: { anziano: Anziano }) {
             })()}
             <p className="nota">
               <BellRing size={16} className="icona-inline" />
-              Promemoria automatici: la sera prima alle 18 a {anziano.nome} e a tutto il cerchio, e due ore prima a {anziano.nome} e a chi ci va.
+              {t('Promemoria automatici: la sera prima alle 18 a {0} e a tutto il cerchio, e due ore prima a {1} e a chi ci va.', anziano.nome, anziano.nome)}
             </p>
           </section>
 
           {dati.passati.length > 0 && !giorno && (
             <section>
               <button className="link" onClick={() => setVediPassati(!vediPassati)}>
-                {vediPassati ? 'Nascondi i passati' : `Vedi i passati (${dati.passati.length})`}
+                {vediPassati ? t('Nascondi i passati') : t('Vedi i passati ({0})', dati.passati.length)}
               </button>
               {vediPassati && (
                 <div className="pila-appuntamenti">

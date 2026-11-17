@@ -4,6 +4,7 @@
 // (Condividi → "Aggiungi alla schermata Home") e con iOS 16.4 o più recente.
 
 import { api, type IscrizionePush } from './api'
+import { t } from './lingua'
 
 export type StatoNotifiche =
   | 'attive' // tutto a posto
@@ -61,9 +62,9 @@ export async function spegniNotifiche(): Promise<void> {
 }
 
 export const SPIEGAZIONE: Record<StatoNotifiche, string> = {
-  attive: 'Le notifiche sono attive su questo telefono.',
-  spente: 'Attivale per sapere subito quando c’è bisogno di te.',
-  negate: 'Le notifiche sono bloccate. Riattivale dalle impostazioni del telefono, alla voce Unicare o del browser.',
-  'serve-home': 'Sull’iPhone: tocca Condividi e poi “Aggiungi alla schermata Home”. Poi apri Unicare dall’icona e attiva le notifiche.',
-  'non-supportate': 'Questo browser non riceve notifiche. Prova con Chrome, oppure con Safari aggiornato.',
+  attive: t('Le notifiche sono attive su questo telefono.'),
+  spente: t('Attivale per sapere subito quando c’è bisogno di te.'),
+  negate: t('Le notifiche sono bloccate. Riattivale dalle impostazioni del telefono, alla voce Unicare o del browser.'),
+  'serve-home': t('Sull’iPhone: tocca Condividi e poi “Aggiungi alla schermata Home”. Poi apri Unicare dall’icona e attiva le notifiche.'),
+  'non-supportate': t('Questo browser non riceve notifiche. Prova con Chrome, oppure con Safari aggiornato.'),
 }

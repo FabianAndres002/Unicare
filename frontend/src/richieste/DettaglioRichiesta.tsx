@@ -8,13 +8,14 @@ import { useCarica } from '../comune/useCarica'
 import { useDiretta } from '../comune/diretta'
 import { tempoFa } from '../comune/utili'
 import { CATEGORIE, STATI } from './aspetto'
+import { t } from '../comune/lingua'
 
 const TESTO_EVENTO = {
-  CREATA: 'ha chiesto aiuto',
-  PRESA: 'se ne occupa',
-  RILASCIATA: 'non riesce più a occuparsene',
-  COMPLETATA: 'ha segnato “Fatto”',
-  ANNULLATA: 'ha annullato la richiesta',
+  CREATA: t('ha chiesto aiuto'),
+  PRESA: t('se ne occupa'),
+  RILASCIATA: t('non riesce più a occuparsene'),
+  COMPLETATA: t('ha segnato “Fatto”'),
+  ANNULLATA: t('ha annullato la richiesta'),
 }
 const ICONA_EVENTO = { CREATA: Plus, PRESA: Hand, RILASCIATA: Undo2, COMPLETATA: Check, ANNULLATA: X }
 
@@ -29,7 +30,7 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
   const [nota, setNota] = useState('')
 
   async function esegui(azione: AzioneRichiesta) {
-    if (azione === 'ANNULLA' && !confirm('Annullare questa richiesta?')) return
+    if (azione === 'ANNULLA' && !confirm(t('Annullare questa richiesta?'))) return
     setErroreAzione(null)
     setInvio(azione)
     try {
@@ -43,7 +44,7 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
   }
 
   if (errore && !r) return <div className="pagina-app"><p className="errore">{errore}</p></div>
-  if (!r) return <div className="centrato"><span className="rotella" aria-label="Caricamento" /></div>
+  if (!r) return <div className="centrato"><span className="rotella" aria-label={t('Caricamento')} /></div>
 
   const { etichetta, Icona } = CATEGORIE[r.categoria]
   const stato = STATI[r.stato]
@@ -51,7 +52,7 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
 
   return (
     <div className="pagina-app entra">
-      <Collegamento a="/richieste" className="indietro"><ArrowLeft size={18} /> Richieste</Collegamento>
+      <Collegamento a="/richieste" className="indietro"><ArrowLeft size={18} />{' '}{t('Richieste')}</Collegamento>
 
       <section className={`scheda dettaglio-richiesta cat-${r.categoria.toLowerCase()}`}>
         <div className="dettaglio-testa">
@@ -59,41 +60,41 @@ export default function DettaglioRichiesta({ id, profilo }: { id: number; profil
           <div>
             <span className={`stato ${stato.classe}`}><i className="stato-punto" aria-hidden="true" />{stato.etichetta}</span>
             <h1>{etichetta}</h1>
-            <p className="nota">Per {r.anziano.nome} · chiesta {tempoFa(r.creataIl)}</p>
+            <p className="nota">{t('Per {0} · chiesta', r.anziano.nome)}{' '}{tempoFa(r.creataIl)}</p>
           </div>
         </div>
         {r.testo && <p className="dettaglio-testo">{r.testo}</p>}
 
         {r.stato === 'PRESA_IN_CARICO' && (
-          <p className="chi-se-ne-occupa"><Hand size={18} /> {mia ? 'Te ne stai occupando tu' : `Se ne occupa ${r.presaDa?.nome}`}</p>
+          <p className="chi-se-ne-occupa"><Hand size={18} /> {mia ? t('Te ne stai occupando tu') : t('Se ne occupa {0}', r.presaDa?.nome)}</p>
         )}
-        {r.stato === 'COMPLETATA' && <p className="chi-se-ne-occupa fatta"><CircleCheck size={18} /> Fatta {tempoFa(r.chiusaIl!)}</p>}
+        {r.stato === 'COMPLETATA' && <p className="chi-se-ne-occupa fatta"><CircleCheck size={18} />{' '}{t('Fatta {0}', tempoFa(r.chiusaIl!))}</p>}
 
         {erroreAzione && <p className="errore" role="alert">{erroreAzione}</p>}
 
         {r.azioni.length > 0 && (
           <div className="pila azioni-richiesta">
             {r.azioni.includes('PRENDI') && (
-              <button className="pulsante con-icona" onClick={() => esegui('PRENDI')} disabled={!!invio}><Hand size={20} /> Me ne occupo io</button>
+              <button className="pulsante con-icona" onClick={() => esegui('PRENDI')} disabled={!!invio}><Hand size={20} />{' '}{t('Me ne occupo io')}</button>
             )}
             {r.azioni.includes('COMPLETA') && (
               <>
-                <input className="campo" placeholder="Una nota per gli altri (facoltativa)" maxLength={300} value={nota} onChange={(e) => setNota(e.target.value)} />
-                <button className="pulsante con-icona" onClick={() => esegui('COMPLETA')} disabled={!!invio}><Check size={20} /> Fatto!</button>
+                <input className="campo" placeholder={t('Una nota per gli altri (facoltativa)')} maxLength={300} value={nota} onChange={(e) => setNota(e.target.value)} />
+                <button className="pulsante con-icona" onClick={() => esegui('COMPLETA')} disabled={!!invio}><Check size={20} />{' '}{t('Fatto!')}</button>
               </>
             )}
             {r.azioni.includes('RILASCIA') && (
-              <button className="pulsante secondario con-icona" onClick={() => esegui('RILASCIA')} disabled={!!invio}><Undo2 size={20} /> Non riesco più, la lascio ad altri</button>
+              <button className="pulsante secondario con-icona" onClick={() => esegui('RILASCIA')} disabled={!!invio}><Undo2 size={20} />{' '}{t('Non riesco più, la lascio ad altri')}</button>
             )}
             {r.azioni.includes('ANNULLA') && (
-              <button className="pulsante fantasma con-icona" onClick={() => esegui('ANNULLA')} disabled={!!invio}><X size={20} /> Non serve più</button>
+              <button className="pulsante fantasma con-icona" onClick={() => esegui('ANNULLA')} disabled={!!invio}><X size={20} />{' '}{t('Non serve più')}</button>
             )}
           </div>
         )}
       </section>
 
       <section>
-        <div className="titolo-sezione"><h2>Storia</h2></div>
+        <div className="titolo-sezione"><h2>{t('Storia')}</h2></div>
         <ol className="storia">
           {r.eventi.map((e, i) => {
             const IconaEvento = ICONA_EVENTO[e.tipo]

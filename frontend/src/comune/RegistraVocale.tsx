@@ -6,6 +6,7 @@ import { Check, Mic, RotateCcw, Send, Square, X } from 'lucide-react'
 import { messaggioErrore } from './api'
 import { DURATA_MASSIMA, minutiSecondi, useRegistratore } from './registratore'
 import Riproduci from './Riproduci'
+import { t } from './lingua'
 
 type Props = {
   grande?: boolean
@@ -47,26 +48,26 @@ export default function RegistraVocale({ grande, invito, inviato, onInvia }: Pro
     <div className={`registra ${grande ? 'grande' : ''}`}>
       {(r.stato === 'fermo' || r.stato === 'permesso') && (
         <button className={`${p} con-icona registra-inizia`} onClick={r.inizia} disabled={r.stato === 'permesso'}>
-          <Mic size={grande ? 40 : 22} /> {r.stato === 'permesso' ? 'Consenti il microfono…' : invito}
+          <Mic size={grande ? 40 : 22} /> {r.stato === 'permesso' ? t('Consenti il microfono…') : invito}
         </button>
       )}
 
       {r.stato === 'registra' && (
         <div className="registra-in-corso" role="status">
           <span className="registra-punto" aria-hidden="true" />
-          <strong>Sto registrando</strong>
+          <strong>{t('Sto registrando')}</strong>
           <span className="registra-tempo">{minutiSecondi(r.secondi)} <small>/ {minutiSecondi(DURATA_MASSIMA)}</small></span>
-          <button className={`${p} con-icona`} onClick={r.ferma}><Square size={icona} fill="currentColor" /> Ho finito</button>
-          <button className={`${p} ${grande ? 'chiaro' : 'fantasma'} con-icona`} onClick={r.annulla}><X size={icona} /> Annulla</button>
+          <button className={`${p} con-icona`} onClick={r.ferma}><Square size={icona} fill="currentColor" />{' '}{t('Ho finito')}</button>
+          <button className={`${p} ${grande ? 'chiaro' : 'fantasma'} con-icona`} onClick={r.annulla}><X size={icona} />{' '}{t('Annulla')}</button>
         </div>
       )}
 
       {r.stato === 'pronto' && r.registrazione && (
         <div className="registra-pronto">
-          <p className="registra-domanda">Ascoltalo, poi mandalo.</p>
-          <Riproduci sorgente={r.registrazione.audio} durata={r.registrazione.durata} grande={grande} etichetta="Riascolta" />
-          <button className={`${p} con-icona`} onClick={invia} disabled={invio}><Send size={icona} /> {invio ? 'Invio…' : 'Manda'}</button>
-          <button className={`${p} ${grande ? 'chiaro' : 'fantasma'} con-icona`} onClick={r.annulla} disabled={invio}><RotateCcw size={icona} /> Rifallo</button>
+          <p className="registra-domanda">{t('Ascoltalo, poi mandalo.')}</p>
+          <Riproduci sorgente={r.registrazione.audio} durata={r.registrazione.durata} grande={grande} etichetta={t('Riascolta')} />
+          <button className={`${p} con-icona`} onClick={invia} disabled={invio}><Send size={icona} /> {invio ? t('Invio…') : t('Manda')}</button>
+          <button className={`${p} ${grande ? 'chiaro' : 'fantasma'} con-icona`} onClick={r.annulla} disabled={invio}><RotateCcw size={icona} />{' '}{t('Rifallo')}</button>
         </div>
       )}
 

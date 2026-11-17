@@ -8,6 +8,7 @@ import { LINGUE } from '../interprete/lingue'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import { tempoFa } from '../comune/utili'
+import { t } from '../comune/lingua'
 
 const CHIAVE_TRADUCI = 'unicare-chat-traduci'
 const leggiTraduci = () => { try { return localStorage.getItem(CHIAVE_TRADUCI) !== 'no' } catch { return true } }
@@ -19,7 +20,7 @@ function Tradotto({ m, traduzione }: { m: MessaggioChat; traduzione: string }) {
     <>
       <p>{originale ? m.testo : traduzione}</p>
       <button type="button" className="chat-originale" onClick={() => setOriginale(!originale)}>
-        <Languages size={13} /> {originale ? 'Mostra la traduzione' : `Tradotto dal ${LINGUE[m.lingua].italiano.toLowerCase()} · originale`}
+        <Languages size={13} /> {originale ? t('Mostra la traduzione') : t('Tradotto dal {0} · originale', LINGUE[m.lingua].italiano.toLowerCase())}
       </button>
     </>
   )
@@ -33,7 +34,7 @@ function Testo({ m, traduzione }: { m: MessaggioChat; traduzione?: string | null
   return (
     <>
       <p>{m.testo.replace(invito[0], '').replace(/[:\s]+$/, '.')}</p>
-      {m.mio ? <span className="nota">Invito mandato</span> : <Collegamento a={invito[1]!} className="pulsante piccolo">Entra nel cerchio</Collegamento>}
+      {m.mio ? <span className="nota">{t('Invito mandato')}</span> : <Collegamento a={invito[1]!} className="pulsante piccolo">{t('Entra nel cerchio')}</Collegamento>}
     </>
   )
 }
@@ -92,33 +93,33 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
   const altro = dati?.conversazione.altro
   return (
     <div className="pagina-app chat entra">
-      <Collegamento a="/contatti" className="indietro"><ArrowLeft size={18} /> Messaggi</Collegamento>
+      <Collegamento a="/contatti" className="indietro"><ArrowLeft size={18} />{' '}{t('Messaggi')}</Collegamento>
       {errore && <p className="errore">{errore}</p>}
-      {!dati && !errore && <span className="rotella" aria-label="Caricamento" />}
+      {!dati && !errore && <span className="rotella" aria-label={t('Caricamento')} />}
       {dati && altro && (
         <>
           <header className="intestazione-pagina">
             <h1>{altro.nome} {altro.cognome}</h1>
             <p className="sottotitolo">
               {altro.tipo === 'BADANTE'
-                ? <Collegamento a={`/badanti/${altro.id}`} className="link">Vedi il profilo</Collegamento>
-                : 'Una famiglia che cerca assistenza'}
+                ? <Collegamento a={`/badanti/${altro.id}`} className="link">{t('Vedi il profilo')}</Collegamento>
+                : t('Una famiglia che cerca assistenza')}
             </p>
           </header>
 
           {dati.puoInvitare.length > 0 && !dati.conversazione.bloccato && (
             <div className="scheda invita-chat">
               <UserPlus size={20} />
-              <span>Vi siete accordati? Invita {altro.nome} nel cerchio:</span>
+              <span>{t('Vi siete accordati? Invita {0} nel cerchio:', altro.nome)}</span>
               {dati.puoInvitare.length > 1 && (
-                <select className="campo" value={cerchio} onChange={(e) => setCerchio(e.target.value)} aria-label="Cerchio">
-                  <option value="">Scegli il cerchio</option>
+                <select className="campo" value={cerchio} onChange={(e) => setCerchio(e.target.value)} aria-label={t('Cerchio')}>
+                  <option value="">{t('Scegli il cerchio')}</option>
                   {dati.puoInvitare.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>
               )}
               <button className="pulsante piccolo" disabled={invio || (dati.puoInvitare.length > 1 && !cerchio)}
                 onClick={() => esegui(() => api.invitaDaConversazione(id, Number(cerchio || dati.puoInvitare[0]!.id)))}>
-                Invita nel cerchio
+                {t('Invita nel cerchio')}
               </button>
             </div>
           )}
@@ -127,8 +128,8 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
             <label className="scheda interruttore-riga chat-traduci">
               <span className="funzione-icona blu"><Languages size={20} /></span>
               <span className="riga-testo">
-                <strong>Traduci nella mia lingua</strong>
-                <span>{altro.nome} scrive in {LINGUE[dati.messaggi.find((m) => !m.mio)!.lingua].italiano.toLowerCase()}. I messaggi passano da un servizio di traduzione.</span>
+                <strong>{t('Traduci nella mia lingua')}</strong>
+                <span>{t('{0} scrive in {1}. I messaggi passano da un servizio di traduzione.', altro.nome, LINGUE[dati.messaggi.find((m) => !m.mio)!.lingua].italiano.toLowerCase())}</span>
               </span>
               <input type="checkbox" role="switch" className="interruttore" checked={traduci} onChange={(e) => cambiaTraduci(e.target.checked)} />
             </label>
@@ -138,16 +139,16 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
             {dati.messaggi.map((m) => (
               <li key={m.id} className={m.mio ? 'mio' : ''}>
                 <Testo m={m} traduzione={traduci && !m.mio ? (m.traduzione ?? tradotti[m.id]) : null} />
-                <small>{tempoFa(m.creatoIl)}{m.mio && m.lettoIl ? ' · letto' : ''}</small>
+                <small>{tempoFa(m.creatoIl)}{m.mio && m.lettoIl ? t(' · letto') : ''}</small>
               </li>
             ))}
           </ul>
           {dati.conversazione.bloccato ? (
-            <p className="nota centrato">{badante ? 'Hai chiuso questa conversazione.' : `${altro.nome} ha chiuso questa conversazione.`}</p>
+            <p className="nota centrato">{badante ? t('Hai chiuso questa conversazione.') : t('{0} ha chiuso questa conversazione.', altro.nome)}</p>
           ) : (
             <form className="chat-scrivi" onSubmit={manda}>
-              <textarea rows={1} maxLength={2000} value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Scrivi un messaggio" aria-label="Messaggio" />
-              <button className="pulsante-icona" disabled={invio || !testo.trim()} aria-label="Manda"><Send size={20} /></button>
+              <textarea rows={1} maxLength={2000} value={testo} onChange={(e) => setTesto(e.target.value)} placeholder={t('Scrivi un messaggio')} aria-label={t('Messaggio')} />
+              <button className="pulsante-icona" disabled={invio || !testo.trim()} aria-label={t('Manda')}><Send size={20} /></button>
             </form>
           )}
           {erroreInvio && <p className="errore" role="alert">{erroreInvio}</p>}
@@ -155,7 +156,7 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
 
           {badante && (
             <button className="link tenue con-icona-piccola centrato" onClick={() => esegui(() => api.chiudiConversazione(id, !dati.conversazione.bloccato))}>
-              <Ban size={15} /> {dati.conversazione.bloccato ? 'Riapri la conversazione' : 'Chiudi la conversazione: questa famiglia non potrà più scriverti'}
+              <Ban size={15} /> {dati.conversazione.bloccato ? t('Riapri la conversazione') : t('Chiudi la conversazione: questa famiglia non potrà più scriverti')}
             </button>
           )}
         </>

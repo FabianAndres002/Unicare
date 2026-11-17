@@ -11,6 +11,7 @@ import ProssimaVisita from '../appuntamenti/ProssimaVisita'
 import MessaggiFunzione from '../vocali/MessaggiFunzione'
 import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
+import { t } from '../comune/lingua'
 
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
@@ -33,16 +34,16 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <div className="scheda-anziano-alto">
                 <Avatar nome={a.nome} cognome={a.cognome} foto={a.foto} grande className="avatar-chiaro" />
                 <div>
-                  <p className="etichetta-chiara">La persona che assistete</p>
+                  <p className="etichetta-chiara">{t('La persona che assistete')}</p>
                   <h2>{a.nome} {a.cognome}</h2>
                   <div className="dettagli">
-                    {anni !== null && <span><Cake size={16} /> {anni} anni</span>}
+                    {anni !== null && <span><Cake size={16} />{' '}{t('{0} anni', anni)}</span>}
                     {a.comune && <span><MapPin size={16} /> {a.comune}</span>}
                   </div>
                 </div>
                 {puoModificare && (
                   <Collegamento a={`/anziano/${a.id}`} className="pulsante-icona" aria-current={undefined}>
-                    <Pencil size={18} /><span className="sr-only">Modifica la scheda</span>
+                    <Pencil size={18} /><span className="sr-only">{t('Modifica la scheda')}</span>
                   </Collegamento>
                 )}
               </div>
@@ -51,12 +52,12 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
                 <ProssimaVisita anzianoId={a.id} />
                 {(() => {
                   const n = richieste?.filter((r) => r.anziano.id === a.id).length
-                  return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? 'richiesta attiva' : 'richieste attive'}</span></div>
+                  return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? t('richiesta attiva') : t('richieste attive')}</span></div>
                 })()}
               </div>
               {puoModificare && (
                 <Collegamento a={`/anziano/${a.id}`} className="scheda-anziano-telefono">
-                  <Smartphone size={20} /> <span>Il telefono di {a.nome} e la Senior App</span> <ChevronRight size={20} />
+                  <Smartphone size={20} /> <span>{t('Il telefono di {0} e la Senior App', a.nome)}</span> <ChevronRight size={20} />
                 </Collegamento>
               )}
             </article>
@@ -66,10 +67,10 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
           puoModificare ? (
             <Collegamento a="/anziano/nuovo" className="scheda-vuota">
               <Plus size={28} />
-              <span><strong>Aggiungi la persona che assistete</strong><br />Serve per promemoria e appuntamenti.</span>
+              <span><strong>{t('Aggiungi la persona che assistete')}</strong><br />{t('Serve per promemoria e appuntamenti.')}</span>
             </Collegamento>
           ) : (
-            <div className="scheda-vuota"><span>La famiglia non ha ancora creato la scheda della persona assistita.</span></div>
+            <div className="scheda-vuota"><span>{t('La famiglia non ha ancora creato la scheda della persona assistita.')}</span></div>
           )
         )}
       </section>
@@ -77,31 +78,31 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
       {cerchio.anziani.length > 0 && (
         <section>
           <div className="titolo-sezione">
-            <h2>Richieste di aiuto</h2>
-            {daFare > 0 && <span className="distintivo urgente">{daFare} da fare</span>}
-            <Collegamento a="/richieste" className="link-sezione">Vedi tutte</Collegamento>
+            <h2>{t('Richieste di aiuto')}</h2>
+            {daFare > 0 && <span className="distintivo urgente">{t('{0} da fare', daFare)}</span>}
+            <Collegamento a="/richieste" className="link-sezione">{t('Vedi tutte')}</Collegamento>
           </div>
           {richieste && richieste.length === 0 && (
-            <p className="nota">Nessuna richiesta in sospeso. Tutto tranquillo!</p>
+            <p className="nota">{t('Nessuna richiesta in sospeso. Tutto tranquillo!')}</p>
           )}
           {richieste && richieste.length > 0 && (
             <div className="elenco-richieste">
               {richieste.slice(0, 3).map((r, i) => <SchedaRichiesta key={r.id} richiesta={r} indice={i} mioId={profilo.id} onCambiata={ricarica} />)}
             </div>
           )}
-          <Collegamento a="/richieste/nuova" className="chiedi-aiuto"><span className="chiedi-aiuto-piu"><Plus size={22} /></span><span><strong>Chiedi aiuto al cerchio</strong><small>Spesa, farmacia, un passaggio…</small></span><ChevronRight size={20} /></Collegamento>
+          <Collegamento a="/richieste/nuova" className="chiedi-aiuto"><span className="chiedi-aiuto-piu"><Plus size={22} /></span><span><strong>{t('Chiedi aiuto al cerchio')}</strong><small>{t('Spesa, farmacia, un passaggio…')}</small></span><ChevronRight size={20} /></Collegamento>
         </section>
       )}
 
       <section>
-        <div className="titolo-sezione"><h2>Funzioni</h2></div>
+        <div className="titolo-sezione"><h2>{t('Funzioni')}</h2></div>
         <div className="griglia-funzioni">
           {cerchio.anziani[0] && (
             <>
               <Collegamento a={`/anziano/${cerchio.anziani[0].id}/appuntamenti`} className="funzione cat-accompagnamento">
                 <span className="funzione-icona blu"><CalendarDays size={22} /></span>
-                <strong>Appuntamenti</strong>
-                <span>Visite ed esami</span>
+                <strong>{t('Appuntamenti')}</strong>
+                <span>{t('Visite ed esami')}</span>
               </Collegamento>
               <MessaggiFunzione anziano={cerchio.anziani[0]} />
             </>
@@ -109,33 +110,33 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
           {profilo.tipo === 'FAMILIARE' && (
             <Collegamento a="/badanti" className="funzione cat-compagnia">
               <span className="funzione-icona viola"><UserSearch size={22} /></span>
-              <strong>Trova una badante</strong>
-              <span>Chi si propone nella tua zona</span>
+              <strong>{t('Trova una badante')}</strong>
+              <span>{t('Chi si propone nella tua zona')}</span>
             </Collegamento>
           )}
           {cerchio.anziani[0] && puoModificare && (
             <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione cat-spesa">
               <span className="funzione-icona verde"><Receipt size={22} /></span>
-              <strong>Documenti</strong>
-              <span>Ricette, analisi, ecografie, ricevute</span>
+              <strong>{t('Documenti')}</strong>
+              <span>{t('Ricette, analisi, ecografie, ricevute')}</span>
             </Collegamento>
           )}
           <Collegamento a="/interprete" className="funzione cat-casa">
             <span className="funzione-icona arancio"><Languages size={22} /></span>
-            <strong>Interprete</strong>
-            <span>{profilo.tipo === 'BADANTE' ? 'Parla con la famiglia nella tua lingua' : 'Parla con la badante nella sua lingua'}</span>
+            <strong>{t('Interprete')}</strong>
+            <span>{profilo.tipo === 'BADANTE' ? t('Parla con la famiglia nella tua lingua') : t('Parla con la badante nella sua lingua')}</span>
           </Collegamento>
         </div>
       </section>
 
       <section>
-        <div className="titolo-sezione"><h2>Il cerchio</h2></div>
+        <div className="titolo-sezione"><h2>{t('Il cerchio')}</h2></div>
         <Collegamento a="/cerchio" className="riga-cerchio scheda">
           <span className="avatar-impilati">
             {cerchio.membri.slice(0, 4).map((m) => <Avatar key={m.id} nome={m.nome} cognome={m.cognome} foto={m.foto} />)}
           </span>
           <span className="riga-testo">
-            <strong>{cerchio.membri.length === 1 ? 'Solo tu, per ora' : `${cerchio.membri.length} persone`}</strong>
+            <strong>{cerchio.membri.length === 1 ? t('Solo tu, per ora') : t('{0} persone', cerchio.membri.length)}</strong>
             <span>{cerchio.membri.map((m) => m.nome).join(', ')}</span>
           </span>
           <ChevronRight size={20} />
@@ -143,7 +144,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
         {cerchio.mioRuolo === 'ADMIN' && cerchio.membri.length === 1 && (
           <Collegamento a="/invita" className="invito-banner">
             <UserPlus size={22} />
-            <span><strong>Invita familiari e badante</strong><br />Così tutti vedono promemoria e appuntamenti.</span>
+            <span><strong>{t('Invita familiari e badante')}</strong><br />{t('Così tutti vedono promemoria e appuntamenti.')}</span>
             <ChevronRight size={20} />
           </Collegamento>
         )}
@@ -152,8 +153,8 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
       <div className="scheda smartwatch">
         <span className="funzione-icona grigio"><Watch size={22} /></span>
         <span className="riga-testo">
-          <strong>Dallo smartwatch</strong>
-          <span>Battito, passi e sonno della persona assistita. Arriverà dopo la prima versione.</span>
+          <strong>{t('Dallo smartwatch')}</strong>
+          <span>{t('Battito, passi e sonno della persona assistita. Arriverà dopo la prima versione.')}</span>
         </span>
       </div>
     </div>

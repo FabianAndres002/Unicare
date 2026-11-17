@@ -5,6 +5,7 @@ import { BellRing, Volume2 } from 'lucide-react'
 import { api } from '../comune/api'
 import { suonaCampanello } from '../comune/campanello'
 import { attivaNotifiche, SPIEGAZIONE, statoNotifiche, type StatoNotifiche } from '../comune/notifiche'
+import { t } from '../comune/lingua'
 
 export default function NotificheSenior() {
   const [stato, setStato] = useState<StatoNotifiche | null>(null)
@@ -26,7 +27,7 @@ export default function NotificheSenior() {
   if (stato === 'attive') {
     return (
       <button type="button" className="senior-prova-suono" onClick={() => void suonaCampanello()}>
-        <Volume2 size={22} /> Prova il suono delle medicine
+        <Volume2 size={22} />{' '}{t('Prova il suono delle medicine')}
       </button>
     )
   }
@@ -39,9 +40,9 @@ export default function NotificheSenior() {
 
   return (
     <div className="senior-notifiche">
-      <p><BellRing size={22} className="senior-icona-stato" /> <strong>Vuoi che il telefono suoni</strong> per le medicine e quando qualcuno ti risponde?</p>
+      <p><BellRing size={22} className="senior-icona-stato" /> <strong>{t('Vuoi che il telefono suoni')}</strong>{' '}{t('per le medicine e quando qualcuno ti risponde?')}</p>
       {stato === 'spente'
-        ? <button className="senior-pulsante" disabled={invio} onClick={attiva}>Sì, attiva le notifiche</button>
+        ? <button className="senior-pulsante" disabled={invio} onClick={attiva}>{t('Sì, attiva le notifiche')}</button>
         : <p>{SPIEGAZIONE[stato]}</p>}
     </div>
   )

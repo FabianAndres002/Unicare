@@ -8,14 +8,15 @@ import { api, messaggioErrore, type Categoria, type Cerchio } from '../comune/ap
 import { Collegamento, naviga } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import { CATEGORIE } from './aspetto'
+import { t } from '../comune/lingua'
 
 /** Parole pronte da toccare, per scrivere meno. */
 const SUGGERIMENTI: Record<Categoria, string[]> = {
-  SPESA: ['Latte', 'Pane', 'Frutta', 'Acqua', 'Pasta', 'Verdura'],
-  FARMACIA: ['Ritirare la ricetta', 'Medicine finite', 'Pannoloni', 'Misurare la pressione'],
-  ACCOMPAGNAMENTO: ['Dal medico', 'In posta', 'In banca', 'Al mercato'],
-  COMPAGNIA: ['Un caffè insieme', 'Una passeggiata', 'Una telefonata', 'Giocare a carte'],
-  CASA: ['Cambiare una lampadina', 'La caldaia', 'Pulizie', 'Un rubinetto che perde'],
+  SPESA: [t('Latte'), t('Pane'), t('Frutta'), t('Acqua'), t('Pasta'), t('Verdura')],
+  FARMACIA: [t('Ritirare la ricetta'), t('Medicine finite'), t('Pannoloni'), t('Misurare la pressione')],
+  ACCOMPAGNAMENTO: [t('Dal medico'), t('In posta'), t('In banca'), t('Al mercato')],
+  COMPAGNIA: [t('Un caffè insieme'), t('Una passeggiata'), t('Una telefonata'), t('Giocare a carte')],
+  CASA: [t('Cambiare una lampadina'), t('La caldaia'), t('Pulizie'), t('Un rubinetto che perde')],
   ALTRO: [],
 }
 
@@ -27,7 +28,7 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
   const [invio, setInvio] = useState(false)
 
   if (cerchio.anziani.length === 0) {
-    return <div className="pagina-app"><p className="nota">Prima crea la scheda della persona assistita.</p></div>
+    return <div className="pagina-app"><p className="nota">{t('Prima crea la scheda della persona assistita.')}</p></div>
   }
   const anziano = cerchio.anziani.find((a) => a.id === anzianoId) ?? cerchio.anziani[0]!
   const passo = !categoria ? 1 : testo.trim() ? 3 : 2
@@ -58,7 +59,7 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
 
   return (
     <div className="pagina-app entra">
-      <Collegamento a="/richieste" className="indietro"><ArrowLeft size={18} /> Richieste</Collegamento>
+      <Collegamento a="/richieste" className="indietro"><ArrowLeft size={18} />{' '}{t('Richieste')}</Collegamento>
 
       <header className="richiesta-palco">
         <span className="rete-stella s1" aria-hidden="true" />
@@ -66,13 +67,13 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
         <div className="richiesta-palco-alto">
           <Avatar nome={anziano.nome} cognome={anziano.cognome} foto={anziano.foto} className="richiesta-palco-avatar" />
           <div>
-            <span className="richiesta-palco-etichetta">Nuova richiesta per</span>
+            <span className="richiesta-palco-etichetta">{t('Nuova richiesta per')}</span>
             <h1>{anziano.nome}</h1>
           </div>
         </div>
-        <p>Tutto il cerchio la vede e chi può se ne occupa.</p>
-        <ol className="richiesta-passi" aria-label={`Passo ${passo} di 3`}>
-          {['Cosa', 'Dettagli', 'Invia'].map((nome, i) => (
+        <p>{t('Tutto il cerchio la vede e chi può se ne occupa.')}</p>
+        <ol className="richiesta-passi" aria-label={t('Passo {0} di 3', passo)}>
+          {[t('Cosa'), t('Dettagli'), t('Invia')].map((nome, i) => (
             <li key={nome} className={i + 1 < passo ? 'fatto' : i + 1 === passo ? 'attuale' : ''}>
               <span>{i + 1 < passo ? <Check size={14} /> : i + 1}</span>{nome}
             </li>
@@ -83,7 +84,7 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
       <form className="modulo" onSubmit={invia}>
         {cerchio.anziani.length > 1 && (
           <fieldset className="scelta">
-            <legend>Per chi?</legend>
+            <legend>{t('Per chi?')}</legend>
             {cerchio.anziani.map((a) => (
               <label key={a.id} className={anzianoId === a.id ? 'attiva' : ''}>
                 <input type="radio" name="anziano" checked={anzianoId === a.id} onChange={() => setAnzianoId(a.id)} />
@@ -94,7 +95,7 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
         )}
 
         <fieldset className="categorie tessere">
-          <legend>Di cosa c'è bisogno?</legend>
+          <legend>{t('Di cosa c\'è bisogno?')}</legend>
           {(Object.keys(CATEGORIE) as Categoria[]).map((c, i) => {
             const { etichetta, esempio, Icona } = CATEGORIE[c]
             return (
@@ -113,13 +114,13 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
         {categoria && scelta && (
           <div key={categoria} className={`richiesta-dettagli cat-${categoria.toLowerCase()}`}>
             <label>
-              <span>Dettagli {categoria !== 'ALTRO' && <span className="nota">facoltativi</span>}</span>
+              <span>{t('Dettagli')}{' '}{categoria !== 'ALTRO' && <span className="nota">{t('facoltativi')}</span>}</span>
               <textarea rows={3} maxLength={500} required={categoria === 'ALTRO'} value={testo}
                 onChange={(e) => setTesto(e.target.value)}
-                placeholder={categoria === 'SPESA' ? 'Latte, pane e due mele' : categoria === 'ALTRO' ? 'Scrivi di cosa c’è bisogno…' : 'Scrivi qui…'} />
+                placeholder={categoria === 'SPESA' ? t('Latte, pane e due mele') : categoria === 'ALTRO' ? t('Scrivi di cosa c’è bisogno…') : t('Scrivi qui…')} />
             </label>
             {SUGGERIMENTI[categoria].length > 0 && (
-              <div className="richiesta-suggerimenti" role="group" aria-label="Suggerimenti">
+              <div className="richiesta-suggerimenti" role="group" aria-label={t('Suggerimenti')}>
                 {SUGGERIMENTI[categoria].map((p) => (
                   <button key={p} type="button" className={`chip-suggerimento ${testo.toLowerCase().includes(p.toLowerCase()) ? 'usato' : ''}`} onClick={() => aggiungi(p)}>
                     + {p}
@@ -133,7 +134,7 @@ export default function NuovaRichiesta({ cerchio }: { cerchio: Cerchio }) {
         {errore && <p className="errore" role="alert">{errore}</p>}
         <div className={`richiesta-invia ${categoria ? 'pronto' : ''}`}>
           <button className={`pulsante richiesta-pulsante ${categoria ? 'pronto' : ''}`} type="submit" disabled={!categoria || invio}>
-            {invio ? 'Invio…' : <><Send size={20} /> {scelta ? `Chiedi aiuto: ${scelta.etichetta.toLowerCase()}` : 'Scegli di cosa c’è bisogno'}</>}
+            {invio ? t('Invio…') : <><Send size={20} /> {scelta ? t('Chiedi aiuto: {0}', scelta.etichetta.toLowerCase()) : t('Scegli di cosa c’è bisogno')}</>}
           </button>
         </div>
       </form>

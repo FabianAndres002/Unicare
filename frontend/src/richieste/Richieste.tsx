@@ -7,6 +7,7 @@ import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import { useDiretta } from '../comune/diretta'
 import SchedaRichiesta from './SchedaRichiesta'
+import { t } from '../comune/lingua'
 
 export default function Richieste({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const [vista, setVista] = useState<'attive' | 'concluse'>('attive')
@@ -29,34 +30,34 @@ export default function Richieste({ profilo, cerchio }: { profilo: Profilo; cerc
         <div className="richieste-palco-titolo">
           <span className="richieste-palco-icona"><HandHeart size={26} /></span>
           <div>
-            <h1>Richieste di aiuto</h1>
-            <p>Chi ha bisogno di cosa, e chi se ne occupa.</p>
+            <h1>{t('Richieste di aiuto')}</h1>
+            <p>{t('Chi ha bisogno di cosa, e chi se ne occupa.')}</p>
           </div>
         </div>
         <div className="richieste-conti">
-          <div className={`richieste-conto da-fare ${daFare ? 'acceso' : ''}`}><Inbox size={18} /><strong>{attive ? daFare : '–'}</strong><span>da fare</span></div>
-          <div className="richieste-conto in-corso"><Clock size={18} /><strong>{attive ? inCorso : '–'}</strong><span>in corso</span></div>
-          <div className="richieste-conto tutto-ok"><CheckCircle2 size={18} /><strong>{fatte ?? '–'}</strong><span>{fatte === 1 ? 'fatta' : 'fatte'}</span></div>
+          <div className={`richieste-conto da-fare ${daFare ? 'acceso' : ''}`}><Inbox size={18} /><strong>{attive ? daFare : '–'}</strong><span>{t('da fare')}</span></div>
+          <div className="richieste-conto in-corso"><Clock size={18} /><strong>{attive ? inCorso : '–'}</strong><span>{t('in corso')}</span></div>
+          <div className="richieste-conto tutto-ok"><CheckCircle2 size={18} /><strong>{fatte ?? '–'}</strong><span>{fatte === 1 ? t('fatta') : t('fatte')}</span></div>
         </div>
         {cerchio.anziani.length > 0 && (
-          <Collegamento a="/richieste/nuova" className="richieste-nuova"><Plus size={20} /> Nuova richiesta</Collegamento>
+          <Collegamento a="/richieste/nuova" className="richieste-nuova"><Plus size={20} />{' '}{t('Nuova richiesta')}</Collegamento>
         )}
       </header>
 
       <div className={`schede-vista scorrevole ${vista}`} role="tablist">
         {(['attive', 'concluse'] as const).map((v) => (
           <button key={v} role="tab" aria-selected={vista === v} className={vista === v ? 'attiva' : ''} onClick={() => setVista(v)}>
-            {v === 'attive' ? 'Attive' : 'Concluse'}
+            {v === 'attive' ? t('Attive') : t('Concluse')}
           </button>
         ))}
       </div>
 
       {errore && <p className="errore">{errore}</p>}
-      {!dati && !errore && <div className="centrato"><span className="rotella" aria-label="Caricamento" /></div>}
+      {!dati && !errore && <div className="centrato"><span className="rotella" aria-label={t('Caricamento')} /></div>}
       {dati && dati.length === 0 && (
         <div className="vuoto">
           <Inbox size={36} />
-          <p>{vista === 'attive' ? 'Nessuna richiesta in sospeso. Tutto tranquillo!' : 'Qui compariranno le richieste completate o annullate.'}</p>
+          <p>{vista === 'attive' ? t('Nessuna richiesta in sospeso. Tutto tranquillo!') : t('Qui compariranno le richieste completate o annullate.')}</p>
         </div>
       )}
       {dati && dati.length > 0 && (

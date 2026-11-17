@@ -1367,3 +1367,38 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .chat-originale { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 0; border: 0; background: none; font: inherit; font-size: 0.75rem; font-weight: 700; color: inherit; opacity: 0.7; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .chat-traduci { margin: 0; }
 .telefono-profilo .riga-testo > span, .chat-traduci .riga-testo > span { white-space: normal; }
+
+/* Scelta della lingua */
+.scegli-lingua { position: relative; }
+.scegli-lingua-pulsante {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--bianco); color: var(--primario-scuro); font: inherit; font-weight: 800; font-size: 0.95rem;
+  box-shadow: 0 0 0 1px rgba(230, 227, 241, 0.9), var(--ombra-s);
+}
+.scegli-lingua.grande .scegli-lingua-pulsante { padding: 14px 20px; font-size: 1.2rem; }
+.scegli-lingua-velo {
+  position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(30, 24, 60, 0.38); animation: velo-entra 0.18s ease-out;
+}
+.scegli-lingua-elenco {
+  width: 100%; max-width: 520px; max-height: 82vh; overflow-y: auto; margin: 0; list-style: none;
+  padding: 10px 12px calc(14px + env(safe-area-inset-bottom)); border-radius: 26px 26px 0 0;
+  background: var(--bianco); box-shadow: 0 -10px 40px rgba(30, 24, 60, 0.18); animation: foglio-sale 0.24s cubic-bezier(.2,.8,.2,1);
+}
+.scegli-lingua-elenco button { font-size: 1.05rem; }
+.scegli-lingua-titolo { display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; font-weight: 800; color: var(--primario-scuro); }
+@keyframes velo-entra { from { opacity: 0 } }
+@keyframes foglio-sale { from { transform: translateY(100%) } }
+.scegli-lingua-elenco button {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; border: 0; border-radius: 12px;
+  background: none; font: inherit; font-weight: 700; color: var(--testo); cursor: pointer; text-align: left;
+}
+.scegli-lingua-elenco button:hover, .scegli-lingua-elenco button[aria-selected="true"] { background: var(--primario-chiaro); color: var(--primario-scuro); }
+.scegli-lingua.grande .scegli-lingua-elenco button { padding: 14px 16px; font-size: 1.2rem; }
+.accesso-lingua { position: absolute; top: 16px; right: 16px; z-index: 5; }
+.accesso-contenuto { position: relative; }
+.profilo-lingua { display: flex; align-items: center; gap: 14px; }
+.profilo-lingua .riga-testo { flex: 1; }
+.profilo-lingua .riga-testo > span { white-space: normal; }
+.senior-lingua-alto { align-self: flex-end; }
+.senior-lingua { position: relative; }

@@ -4,6 +4,7 @@ import { BadgeCheck, Car, Clock, Languages, MapPin } from 'lucide-react'
 import type { ProfiloBadante } from '../comune/api'
 import Avatar from '../comune/Avatar'
 import { DISPONIBILITA, SERVIZI, nomeProvincia, tariffa } from './aspetto'
+import { t } from '../comune/lingua'
 
 type Props = { nome: string; cognome: string; foto?: string | null; p: Omit<ProfiloBadante, 'visibile'>; breve?: boolean }
 
@@ -15,7 +16,7 @@ export default function CartaBadante({ nome, cognome, foto, p, breve }: Props) {
         <div className="riga-testo">
           <strong className="carta-badante-nome">{nome} {cognome}</strong>
           <span className="con-icona-piccola"><MapPin size={14} /> {p.comune} ({nomeProvincia(p.provincia)})</span>
-          <span className="con-icona-piccola"><BadgeCheck size={14} /> {p.anniEsperienza ? `${p.anniEsperienza} ${p.anniEsperienza === 1 ? 'anno' : 'anni'} di esperienza` : 'Prime esperienze'}</span>
+          <span className="con-icona-piccola"><BadgeCheck size={14} /> {p.anniEsperienza ? p.anniEsperienza === 1 ? t('1 anno di esperienza') : t('{0} anni di esperienza', p.anniEsperienza) : t('Prime esperienze')}</span>
         </div>
         {p.tariffaOrariaCentesimi !== null && <span className="carta-badante-tariffa">{tariffa(p.tariffaOrariaCentesimi)}</span>}
       </div>
@@ -26,9 +27,9 @@ export default function CartaBadante({ nome, cognome, foto, p, breve }: Props) {
       </div>
       {!breve && (p.zone || p.lingue || p.automunita) && (
         <ul className="carta-badante-dettagli">
-          {p.zone && <li><MapPin size={16} /> Lavora a: {p.zone}</li>}
-          {p.lingue && <li><Languages size={16} /> Lingue: {p.lingue}</li>}
-          {p.automunita && <li><Car size={16} /> Automunita</li>}
+          {p.zone && <li><MapPin size={16} />{' '}{t('Lavora a: {0}', p.zone)}</li>}
+          {p.lingue && <li><Languages size={16} />{' '}{t('Lingue: {0}', p.lingue)}</li>}
+          {p.automunita && <li><Car size={16} />{' '}{t('Automunita')}</li>}
         </ul>
       )}
     </div>

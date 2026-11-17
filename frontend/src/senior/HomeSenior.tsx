@@ -10,9 +10,11 @@ import { dataEstesa, saluto } from '../comune/utili'
 import { CATEGORIE } from '../richieste/aspetto'
 import { statoPerAnziano, titoloRichiesta } from './parole'
 import { MedicineAdesso, MedicineDiOggi } from './MedicinaSenior'
+import ScegliLingua from '../comune/ScegliLingua'
 import NotificheSenior from './NotificheSenior'
 import AppuntamentiSenior from './AppuntamentiSenior'
 import MessaggiSenior from './MessaggiSenior'
+import { t } from '../comune/lingua'
 
 type Props = { io: SeniorIo; benvenuto: boolean; onCambiata: () => void }
 
@@ -44,12 +46,12 @@ function RichiestaSenior({ r, onCambiata }: { r: Richiesta; onCambiata: () => vo
       </div>
       {r.azioni.includes('ANNULLA') && (conferma ? (
         <div className="senior-conferma-piccola">
-          <span>Non serve più?</span>
-          <button className="senior-pulsante piccolo" onClick={annulla}>Sì, annulla</button>
-          <button className="senior-pulsante piccolo chiaro" onClick={() => setConferma(false)}>No</button>
+          <span>{t('Non serve più?')}</span>
+          <button className="senior-pulsante piccolo" onClick={annulla}>{t('Sì, annulla')}</button>
+          <button className="senior-pulsante piccolo chiaro" onClick={() => setConferma(false)}>{t('No')}</button>
         </div>
       ) : (
-        <button className="senior-link" onClick={() => setConferma(true)}>Non serve più</button>
+        <button className="senior-link" onClick={() => setConferma(true)}>{t('Non serve più')}</button>
       ))}
       {errore && <p className="senior-errore">{errore}</p>}
     </li>
@@ -74,22 +76,22 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
       </header>
 
       {benvenuto && (
-        <p className="senior-avviso"><Check size={24} /> Il telefono è collegato. Quando ti serve qualcosa, tocca il pulsante qui sotto.</p>
+        <p className="senior-avviso"><Check size={24} />{' '}{t('Il telefono è collegato. Quando ti serve qualcosa, tocca il pulsante qui sotto.')}</p>
       )}
 
       <MedicineAdesso nome={io.anziano.nome} medicine={io.medicine} adesso={adesso} onCambiata={onCambiata} />
 
       <Collegamento a="/senior/chiedi" className="senior-chiedi">
         <HandHeart size={56} strokeWidth={1.8} />
-        <span>Chiedi aiuto</span>
+        <span>{t('Chiedi aiuto')}</span>
       </Collegamento>
 
       {chiamabili.length > 0 && (
-        <section className="senior-chiamate" aria-label="Chiama">
+        <section className="senior-chiamate" aria-label={t('Chiama')}>
           {chiamabili.map((f, i) => (
             <a key={i} href={`tel:${f.telefono}`} className="senior-chiama">
               <Avatar nome={f.nome} foto={f.foto} />
-              <span>Chiama {f.nome}{f.ruolo === 'BADANTE' && <small>la badante</small>}</span>
+              <span>{t('Chiama')}{' '}{f.nome}{f.ruolo === 'BADANTE' && <small>{t('la badante')}</small>}</span>
               <span className="senior-chiama-icona"><Phone size={30} /></span>
             </a>
           ))}
@@ -100,12 +102,12 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
 
       <Collegamento a="/senior/interprete" className="senior-interprete">
         <Languages size={34} />
-        <span>Parla con la badante<small>nella sua lingua</small></span>
+        <span>{t('Parla con la badante')}<small>{t('nella sua lingua')}</small></span>
       </Collegamento>
 
       {io.richieste.length > 0 && (
         <section>
-          <h2>Le tue richieste</h2>
+          <h2>{t('Le tue richieste')}</h2>
           <ul className="senior-elenco">
             {io.richieste.map((r) => <RichiestaSenior key={r.id} r={r} onCambiata={onCambiata} />)}
           </ul>
@@ -118,11 +120,16 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
 
       <NotificheSenior />
 
+      <section className="senior-lingua">
+        <h2>{t('Lingua')}</h2>
+        <ScegliLingua grande className="sinistra" />
+      </section>
+
       <section>
-        <h2>La tua famiglia</h2>
+        <h2>{t('La tua famiglia')}</h2>
         <ul className="senior-famiglia">
           {io.famiglia.map((f, i) => (
-            <li key={i}><Avatar nome={f.nome} foto={f.foto} /> <span>{f.nome}{f.ruolo === 'BADANTE' && <small> · badante</small>}</span></li>
+            <li key={i}><Avatar nome={f.nome} foto={f.foto} /> <span>{f.nome}{f.ruolo === 'BADANTE' && <small>{' '}{t('· badante')}</small>}</span></li>
           ))}
         </ul>
       </section>

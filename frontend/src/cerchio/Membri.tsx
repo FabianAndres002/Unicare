@@ -7,6 +7,7 @@ import { api, messaggioErrore, type Cerchio, type Profilo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
 import { dataBreve, eta, nomeRuolo } from '../comune/utili'
+import { t } from '../comune/lingua'
 
 type Props = { profilo: Profilo; cerchio: Cerchio; onCambiato: () => void }
 
@@ -35,7 +36,7 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
     <div className="pagina-app entra">
       <header className="intestazione-pagina">
         <h1>{cerchio.nome}</h1>
-        <p className="sottotitolo">Le persone che si prendono cura insieme.</p>
+        <p className="sottotitolo">{t('Le persone che si prendono cura insieme.')}</p>
       </header>
 
       {errore && <p className="errore" role="alert">{errore}</p>}
@@ -43,10 +44,10 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
       <ReteCerchio anziani={cerchio.anziani} membri={cerchio.membri} inviti={cerchio.invitiInAttesa} mioId={profilo.id}
         puoInvitare={admin} scelta={scelta} onScegli={setScelta} />
 
-      <ul className="rete-legenda" aria-label="Legenda">
-        <li><span className="segno familiare" /> Familiari</li>
-        <li><span className="segno badante" /> Badante</li>
-        {admin && cerchio.invitiInAttesa.length > 0 && <li><span className="segno attesa" /> Invito in attesa</li>}
+      <ul className="rete-legenda" aria-label={t('Legenda')}>
+        <li><span className="segno familiare" />{' '}{t('Familiari')}</li>
+        <li><span className="segno badante" />{' '}{t('Badante')}</li>
+        {admin && cerchio.invitiInAttesa.length > 0 && <li><span className="segno attesa" />{' '}{t('Invito in attesa')}</li>}
       </ul>
 
       {anzianoScelto && (
@@ -56,13 +57,13 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
             <div>
               <h2>{anzianoScelto.nome} {anzianoScelto.cognome}</h2>
               <p className="sottotitolo">
-                La persona assistita{anni !== null && ` · ${anni} anni`}{anzianoScelto.comune && ` · ${anzianoScelto.comune}`}
+                {t('La persona assistita')}{anni !== null && t(' · {0} anni', anni)}{anzianoScelto.comune && ` · ${anzianoScelto.comune}`}
               </p>
             </div>
           </div>
           <div className="rete-azioni">
-            <Collegamento a={`/anziano/${anzianoScelto.id}`} className="pulsante con-icona secondario"><IdCard size={18} /> La scheda</Collegamento>
-            <Collegamento a={`/anziano/${anzianoScelto.id}/medicine`} className="pulsante con-icona secondario"><Pill size={18} /> Le medicine</Collegamento>
+            <Collegamento a={`/anziano/${anzianoScelto.id}`} className="pulsante con-icona secondario"><IdCard size={18} />{' '}{t('La scheda')}</Collegamento>
+            <Collegamento a={`/anziano/${anzianoScelto.id}/medicine`} className="pulsante con-icona secondario"><Pill size={18} />{' '}{t('Le medicine')}</Collegamento>
           </div>
         </section>
       )}
@@ -72,15 +73,15 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
           <div className="rete-dettaglio-alto">
             <Avatar nome={membroScelto.nome} cognome={membroScelto.cognome} foto={membroScelto.foto} grande />
             <div>
-              <h2>{membroScelto.nome} {membroScelto.cognome}{membroScelto.id === profilo.id && <span className="tu"> (tu)</span>}</h2>
+              <h2>{membroScelto.nome} {membroScelto.cognome}{membroScelto.id === profilo.id && <span className="tu">{' '}{t('(tu)')}</span>}</h2>
               <p className="sottotitolo">{membroScelto.email}</p>
               <span className={`ruolo ruolo-${membroScelto.ruolo.toLowerCase()}`}>{nomeRuolo[membroScelto.ruolo]}</span>
             </div>
           </div>
           {admin && membroScelto.id !== profilo.id && (
             <button className="pulsante-testo pericolo con-icona"
-              onClick={() => confirm(`Togliere ${membroScelto.nome} dal cerchio?`) && esegui(() => api.rimuoviMembro(cerchio.id, membroScelto.id), true)}>
-              <Trash2 size={18} /> Togli {membroScelto.nome} dal cerchio
+              onClick={() => confirm(t('Togliere {0} dal cerchio?', membroScelto.nome)) && esegui(() => api.rimuoviMembro(cerchio.id, membroScelto.id), true)}>
+              <Trash2 size={18} />{' '}{t('Togli {0} dal cerchio', membroScelto.nome)}
             </button>
           )}
         </section>
@@ -92,19 +93,19 @@ export default function Membri({ profilo, cerchio, onCambiato }: Props) {
             <span className="avatar avatar-grande avatar-attesa"><Clock size={26} /></span>
             <div>
               <h2>{invitoScelto.email}</h2>
-              <p className="sottotitolo">{nomeRuolo[invitoScelto.ruolo]} · invito in attesa, scade il {dataBreve(invitoScelto.scadeIl)}</p>
+              <p className="sottotitolo">{nomeRuolo[invitoScelto.ruolo]}{' '}{t('· invito in attesa, scade il {0}', dataBreve(invitoScelto.scadeIl))}</p>
             </div>
           </div>
           <button className="pulsante-testo pericolo con-icona" onClick={() => esegui(() => api.annullaInvito(invitoScelto.id), true)}>
-            <X size={18} /> Annulla l&apos;invito
+            <X size={18} />{' '}{t('Annulla l’invito')}
           </button>
         </section>
       )}
 
       {admin && (
-        <Collegamento a="/invita" className="pulsante con-icona"><UserPlus size={20} /> Invita qualcuno</Collegamento>
+        <Collegamento a="/invita" className="pulsante con-icona"><UserPlus size={20} />{' '}{t('Invita qualcuno')}</Collegamento>
       )}
-      {!admin && <p className="nota centrato">Solo l'amministratore del cerchio può invitare o togliere persone.</p>}
+      {!admin && <p className="nota centrato">{t('Solo l\'amministratore del cerchio può invitare o togliere persone.')}</p>}
     </div>
   )
 }

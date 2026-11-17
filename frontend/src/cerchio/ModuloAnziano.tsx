@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { messaggioErrore, type DatiAnziano } from '../comune/api'
+import { t } from '../comune/lingua'
 
 type Props = {
   iniziale?: DatiAnziano
@@ -40,22 +41,22 @@ export default function ModuloAnziano({ iniziale = VUOTO, nuovo, testoPulsante, 
     <form className="modulo" onSubmit={invia}>
       <div className="due-colonne">
         <label>
-          Nome
+          {t('Nome')}
           <input required value={dati.nome} onChange={(e) => cambia('nome')(e.target.value)} placeholder="Giuseppina" />
         </label>
         <label>
-          Cognome
+          {t('Cognome')}
           <input required value={dati.cognome} onChange={(e) => cambia('cognome')(e.target.value)} placeholder="Rossi" />
         </label>
       </div>
       <div className="due-colonne">
         <label>
-          <span>Data di nascita <span className="nota">facoltativa</span></span>
+          <span>{t('Data di nascita')}{' '}<span className="nota">{t('facoltativa')}</span></span>
           <input type="date" value={dati.dataNascita ?? ''} max={OGGI}
             onChange={(e) => cambia('dataNascita')(e.target.value)} />
         </label>
         <label>
-          <span>Comune <span className="nota">facoltativo</span></span>
+          <span>{t('Comune')}{' '}<span className="nota">{t('facoltativo')}</span></span>
           <input value={dati.comune ?? ''} onChange={(e) => cambia('comune')(e.target.value)} placeholder="Caserta" />
         </label>
       </div>
@@ -64,14 +65,13 @@ export default function ModuloAnziano({ iniziale = VUOTO, nuovo, testoPulsante, 
           <input type="checkbox" required checked={consenso} onChange={(e) => setConsenso(e.target.checked)} />
           <span>
             <ShieldCheck size={18} className="icona-inline" />
-            Ho informato {dati.nome.trim() || 'la persona'} e ho il suo consenso (o di chi la rappresenta) a usare
-            questi dati in Unicare per organizzare la sua assistenza. Non inseriamo dati sanitari.
+            {t('Ho informato')}{' '}{dati.nome.trim() || t('la persona')}{' '}{t('e ho il suo consenso (o di chi la rappresenta) a usare questi dati in Unicare per organizzare la sua assistenza. Non inseriamo dati sanitari.')}
           </span>
         </label>
       )}
       {errore && <p className="errore" role="alert">{errore}</p>}
       <button className="pulsante" type="submit" disabled={invio || (nuovo && !consenso)}>
-        {invio ? 'Salvataggio…' : testoPulsante}
+        {invio ? t('Salvataggio…') : testoPulsante}
       </button>
     </form>
   )

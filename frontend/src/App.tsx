@@ -7,6 +7,7 @@ import AreaRiservata from './cerchio/AreaRiservata'
 import InvitoRicevuto from './cerchio/InvitoRicevuto'
 import SeniorApp from './senior/SeniorApp'
 import Privacy from './comune/Privacy'
+import { linguaScelta, lingua, scegliLingua, t } from './comune/lingua'
 
 export default function App() {
   // undefined = stiamo ancora chiedendo al backend; null = nessuno collegato.
@@ -19,7 +20,15 @@ export default function App() {
   // All'avvio chiediamo al backend chi è collegato (grazie al cookie di accesso).
   useEffect(() => {
     if (senior) return
-    api.io().then(setProfilo, async () => {
+    api.io().then((p) => {
+      // La lingua scelta su questo telefono vale anche per l'account; se non è mai stata
+      // scelta qui, si usa quella dell'account (che magari è stata scelta su un altro telefono).
+      if (p.lingua !== lingua()) {
+        if (linguaScelta()) void api.preferenze({ lingua: lingua() }).then(setProfilo, () => setProfilo(p))
+        else return scegliLingua(p.lingua)
+      }
+      setProfilo(p)
+    }, async () => {
       // Nessun familiare collegato: se questo è il telefono dell'anziano, apriamo la Senior App.
       const telefonoAnziano = await api.senior.io().then(() => true, () => false)
       if (telefonoAnziano) naviga('/senior', true)
@@ -34,13 +43,17 @@ export default function App() {
   }
 
   function entrato(p: Profilo) {
+    if (p.lingua !== lingua()) {
+      if (linguaScelta()) void api.preferenze({ lingua: lingua() }).catch(() => {})
+      else return scegliLingua(p.lingua)
+    }
     setProfilo(p)
     if (percorso === '/registrati') naviga('/', true)
   }
 
   if (senior) return <SeniorApp />
 
-  if (profilo === undefined) return <div className="centro-pagina"><span className="rotella" aria-label="Caricamento" /></div>
+  if (profilo === undefined) return <div className="centro-pagina"><span className="rotella" aria-label={t('Caricamento')} /></div>
 
   // L'informativa si legge anche senza login.
   if (percorso === '/privacy' && !profilo) return <div className="contenuto-pubblico"><Privacy indietro="/" /></div>

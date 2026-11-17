@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 import { Camera, Check, Smile, Trash2 } from 'lucide-react'
 import Avatar from './Avatar'
 import { messaggioErrore } from './api'
+import { t } from './lingua'
 
 type Props = {
   nome: string
@@ -23,22 +24,22 @@ const LATO = 512
 
 /** I disegni che si possono scegliere (stessi nomi del backend, foto.ts). */
 const DISEGNI = [
-  ['nonna', 'Nonna'], ['nonno', 'Nonno'], ['nonno-baffi', 'Nonno coi baffi'], ['donna', 'Donna'],
-  ['donna-ricci', 'Donna riccia'], ['donna-treccine', 'Donna con treccine'], ['donna-bionda', 'Donna bionda'], ['ragazza', 'Ragazza'],
-  ['ragazza-viola', 'Ragazza viola'], ['uomo', 'Uomo'], ['uomo-elegante', 'Uomo elegante'], ['uomo-cuffia', 'Uomo con cuffia'],
-  ['uomo-viola', 'Uomo viola'], ['ragazzo', 'Ragazzo'], ['ragazzo-righe', 'Ragazzo a righe'], ['gatto', 'Gatto'],
-  ['cane', 'Cane'], ['cane-felice', 'Cane felice'], ['carlino', 'Carlino'], ['leone', 'Leone'],
-  ['nonna-perle', 'Nonna con le perle'], ['nonno-coppola', 'Nonno con la coppola'], ['nonno-barba', 'Nonno con la barba'], ['signora', 'Signora'],
-  ['donna-sciarpa', 'Donna con sciarpa'], ['ragazza-rossa', 'Ragazza rossa'], ['ragazza-rosa', 'Ragazza coi capelli rosa'], ['ragazza-rasata', 'Ragazza rasata'],
-  ['bimba-barca', 'Bimba con la barchetta'], ['uomo-turbante', 'Uomo col turbante'], ['uomo-camicia', 'Uomo in camicia'], ['uomo-baffetti', 'Uomo coi baffetti'],
-  ['uomo-biondo', 'Uomo biondo'], ['ragazzo-occhiali', 'Ragazzo con gli occhiali'], ['pastore-tedesco', 'Pastore tedesco'], ['volpe', 'Volpe'],
-  ['gufo', 'Gufo'], ['orsetto', 'Orsetto'],
+  ['nonna', t('Nonna')], ['nonno', t('Nonno')], ['nonno-baffi', t('Nonno coi baffi')], ['donna', t('Donna')],
+  ['donna-ricci', t('Donna riccia')], ['donna-treccine', t('Donna con treccine')], ['donna-bionda', t('Donna bionda')], ['ragazza', t('Ragazza')],
+  ['ragazza-viola', t('Ragazza viola')], ['uomo', t('Uomo')], ['uomo-elegante', t('Uomo elegante')], ['uomo-cuffia', t('Uomo con cuffia')],
+  ['uomo-viola', t('Uomo viola')], ['ragazzo', t('Ragazzo')], ['ragazzo-righe', t('Ragazzo a righe')], ['gatto', t('Gatto')],
+  ['cane', t('Cane')], ['cane-felice', t('Cane felice')], ['carlino', t('Carlino')], ['leone', t('Leone')],
+  ['nonna-perle', t('Nonna con le perle')], ['nonno-coppola', t('Nonno con la coppola')], ['nonno-barba', t('Nonno con la barba')], ['signora', t('Signora')],
+  ['donna-sciarpa', t('Donna con sciarpa')], ['ragazza-rossa', t('Ragazza rossa')], ['ragazza-rosa', t('Ragazza coi capelli rosa')], ['ragazza-rasata', t('Ragazza rasata')],
+  ['bimba-barca', t('Bimba con la barchetta')], ['uomo-turbante', t('Uomo col turbante')], ['uomo-camicia', t('Uomo in camicia')], ['uomo-baffetti', t('Uomo coi baffetti')],
+  ['uomo-biondo', t('Uomo biondo')], ['ragazzo-occhiali', t('Ragazzo con gli occhiali')], ['pastore-tedesco', t('Pastore tedesco')], ['volpe', t('Volpe')],
+  ['gufo', t('Gufo')], ['orsetto', t('Orsetto')],
 ] as const
 
 /** Ritaglia al centro un quadrato e lo rimpicciolisce a 512×512 JPEG. */
 async function preparaFoto(file: File): Promise<Blob> {
   const immagine = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => null)
-  if (!immagine) throw new Error('Non riesco ad aprire questa foto. Prova con un\'altra.')
+  if (!immagine) throw new Error(t('Non riesco ad aprire questa foto. Prova con un\'altra.'))
   const lato = Math.min(immagine.width, immagine.height)
   const tela = document.createElement('canvas')
   tela.width = tela.height = Math.min(LATO, lato)
@@ -46,7 +47,7 @@ async function preparaFoto(file: File): Promise<Blob> {
   ctx.drawImage(immagine, (immagine.width - lato) / 2, (immagine.height - lato) / 2, lato, lato, 0, 0, tela.width, tela.height)
   immagine.close()
   const blob = await new Promise<Blob | null>((ok) => tela.toBlob(ok, 'image/jpeg', 0.85))
-  if (!blob) throw new Error('Non riesco a preparare la foto. Prova con un\'altra.')
+  if (!blob) throw new Error(t('Non riesco a preparare la foto. Prova con un\'altra.'))
   return blob
 }
 
@@ -71,7 +72,7 @@ export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, onD
   return (
     <div className="scegli-foto">
       <button type="button" className="scegli-foto-pulsante" disabled={occupato} onClick={() => input.current?.click()}
-        aria-label={foto ? `Cambia ${etichetta}` : `Aggiungi ${etichetta}`}>
+        aria-label={foto ? t('Cambia {0}', etichetta) : t('Aggiungi {0}', etichetta)}>
         <Avatar nome={nome} cognome={cognome} foto={foto} className="avatar-foto" />
         <span className={`scegli-foto-camera ${occupato ? 'gira' : ''}`} aria-hidden="true"><Camera size={18} /></span>
       </button>
@@ -83,13 +84,13 @@ export default function ScegliFoto({ nome, cognome, foto, onCarica, onTogli, onD
         }} />
       <div className="scegli-foto-azioni">
         <button type="button" className="collegamento-piccolo viola" disabled={occupato} aria-expanded={disegni} onClick={() => setDisegni(!disegni)}>
-          <Smile size={15} /> {disegni ? 'Chiudi i disegni' : 'Scegli un disegno'}
+          <Smile size={15} /> {disegni ? t('Chiudi i disegni') : t('Scegli un disegno')}
         </button>
-        {foto && <button type="button" className="collegamento-piccolo" disabled={occupato} onClick={() => void esegui(onTogli)}><Trash2 size={14} /> Togli</button>}
+        {foto && <button type="button" className="collegamento-piccolo" disabled={occupato} onClick={() => void esegui(onTogli)}><Trash2 size={14} />{' '}{t('Togli')}</button>}
       </div>
-      {!foto && !disegni && <span className="nota-piccola">Tocca il cerchio per mettere una foto</span>}
+      {!foto && !disegni && <span className="nota-piccola">{t('Tocca il cerchio per mettere una foto')}</span>}
       {disegni && (
-        <div className="griglia-disegni" role="group" aria-label="Disegni">
+        <div className="griglia-disegni" role="group" aria-label={t('Disegni')}>
           {DISEGNI.map(([chiave, titolo]) => {
             const url = `/avatar/${chiave}.webp`
             return (
