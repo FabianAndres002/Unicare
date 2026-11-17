@@ -12,6 +12,7 @@ import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { ruoloPerAnziano } from '../cerchio/permessi.ts'
+import { tr } from '../comune/testi.ts'
 import type { Avvisi } from '../notifiche/avvisi.ts'
 
 export const GIORNI_CONSERVAZIONE = 30
@@ -83,8 +84,8 @@ export function creaServizioVocali(db: Database, avvisi: Avvisi) {
       )
       const [autore] = await db.query<{ nome: string }>('SELECT nome FROM utente WHERE id = $1', [utenteId])
       avvisi.anziano(anzianoId, {
-        titolo: `Messaggio da ${autore!.nome}`,
-        testo: 'Tocca qui per ascoltarlo.',
+        titolo: tr('Messaggio da {0}', autore!.nome),
+        testo: tr('Tocca qui per ascoltarlo.'),
         url: '/senior',
         tag: `vocale-${r!.id}`,
       })
@@ -101,8 +102,8 @@ export function creaServizioVocali(db: Database, avvisi: Avvisi) {
       const [a] = await db.query<{ nome: string }>('SELECT nome FROM anziano WHERE id = $1', [anzianoId])
       avvisi.cerchio(
         anzianoId,
-        `${a!.nome} ti ha lasciato un messaggio vocale`,
-        [`Dura ${durata < 60 ? `${durata} secondi` : 'più di un minuto'}. Aprilo in Unicare per ascoltarlo.`],
+        tr('{0} ti ha lasciato un messaggio vocale', a!.nome),
+        [tr('Dura {0}. Aprilo in Unicare per ascoltarlo.', durata < 60 ? tr('{0} secondi', String(durata)) : tr('più di un minuto'))],
         `/anziano/${anzianoId}/messaggi`,
         `vocale-${r!.id}`,
       )

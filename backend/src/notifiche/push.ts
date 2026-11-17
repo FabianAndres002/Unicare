@@ -13,6 +13,7 @@ import { generateVAPIDKeys, sendNotification, WebPushError } from 'web-push'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
+import { comeLingua, rendi, type Testo } from '../comune/testi.ts'
 
 export const schemaIscrizione = z.object({
   endpoint: z.string().url().max(1000),
@@ -20,6 +21,7 @@ export const schemaIscrizione = z.object({
 })
 export type Iscrizione = z.infer<typeof schemaIscrizione>
 
+/** Il messaggio come arriva al telefono, già nella lingua di chi lo riceve. */
 export type MessaggioPush = {
   titolo: string
   testo: string
@@ -30,6 +32,9 @@ export type MessaggioPush = {
   /** Resta sullo schermo finché non la si tocca (per le medicine). */
   insistente?: boolean
 }
+
+/** Il messaggio da mandare: titolo e testo vengono tradotti per ogni telefono. */
+export type AvvisoPush = Omit<MessaggioPush, 'titolo' | 'testo'> & { titolo: Testo; testo: Testo }
 
 type Chiavi = { pubblica: string; privata: string }
 
@@ -68,7 +73,7 @@ export function spingitoreMemoria(): Spingitore & { inviate: { endpoint: string;
   }
 }
 
-type RigaIscrizione = { id: number; endpoint: string; p256dh: string; auth: string }
+type RigaIscrizione = { id: number; endpoint: string; p256dh: string; auth: string; lingua: string | null }
 
 export function creaPush(db: Database, spingitore: Spingitore) {
   let chiavi: Promise<Chiavi> | undefined
@@ -90,10 +95,12 @@ export function creaPush(db: Database, spingitore: Spingitore) {
     return chiavi
   }
 
-  async function consegna(iscrizioni: RigaIscrizione[], messaggio: MessaggioPush) {
+  async function consegna(iscrizioni: RigaIscrizione[], avviso: AvvisoPush) {
     if (!iscrizioni.length) return
     const c = await leChiavi()
     for (const i of iscrizioni) {
+      const lingua = comeLingua(i.lingua)
+      const messaggio: MessaggioPush = { ...avviso, titolo: rendi(avviso.titolo, lingua), testo: rendi(avviso.testo, lingua) }
       try {
         if ((await spingitore.invia(c, i, messaggio)) === 'scaduta') {
           await db.query('DELETE FROM iscrizione_push WHERE id = $1', [i.id])
@@ -123,21 +130,28 @@ export function creaPush(db: Database, spingitore: Spingitore) {
       await db.query('DELETE FROM iscrizione_push WHERE endpoint = $1 AND utente_id = $2', [endpoint, utenteId])
     },
 
-    async aUtenti(utenti: number[], messaggio: MessaggioPush) {
+    async aUtenti(utenti: number[], avviso: AvvisoPush) {
       if (!utenti.length) return
-      await consegna(await db.query<RigaIscrizione>('SELECT id, endpoint, p256dh, auth FROM iscrizione_push WHERE utente_id = ANY($1)', [utenti]), messaggio)
+      await consegna(
+        await db.query<RigaIscrizione>(
+          `SELECT i.id, i.endpoint, i.p256dh, i.auth, u.lingua FROM iscrizione_push i JOIN utente u ON u.id = i.utente_id
+           WHERE i.utente_id = ANY($1)`,
+          [utenti],
+        ),
+        avviso,
+      )
     },
 
     /** A tutti i telefoni collegati (e non scollegati) di questo anziano. */
-    async aAnziano(anzianoId: number, messaggio: MessaggioPush) {
+    async aAnziano(anzianoId: number, avviso: AvvisoPush) {
       await consegna(
         await db.query<RigaIscrizione>(
-          `SELECT i.id, i.endpoint, i.p256dh, i.auth FROM iscrizione_push i
+          `SELECT i.id, i.endpoint, i.p256dh, i.auth, d.lingua FROM iscrizione_push i
            JOIN dispositivo_anziano d ON d.id = i.dispositivo_id
            WHERE d.anziano_id = $1 AND d.revocato_il IS NULL`,
           [anzianoId],
         ),
-        messaggio,
+        avviso,
       )
     },
   }

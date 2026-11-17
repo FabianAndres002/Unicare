@@ -15,6 +15,7 @@ import { config } from '../config.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { testoFacoltativo } from '../comune/validazione.ts'
 import { PUO_MODIFICARE_ANZIANO, ruoloPerAnziano } from '../cerchio/permessi.ts'
+import { quando as quandoTesto, tr, type Testo } from '../comune/testi.ts'
 import type { Avvisi } from '../notifiche/avvisi.ts'
 
 const ORA_SERA_PRIMA = '18:00'
@@ -59,14 +60,6 @@ const SELECT = `
   FROM appuntamento ap
   LEFT JOIN utente acc ON acc.id = ap.accompagna_id
   LEFT JOIN utente cr ON cr.id = ap.creato_da`
-
-/** "giovedì 19 novembre alle 10:30" nel fuso italiano. */
-export function quandoInParole(iso: string | Date): string {
-  const d = new Date(iso)
-  const giorno = d.toLocaleDateString('it-IT', { timeZone: config.fusoOrario, weekday: 'long', day: 'numeric', month: 'long' })
-  const ora = d.toLocaleTimeString('it-IT', { timeZone: config.fusoOrario, hour: '2-digit', minute: '2-digit', hour12: false })
-  return `${giorno} alle ${ora}`
-}
 
 const oraInParole = (iso: string | Date) =>
   new Date(iso).toLocaleTimeString('it-IT', { timeZone: config.fusoOrario, hour: '2-digit', minute: '2-digit', hour12: false })
@@ -132,8 +125,8 @@ export function creaServizioAppuntamenti(db: Database, avvisi: Avvisi) {
       const nome = await nomeAnziano(anzianoId)
       avvisi.cerchio(
         anzianoId,
-        `Nuovo appuntamento per ${nome}: ${dati.titolo}`,
-        [`${autore!.nome} l’ha messo in calendario per ${quandoInParole(quando)}.`, ...(dati.luogo ? [`Dove: ${dati.luogo}`] : []), `Chi può andare con ${nome}?`],
+        tr('Nuovo appuntamento per {0}: {1}', nome, dati.titolo),
+        [tr('{0} l’ha messo in calendario per {1}.', autore!.nome, quandoTesto(quando)), ...(dati.luogo ? [tr('Dove: {0}', dati.luogo)] : []), tr('Chi può andare con {0}?', nome)],
         `/anziano/${anzianoId}/appuntamenti`,
         `appuntamento-${r!.id}`,
         { tranne: utenteId },
@@ -168,8 +161,8 @@ export function creaServizioAppuntamenti(db: Database, avvisi: Avvisi) {
       if (quando && a.accompagnaId && a.accompagnaId !== utenteId) {
         avvisi.cerchio(
           a.anzianoId,
-          `Cambiato: ${dati.titolo ?? a.titolo}`,
-          [`Ora è ${quandoInParole(quando)}. Riesci ancora ad andare con ${await nomeAnziano(a.anzianoId)}?`],
+          tr('Cambiato: {0}', dati.titolo ?? a.titolo),
+          [tr('Ora è {0}. Riesci ancora ad andare con {1}?', quandoTesto(quando), await nomeAnziano(a.anzianoId))],
           `/anziano/${a.anzianoId}/appuntamenti`,
           `appuntamento-${id}`,
           { solo: [a.accompagnaId] },
@@ -184,8 +177,8 @@ export function creaServizioAppuntamenti(db: Database, avvisi: Avvisi) {
       if (a.accompagnaId && a.accompagnaId !== utenteId && new Date(a.quando) > new Date()) {
         avvisi.cerchio(
           a.anzianoId,
-          `Annullato: ${a.titolo}`,
-          [`L’appuntamento di ${quandoInParole(a.quando)} è stato tolto dal calendario: non serve più andare con ${await nomeAnziano(a.anzianoId)}.`],
+          tr('Annullato: {0}', a.titolo),
+          [tr('L’appuntamento di {0} è stato tolto dal calendario: non serve più andare con {1}.', quandoTesto(a.quando), await nomeAnziano(a.anzianoId))],
           `/anziano/${a.anzianoId}/appuntamenti`,
           `appuntamento-${id}`,
           { solo: [a.accompagnaId] },
@@ -207,8 +200,8 @@ export function creaServizioAppuntamenti(db: Database, avvisi: Avvisi) {
       if (a.accompagnaId === utenteId) return
       const [io] = await db.query<{ nome: string }>('SELECT nome FROM utente WHERE id = $1', [utenteId])
       avvisi.anziano(a.anzianoId, {
-        titolo: `${io!.nome} ti accompagna`,
-        testo: `${a.titolo}, ${quandoInParole(a.quando)}.`,
+        titolo: tr('{0} ti accompagna', io!.nome),
+        testo: tr('{0}, {1}.', a.titolo, quandoTesto(a.quando)),
         url: '/senior',
         tag: `appuntamento-${id}`,
       })
@@ -224,8 +217,8 @@ export function creaServizioAppuntamenti(db: Database, avvisi: Avvisi) {
       const nome = await nomeAnziano(a.anzianoId)
       avvisi.cerchio(
         a.anzianoId,
-        `Serve qualcuno che accompagni ${nome}: ${a.titolo}`,
-        [`${a.accompagna} non riesce più ad andare con ${nome} ${quandoInParole(a.quando)}.`, 'Chi può andare?'],
+        tr('Serve qualcuno che accompagni {0}: {1}', nome, a.titolo),
+        [tr('{0} non riesce più ad andare con {1} {2}.', a.accompagna ?? '', nome, quandoTesto(a.quando)), tr('Chi può andare?')],
         `/anziano/${a.anzianoId}/appuntamenti`,
         `appuntamento-${id}`,
         { tranne: utenteId },
@@ -261,16 +254,17 @@ export function creaPianificatoreAppuntamenti(db: Database, avvisi: Avvisi) {
       for (const a of seraPrima) {
         const ora = oraInParole(a.quando)
         const dove = a.luogo ? `, ${a.luogo}` : ''
+        const chiAccompagna: Testo = a.accompagna ? tr(' Ti accompagna {0}.', a.accompagna) : ''
         avvisi.anziano(a.anzianoId, {
-          titolo: `Domani: ${a.titolo}`,
-          testo: `Alle ${ora}${dove}.${a.accompagna ? ` Ti accompagna ${a.accompagna}.` : ''}`,
+          titolo: tr('Domani: {0}', a.titolo),
+          testo: tr('Alle {0}{1}.{2}', ora, dove, chiAccompagna),
           url: '/senior',
           tag: `appuntamento-${a.id}`,
         })
         avvisi.cerchio(
           a.anzianoId,
-          `Domani ${a.nome} ha: ${a.titolo}`,
-          [`Alle ${ora}${dove}.`, a.accompagna ? `Ci va ${a.accompagna}.` : 'Nessuno ha ancora detto “Ci vado io”.'],
+          tr('Domani {0} ha: {1}', a.nome, a.titolo),
+          [tr('Alle {0}{1}.', ora, dove), a.accompagna ? tr('Ci va {0}.', a.accompagna) : tr('Nessuno ha ancora detto “Ci vado io”.')],
           `/anziano/${a.anzianoId}/appuntamenti`,
           `appuntamento-${a.id}`,
         )
@@ -288,9 +282,10 @@ export function creaPianificatoreAppuntamenti(db: Database, avvisi: Avvisi) {
       for (const a of orePrima) {
         const ora = oraInParole(a.quando)
         const dove = a.luogo ? `, ${a.luogo}` : ''
+        const chiAccompagna: Testo = a.accompagna ? tr(' Ti accompagna {0}.', a.accompagna) : ''
         avvisi.anziano(a.anzianoId, {
-          titolo: `Tra poco: ${a.titolo}`,
-          testo: `Alle ${ora}${dove}.${a.accompagna ? ` Ti accompagna ${a.accompagna}.` : ''}`,
+          titolo: tr('Tra poco: {0}', a.titolo),
+          testo: tr('Alle {0}{1}.{2}', ora, dove, chiAccompagna),
           url: '/senior',
           tag: `appuntamento-${a.id}`,
           insistente: true,
@@ -298,8 +293,8 @@ export function creaPianificatoreAppuntamenti(db: Database, avvisi: Avvisi) {
         if (a.accompagnaId) {
           avvisi.cerchio(
             a.anzianoId,
-            `Alle ${ora} accompagni ${a.nome}: ${a.titolo}`,
-            [a.luogo ? `Dove: ${a.luogo}` : 'Controlla i dettagli in Unicare.'],
+            tr('Alle {0} accompagni {1}: {2}', ora, a.nome, a.titolo),
+            [a.luogo ? tr('Dove: {0}', a.luogo) : tr('Controlla i dettagli in Unicare.')],
             `/anziano/${a.anzianoId}/appuntamenti`,
             `appuntamento-${a.id}`,
             { solo: [a.accompagnaId] },

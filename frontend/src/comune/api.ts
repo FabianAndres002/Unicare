@@ -187,6 +187,8 @@ export type DettaglioConversazione = { conversazione: Conversazione; messaggi: M
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string; foto: string | null }
+  /** La lingua delle notifiche di questo telefono. */
+  lingua: Lingua
   cerchio: string
   famiglia: { nome: string; ruolo: Ruolo; foto: string | null; telefono: string | null }[]
   richieste: Richiesta[]
@@ -419,6 +421,7 @@ export const api = {
     audioVocale: (id: number) => `/api/senior/vocali/${id}/audio`,
     collega: (codice: string) => chiama<void>('POST', '/api/senior/collega', { codice }),
     io: () => chiama<SeniorIo>('GET', '/api/senior/io'),
+    lingua: (lingua: Lingua) => chiama<void>('PUT', '/api/senior/lingua', { lingua }),
     chiedi: (categoria: Categoria) => chiama<Richiesta>('POST', '/api/senior/richieste', { categoria }),
     annulla: (id: number) => chiama<void>('POST', `/api/senior/richieste/${id}/annulla`),
     esci: () => chiama<void>('POST', '/api/senior/esci'),

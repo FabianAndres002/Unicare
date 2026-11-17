@@ -20,21 +20,22 @@ import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { PUO_MODIFICARE_ANZIANO, richiediRuolo, ruoloNelCerchio, type Ruolo } from '../cerchio/permessi.ts'
+import { tr, type Testo } from '../comune/testi.ts'
 import type { Avvisi } from '../notifiche/avvisi.ts'
 
 export const MOMENTI = ['MATTINO', 'PRANZO', 'SERA'] as const
 export type Momento = (typeof MOMENTI)[number]
 
-export const NOME_MOMENTO: Record<Momento, string> = {
-  MATTINO: 'le medicine del mattino',
-  PRANZO: 'le medicine del pranzo',
-  SERA: 'le medicine della sera',
+export const NOME_MOMENTO: Record<Momento, Testo> = {
+  MATTINO: tr('le medicine del mattino'),
+  PRANZO: tr('le medicine del pranzo'),
+  SERA: tr('le medicine della sera'),
 }
 
-export const TITOLO_MOMENTO: Record<Momento, string> = {
-  MATTINO: 'medicine del mattino',
-  PRANZO: 'medicine del pranzo',
-  SERA: 'medicine della sera',
+export const TITOLO_MOMENTO: Record<Momento, Testo> = {
+  MATTINO: tr('medicine del mattino'),
+  PRANZO: tr('medicine del pranzo'),
+  SERA: tr('medicine della sera'),
 }
 
 const MINUTI_PRIMA_DI_AVVISARE_LA_FAMIGLIA = 60
@@ -200,7 +201,7 @@ export function creaServizioMedicine(db: Database, avvisi: Avvisi) {
       if (!r) throw new ErroreApplicativo(404, 'MEDICINA_NON_TROVATA', 'Non c’è niente da confermare.')
       // La famiglia era stata avvisata del ritardo: ora diciamo che è tutto a posto.
       if (r.eraNonConfermato) {
-        avvisi.familiari(anzianoId, `${r.nome} ha preso ${NOME_MOMENTO[r.momento]}`, ['Ha confermato in ritardo, ma è tutto a posto.'], `/anziano/${anzianoId}/medicine`, `medicine-${occorrenzaId}`)
+        avvisi.familiari(anzianoId, tr('{0} ha preso {1}', r.nome, NOME_MOMENTO[r.momento]), [tr('Ha confermato in ritardo, ma è tutto a posto.')], `/anziano/${anzianoId}/medicine`, `medicine-${occorrenzaId}`)
       }
     },
 
@@ -259,8 +260,8 @@ export function creaPianificatore(db: Database, avvisi: Avvisi) {
       )
       for (const o of daAvvisare) {
         avvisi.anziano(o.anzianoId, {
-          titolo: `È ora: ${TITOLO_MOMENTO[o.momento]}`,
-          testo: o.rimandi ? 'Te lo ricordo di nuovo. Tocca qui e poi “Fatto”.' : 'Tocca qui e poi “Fatto” quando le hai prese.',
+          titolo: tr('È ora: {0}', TITOLO_MOMENTO[o.momento]),
+          testo: o.rimandi ? tr('Te lo ricordo di nuovo. Tocca qui e poi “Fatto”.') : tr('Tocca qui e poi “Fatto” quando le hai prese.'),
           url: '/senior',
           tag: `medicine-${o.id}`,
           insistente: true,
@@ -279,8 +280,8 @@ export function creaPianificatore(db: Database, avvisi: Avvisi) {
       for (const o of senzaRisposta) {
         avvisi.familiari(
           o.anzianoId,
-          `${o.nome} non ha confermato ${NOME_MOMENTO[o.momento]}`,
-          [`Il promemoria delle ${o.ora} è passato da un’ora senza “Fatto”.`, 'Forse vale la pena fare una telefonata.'],
+          tr('{0} non ha confermato {1}', o.nome, NOME_MOMENTO[o.momento]),
+          [tr('Il promemoria delle {0} è passato da un’ora senza “Fatto”.', o.ora), tr('Forse vale la pena fare una telefonata.')],
           `/anziano/${o.anzianoId}/medicine`,
           `medicine-${o.id}`,
         )

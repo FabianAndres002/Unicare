@@ -122,7 +122,7 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
 
       <section className="senior-lingua">
         <h2>{t('Lingua')}</h2>
-        <ScegliLingua grande className="sinistra" />
+        <ScegliLingua grande className="sinistra" salva={(l) => api.senior.lingua(l)} />
       </section>
 
       <section>

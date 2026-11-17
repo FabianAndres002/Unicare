@@ -7,7 +7,7 @@
 //
 // Se il telefono non è ancora collegato mostra la schermata del codice a 6 cifre.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Phone } from 'lucide-react'
 import { api, ErroreApi, type SeniorIo } from '../comune/api'
 import { usePercorso } from '../comune/router'
@@ -17,7 +17,7 @@ import CodiceSenior from './CodiceSenior'
 import HomeSenior from './HomeSenior'
 import ChiediAiuto from './ChiediAiuto'
 import InterpreteSenior from '../interprete/InterpreteSenior'
-import { t } from '../comune/lingua'
+import { lingua, t } from '../comune/lingua'
 
 export default function SeniorApp() {
   const percorso = usePercorso()
@@ -33,6 +33,11 @@ export default function SeniorApp() {
   // Appena qualcuno risponde a una richiesta, la Home lo mostra (solo se il telefono è collegato).
   useDiretta(dati && dati !== 'scollegato' ? '/api/senior/diretta' : null, 'richiesta', ricarica)
   const [appenaCollegato, setAppenaCollegato] = useState(false)
+  // Le notifiche di questo telefono arrivano nella lingua scelta qui.
+  const linguaServer = dati && dati !== 'scollegato' ? dati.lingua : null
+  useEffect(() => {
+    if (linguaServer && linguaServer !== lingua()) api.senior.lingua(lingua()).catch(() => {})
+  }, [linguaServer])
 
   let schermata
   if (dati === null) {

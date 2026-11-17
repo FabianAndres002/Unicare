@@ -13,6 +13,7 @@
 // POST /api/senior/vocali?durata=12         messaggio vocale al cerchio (corpo: audio) (201)
 // GET  /api/senior/vocali/:id/audio         ascolta un messaggio
 // POST /api/senior/traduci                  interprete {testo, da, a} → {traduzione}
+// PUT  /api/senior/lingua                   lingua di questo telefono {lingua}: le notifiche arrivano così (204)
 //
 // Dai familiari (login normale, ruolo familiare o amministratore):
 // GET    /api/anziani/:id/telefono                   telefoni collegati e codice in attesa
@@ -35,7 +36,7 @@ import { schemaIscrizione, type Push } from '../notifiche/push.ts'
 import type { ServizioAppuntamenti } from '../appuntamenti/appuntamenti.service.ts'
 import { corpoAudio } from '../appuntamenti/appuntamenti.routes.ts'
 import { schemaDurata, schemaTipoAudio, type ServizioVocali } from '../vocali/vocali.service.ts'
-import { schemaTraduzione, type ServizioTraduzione } from '../traduzione/traduzione.service.ts'
+import { LINGUE, schemaTraduzione, type ServizioTraduzione } from '../traduzione/traduzione.service.ts'
 
 const COOKIE = 'unicare_senior'
 
@@ -72,6 +73,12 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
     res.status(204).end()
   })
 
+  router.put('/senior/lingua', richiedeTelefono, async (req, res) => {
+    const { lingua } = z.object({ lingua: z.enum(LINGUE) }).parse(req.body)
+    await db.query('UPDATE dispositivo_anziano SET lingua = $2 WHERE id = $1', [senior(res).dispositivoId, lingua])
+    res.status(204).end()
+  })
+
   router.post('/senior/traduci', richiedeTelefono, async (req, res) => {
     res.json(await traduzione.traduci(`a${senior(res).anzianoId}`, schemaTraduzione.parse(req.body)))
   })
@@ -93,8 +100,10 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
        WHERE m.cerchio_id = $1 ORDER BY (m.ruolo = 'BADANTE'), m.entrato_il`,
       [anziano!.cerchioId],
     )
+    const [dispositivo] = await db.query<{ lingua: string }>('SELECT lingua FROM dispositivo_anziano WHERE id = $1', [senior(res).dispositivoId])
     res.json({
       anziano: { id: anzianoId, nome: anziano!.nome, cognome: anziano!.cognome, foto: anziano!.foto },
+      lingua: dispositivo!.lingua,
       cerchio: anziano!.cerchio,
       famiglia,
       richieste: await richieste.elencoAnziano(anzianoId),

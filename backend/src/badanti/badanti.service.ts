@@ -16,6 +16,7 @@ import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { testoFacoltativo } from '../comune/validazione.ts'
+import { tr } from '../comune/testi.ts'
 import type { Avvisi } from '../notifiche/avvisi.ts'
 import type { ServizioInviti } from '../cerchio/inviti.service.ts'
 
@@ -117,7 +118,7 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
     const [autore] = await db.query<{ nome: string }>('SELECT nome FROM utente WHERE id = $1', [autoreId])
     avvisi.utente(
       destinatarioId,
-      `Nuovo messaggio da ${autore!.nome}`,
+      tr('Nuovo messaggio da {0}', autore!.nome),
       [testo.length > 140 ? `${testo.slice(0, 140)}…` : testo],
       `/contatti/${contattoId}`,
       `contatto-${contattoId}`,

@@ -18,6 +18,7 @@ import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { testoFacoltativo } from '../comune/validazione.ts'
 import { PUO_MODIFICARE_ANZIANO, richiediRuolo } from '../cerchio/permessi.ts'
+import { tr } from '../comune/testi.ts'
 import type { Avvisi } from '../notifiche/avvisi.ts'
 import { DISPONIBILITA, SERVIZI } from './badanti.service.ts'
 
@@ -174,7 +175,7 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
         [d.provincia, BADANTI_AVVISATE],
       )
       for (const b of badanti) {
-        avvisi.utente(b.id, `Una famiglia cerca una badante a ${d.comune}`, [breve(d.descrizione)], `/lavoro/ricerche/${r!.id}`, `ricerca-${r!.id}`)
+        avvisi.utente(b.id, tr('Una famiglia cerca una badante a {0}', d.comune), [breve(d.descrizione)], `/lavoro/ricerche/${r!.id}`, `ricerca-${r!.id}`)
       }
       return { id: r!.id }
     },
@@ -239,7 +240,7 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
       const [io] = await db.query<{ nome: string }>('SELECT nome FROM utente WHERE id = $1', [utenteId])
       avvisi.utente(
         p.badanteId,
-        `${io!.nome} ha risposto alla tua proposta`,
+        tr('{0} ha risposto alla tua proposta', io!.nome),
         [breve(testo)],
         `/contatti/${contattoId}`,
         `contatto-${contattoId}`,
@@ -254,8 +255,8 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
       await db.query(`UPDATE proposta SET stato = 'NON_SCELTA' WHERE id = $1`, [propostaId])
       avvisi.utente(
         p.badanteId,
-        `La famiglia di ${p.ricerca.comune} ha scelto un’altra persona`,
-        ['Grazie per la tua proposta. Nella sezione Lavoro trovi altre famiglie che cercano.'],
+        tr('La famiglia di {0} ha scelto un’altra persona', p.ricerca.comune),
+        [tr('Grazie per la tua proposta. Nella sezione Lavoro trovi altre famiglie che cercano.')],
         '/lavoro',
         `proposta-${propostaId}`,
       )
@@ -273,8 +274,8 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
       for (const p of inAttesa) {
         avvisi.utente(
           p.badanteId,
-          `La famiglia di ${r.comune} non cerca più`,
-          ['Grazie per la tua proposta. Nella sezione Lavoro trovi altre famiglie che cercano.'],
+          tr('La famiglia di {0} non cerca più', r.comune),
+          [tr('Grazie per la tua proposta. Nella sezione Lavoro trovi altre famiglie che cercano.')],
           '/lavoro',
           `proposta-${p.id}`,
         )
@@ -345,7 +346,7 @@ export function creaServizioRicerche(db: Database, avvisi: Avvisi) {
         ? [r.creataDa]
         : (await db.query<{ id: number }>(`SELECT utente_id AS id FROM membro_cerchio WHERE cerchio_id = $1 AND ruolo IN ('ADMIN', 'FAMILIARE')`, [r.cerchioId])).map((x) => x.id)
       for (const id of destinatari) {
-        avvisi.utente(id, `${io!.nome} si propone come badante`, [breve(messaggio)], `/cerco-badante/${ricercaId}`, `ricerca-${ricercaId}`)
+        avvisi.utente(id, tr('{0} si propone come badante', io!.nome), [breve(messaggio)], `/cerco-badante/${ricercaId}`, `ricerca-${ricercaId}`)
       }
       return { id: p!.id }
     },
