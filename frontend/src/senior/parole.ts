@@ -26,3 +26,12 @@ export function statoPerAnziano(r: Richiesta): string {
       return t('Annullata: non serviva più.')
   }
 }
+
+/** Il colore del riquadro di ogni scelta in "Di cosa hai bisogno?". */
+export const TINTA: Record<Exclude<Categoria, 'ALTRO'>, string> = {
+  SPESA: 'tinta-spesa',
+  FARMACIA: 'tinta-farmacia',
+  ACCOMPAGNAMENTO: 'tinta-passaggio',
+  COMPAGNIA: 'tinta-compagnia',
+  CASA: 'tinta-casa',
+}

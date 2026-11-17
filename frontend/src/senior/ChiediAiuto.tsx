@@ -5,8 +5,8 @@ import { useState } from 'react'
 import { ArrowLeft, Check } from 'lucide-react'
 import { api, messaggioErrore, type Categoria, type SeniorIo } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
-import Pittogramma, { TINTA } from './Pittogramma'
-import { COSA_CHIEDO } from './parole'
+import Pittogramma from './Pittogramma'
+import { COSA_CHIEDO, TINTA } from './parole'
 import { t } from '../comune/lingua'
 
 type Props = { io: SeniorIo; onInviata: () => void }

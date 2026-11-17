@@ -6,14 +6,6 @@ import type { Categoria } from '../comune/api'
 
 type Scelta = Exclude<Categoria, 'ALTRO'>
 
-export const TINTA: Record<Scelta, string> = {
-  SPESA: 'tinta-spesa',
-  FARMACIA: 'tinta-farmacia',
-  ACCOMPAGNAMENTO: 'tinta-passaggio',
-  COMPAGNIA: 'tinta-compagnia',
-  CASA: 'tinta-casa',
-}
-
 function CroceFarmacia({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
