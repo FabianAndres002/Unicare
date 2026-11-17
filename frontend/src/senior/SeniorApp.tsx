@@ -1,5 +1,5 @@
 // Senior App: la versione semplicissima per l'anziano (schermate S1-S4).
-// Testo grande, pochi pulsanti enormi, niente menu. Il 112 è sempre in fondo allo schermo.
+// Testo grande, pochi pulsanti enormi, niente menu. Il 118 è sempre in fondo allo schermo.
 //
 //   /senior          la home: "Chiedi aiuto" e le richieste in corso
 //   /senior/chiedi   "Di cosa hai bisogno?" e conferma
@@ -52,8 +52,8 @@ export default function SeniorApp() {
   return (
     <div className="senior">
       <main className="senior-contenuto">{schermata}</main>
-      <a className="senior-112" href="tel:112">
-        <Phone size={26} />{' '}{t('Emergenza? Chiama il 112')}
+      <a className="senior-112" href="tel:118">
+        <Phone size={26} />{' '}{t('Emergenza? Chiama il 118')}
       </a>
     </div>
   )

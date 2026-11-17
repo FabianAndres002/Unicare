@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { ArrowLeft, Check } from 'lucide-react'
 import { api, messaggioErrore, type Categoria, type SeniorIo } from '../comune/api'
 import { Collegamento, naviga } from '../comune/router'
-import { CATEGORIE } from '../richieste/aspetto'
+import Pittogramma, { TINTA } from './Pittogramma'
 import { COSA_CHIEDO } from './parole'
 import { t } from '../comune/lingua'
 
@@ -49,10 +49,9 @@ export default function ChiediAiuto({ io, onInviata }: Props) {
   }
 
   if (scelta) {
-    const { Icona, colore } = CATEGORIE[scelta]
     return (
       <div className="senior-pagina senior-centro entra">
-        <span className={`funzione-icona senior-icona-conferma ${colore}`}><Icona size={56} /></span>
+        <span className={`senior-icona-conferma ${TINTA[scelta]}`}><span className="pittogramma-tondo"><Pittogramma cosa={scelta} size={72} /></span></span>
         <h1>{COSA_CHIEDO[scelta].domanda}</h1>
         {errore && <p className="senior-errore" role="alert">{errore}</p>}
         <button className="senior-pulsante" onClick={conferma} disabled={invio}>{invio ? t('Un momento…') : t('Sì, chiedi')}</button>
@@ -66,15 +65,12 @@ export default function ChiediAiuto({ io, onInviata }: Props) {
       <Collegamento a="/senior" className="senior-indietro"><ArrowLeft size={28} />{' '}{t('Indietro')}</Collegamento>
       <h1>{t('Di cosa hai bisogno?')}</h1>
       <div className="senior-griglia">
-        {SCELTE.map((c) => {
-          const { Icona, colore } = CATEGORIE[c]
-          return (
-            <button key={c} className="senior-scelta" onClick={() => setScelta(c)}>
-              <span className={`funzione-icona ${colore}`}><Icona size={40} /></span>
-              <span>{COSA_CHIEDO[c].titolo}</span>
-            </button>
-          )
-        })}
+        {SCELTE.map((c, i) => (
+          <button key={c} className={`senior-scelta ${TINTA[c]}`} style={{ animationDelay: `${i * 70}ms` }} onClick={() => setScelta(c)}>
+            <span className="pittogramma-tondo"><Pittogramma cosa={c} /></span>
+            <span className="senior-scelta-nome">{COSA_CHIEDO[c].titolo}</span>
+          </button>
+        ))}
       </div>
     </div>
   )
