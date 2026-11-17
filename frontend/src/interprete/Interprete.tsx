@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowLeftRight, Keyboard, Mic, Square, Volume2 } from 'lucide-react'
 import { messaggioErrore } from '../comune/api'
 import { ELENCO_LINGUE, LINGUE, lingueSalvate, nomeLingua, salvaLingue, type Lingua } from './lingue'
-import { ascolta, parla, riconoscimentoDisponibile, sbloccaVoce, zitto } from './voce'
+import { ascolta, haVoce, parla, riconoscimentoDisponibile, sbloccaVoce, zitto } from './voce'
 import { t } from '../comune/lingua'
 
 type Chi = 'mia' | 'altra'
@@ -45,6 +45,7 @@ export default function Interprete({ traduci, grande, predefinite = { mia: 'it',
       const traduzione = await traduci(frase, da, a)
       setRighe((r) => r.map((x) => (x.id === id ? { ...x, traduzione } : x)))
       parla(traduzione, LINGUE[a].voce)
+      if (!(await haVoce(LINGUE[a].voce))) setErrore(t('Su questo dispositivo manca la voce in {0}: leggi la frase qui sotto. Si può aggiungere dalle impostazioni della lingua del telefono o del computer.', LINGUE[a].italiano.toLowerCase()))
     } catch (e) {
       setRighe((r) => r.map((x) => (x.id === id ? { ...x, errore: messaggioErrore(e) } : x)))
     }
