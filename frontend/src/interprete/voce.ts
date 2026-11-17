@@ -82,38 +82,67 @@ function vociPronte(): Promise<SpeechSynthesisVoice[]> {
 
 const norma = (lang: string) => lang.replace('_', '-').toLowerCase()
 
-/** La voce migliore per la lingua: prima quella del paese giusto (it-IT), poi una qualsiasi della lingua. */
-export function scegliVoce(voci: SpeechSynthesisVoice[], voce: string): SpeechSynthesisVoice | null {
+/**
+ * Le voci della lingua, dalla più affidabile: prima quelle del paese giusto (it-IT), e tra queste
+ * prima quelle online (Google su Chrome, "Online (Natural)" su Edge), che partono sempre;
+ * alcune voci installate in Windows (es. "Microsoft Cosimo") in Chrome invece restano mute.
+ */
+export function vociPerLingua(voci: SpeechSynthesisVoice[], voce: string): SpeechSynthesisVoice[] {
   const esatta = norma(voce)
   const prefisso = esatta.slice(0, 2)
-  const dellaLingua = voci.filter((v) => norma(v.lang).startsWith(prefisso))
-  const ordinate = [...dellaLingua].sort((x, y) => Number(norma(y.lang) === esatta) - Number(norma(x.lang) === esatta) || Number(y.localService) - Number(x.localService))
-  return ordinate[0] ?? null
+  const punti = (v: SpeechSynthesisVoice) => (norma(v.lang) === esatta ? 2 : 0) + (v.localService ? 0 : 1)
+  return voci.filter((v) => norma(v.lang).startsWith(prefisso)).sort((x, y) => punti(y) - punti(x))
+}
+
+export const scegliVoce = (voci: SpeechSynthesisVoice[], voce: string) => vociPerLingua(voci, voce)[0] ?? null
+
+let turno = 0
+
+/**
+ * Prova le voci una dopo l'altra: se una dà errore o non parte entro un secondo e mezzo,
+ * passa alla successiva e alla fine alla voce predefinita del dispositivo.
+ */
+function leggiConRiserva(testo: string, voce: string, onStato: (stato: string, nomeVoce?: string) => void) {
+  const s = window.speechSynthesis
+  const mio = ++turno
+  s.cancel()
+  void vociPronte().then((voci) => {
+    const candidate: (SpeechSynthesisVoice | null)[] = [...vociPerLingua(voci, voce), null]
+    const prova = (i: number) => {
+      if (mio !== turno) return
+      if (i >= candidate.length) return onStato('nessuna voce è partita')
+      const v = candidate[i]!
+      const u = new SpeechSynthesisUtterance(testo)
+      u.lang = v?.lang ?? voce
+      u.rate = 0.95
+      if (v) u.voice = v
+      let partita = false
+      let finita = false
+      const avanti = () => {
+        if (finita || mio !== turno) return
+        finita = true
+        s.cancel()
+        setTimeout(() => prova(i + 1), 80)
+      }
+      u.onstart = () => { partita = true; if (mio === turno) onStato('parla', v?.name) }
+      u.onend = () => { if (!finita && mio === turno) { finita = true; onStato('fine', v?.name) } }
+      u.onerror = (e) => {
+        if (mio !== turno) return
+        if (partita && (e.error === 'interrupted' || e.error === 'canceled')) return
+        avanti()
+      }
+      s.speak(u)
+      setTimeout(() => { if (!partita && !s.speaking) avanti() }, v && !v.localService ? 3000 : 1500)
+    }
+    // Chrome a volte ignora un speak() subito dopo cancel(): un attimo di pausa.
+    setTimeout(() => prova(0), 80)
+  })
 }
 
 /** Legge ad alta voce, con una voce della lingua giusta se il telefono ce l'ha. */
 export function parla(testo: string, voce: string, onFine?: () => void) {
   if (!sintesiDisponibile()) return onFine?.()
-  const s = window.speechSynthesis
-  s.cancel()
-  void vociPronte().then((voci) => {
-    const scelta = scegliVoce(voci, voce)
-    const leggi = (conVoce: boolean) => {
-      const u = new SpeechSynthesisUtterance(testo)
-      u.lang = scelta?.lang ?? voce
-      u.rate = 0.95
-      if (conVoce && scelta) u.voice = scelta
-      u.onend = () => onFine?.()
-      u.onerror = (e) => {
-        // Se la voce scelta non parte (succede con alcune voci online), riprova con quella predefinita.
-        if (conVoce && scelta && e.error !== 'interrupted' && e.error !== 'canceled') leggi(false)
-        else onFine?.()
-      }
-      s.speak(u)
-    }
-    // Chrome a volte ignora un speak() subito dopo cancel(): un attimo di pausa.
-    setTimeout(() => leggi(true), 60)
-  })
+  leggiConRiserva(testo, voce, (stato) => { if (stato !== 'parla') onFine?.() })
 }
 
 /** C'è una voce per questa lingua su questo telefono/computer? */
@@ -123,6 +152,7 @@ export async function haVoce(voce: string): Promise<boolean> {
 }
 
 export function zitto() {
+  turno++
   if (sintesiDisponibile()) window.speechSynthesis.cancel()
 }
 
@@ -138,22 +168,8 @@ export async function infoVoce(voce: string): Promise<{ totali: number; dellaLin
   }
 }
 
-/** Legge una frase di prova e racconta cosa succede (parte, finisce, errore). */
+/** Legge una frase di prova e racconta cosa succede (con quale voce parte, se finisce, se nessuna parte). */
 export function provaVoce(testo: string, voce: string, onStato: (stato: string) => void) {
   if (!sintesiDisponibile()) return onStato('speechSynthesis assente')
-  const s = window.speechSynthesis
-  s.cancel()
-  void vociPronte().then((voci) => {
-    const scelta = scegliVoce(voci, voce)
-    const u = new SpeechSynthesisUtterance(testo)
-    u.lang = scelta?.lang ?? voce
-    if (scelta) u.voice = scelta
-    u.onstart = () => onStato('parla')
-    u.onend = () => onStato('fine')
-    u.onerror = (e) => onStato(`errore: ${e.error}`)
-    setTimeout(() => {
-      s.speak(u)
-      setTimeout(() => { if (!s.speaking && !s.pending) onStato('non partita') }, 2500)
-    }, 60)
-  })
+  leggiConRiserva(testo, voce, (stato, nome) => onStato(nome ? `${stato}: ${nome}` : stato))
 }
