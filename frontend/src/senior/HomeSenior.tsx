@@ -2,7 +2,7 @@
 // lo stato delle sue richieste ("Se ne occupa Maria"), gli appuntamenti e le medicine.
 
 import { useEffect, useState } from 'react'
-import { Check, Clock, HandHeart, Languages, UserRound, X } from 'lucide-react'
+import { Check, Clock, HandHeart, Languages, Phone, UserRound, X } from 'lucide-react'
 import { api, messaggioErrore, type Richiesta, type SeniorIo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
@@ -64,6 +64,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
     const timer = setInterval(() => setAdesso(Date.now()), 15_000)
     return () => clearInterval(timer)
   }, [])
+  // Prima i familiari, poi la badante (l'ordine arriva già così dal server).
+  const chiamabili = io.famiglia.filter((f) => f.telefono)
   return (
     <div className="senior-pagina entra">
       <header>
@@ -75,12 +77,24 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
         <p className="senior-avviso"><Check size={24} /> Il telefono è collegato. Quando ti serve qualcosa, tocca il pulsante qui sotto.</p>
       )}
 
-      <MedicineAdesso medicine={io.medicine} adesso={adesso} onCambiata={onCambiata} />
+      <MedicineAdesso nome={io.anziano.nome} medicine={io.medicine} adesso={adesso} onCambiata={onCambiata} />
 
       <Collegamento a="/senior/chiedi" className="senior-chiedi">
         <HandHeart size={56} strokeWidth={1.8} />
         <span>Chiedi aiuto</span>
       </Collegamento>
+
+      {chiamabili.length > 0 && (
+        <section className="senior-chiamate" aria-label="Chiama">
+          {chiamabili.map((f, i) => (
+            <a key={i} href={`tel:${f.telefono}`} className="senior-chiama">
+              <Avatar nome={f.nome} foto={f.foto} />
+              <span>Chiama {f.nome}{f.ruolo === 'BADANTE' && <small>la badante</small>}</span>
+              <span className="senior-chiama-icona"><Phone size={30} /></span>
+            </a>
+          ))}
+        </section>
+      )}
 
       <MessaggiSenior vocali={io.vocali} onCambiata={onCambiata} />
 

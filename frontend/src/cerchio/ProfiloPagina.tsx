@@ -7,6 +7,7 @@ import { Collegamento } from '../comune/router'
 import ScegliFoto from '../comune/ScegliFoto'
 import NotificheTelefono from './NotificheTelefono'
 import PrivacyProfilo from './PrivacyProfilo'
+import TelefonoProfilo from './TelefonoProfilo'
 import { nomeRuolo } from '../comune/utili'
 
 type Props = {
@@ -26,7 +27,7 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
     setAvvisi(attivi)
     setErrore(null)
     try {
-      const aggiornato = await api.preferenze(attivi)
+      const aggiornato = await api.preferenze({ emailAvvisi: attivi })
       setAvvisi(aggiornato.emailAvvisi)
       onProfilo(aggiornato)
     } catch (e) {
@@ -71,6 +72,7 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
       <section>
         <div className="titolo-sezione"><h2>Avvisi</h2></div>
         <NotificheTelefono />
+        {profilo.tipo === 'FAMILIARE' && <TelefonoProfilo profilo={profilo} onProfilo={onProfilo} />}
         <label className="scheda interruttore-riga">
           <span className="funzione-icona arancio"><Mail size={22} /></span>
           <span className="riga-testo">

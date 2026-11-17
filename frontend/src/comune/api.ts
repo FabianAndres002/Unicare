@@ -1,13 +1,17 @@
 // Tutte le chiamate al backend passano da qui.
 
 import type { Lingua } from '../interprete/lingue'
+export type { Lingua }
 
 export type Stato = { app: string; database: string; tabelle: number }
 
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 export type Ruolo = 'ADMIN' | 'FAMILIARE' | 'BADANTE'
 
-export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null }
+export type Profilo = {
+  id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null
+  telefono: string | null; lingua: Lingua
+}
 
 export type DatiRegistrazione = { email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
 
@@ -176,14 +180,14 @@ export type Conversazione = {
   nonLetti: number
   bloccato: boolean
 }
-export type MessaggioChat = { id: number; mio: boolean; autore: string; testo: string; creatoIl: string; lettoIl: string | null }
+export type MessaggioChat = { id: number; mio: boolean; autore: string; testo: string; creatoIl: string; lettoIl: string | null; lingua: Lingua; traduzione: string | null }
 export type DettaglioConversazione = { conversazione: Conversazione; messaggi: MessaggioChat[]; puoInvitare: { id: number; nome: string }[] }
 
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string; foto: string | null }
   cerchio: string
-  famiglia: { nome: string; ruolo: Ruolo; foto: string | null }[]
+  famiglia: { nome: string; ruolo: Ruolo; foto: string | null; telefono: string | null }[]
   richieste: Richiesta[]
   medicine: Occorrenza[]
   appuntamenti: Appuntamento[]
@@ -289,7 +293,7 @@ export const api = {
   login: (email: string, password: string) => chiama<Profilo>('POST', '/api/auth/login', { email, password }),
   registrati: (dati: DatiRegistrazione) => chiama<Profilo>('POST', '/api/auth/registrati', dati),
   logout: () => chiama<void>('POST', '/api/auth/logout'),
-  preferenze: (emailAvvisi: boolean) => chiama<Profilo>('PATCH', '/api/auth/io', { emailAvvisi }),
+  preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),
 
   // Cerchi e anziani
   cerchi: () => chiama<RiassuntoCerchio[]>('GET', '/api/cerchi'),
@@ -368,6 +372,7 @@ export const api = {
   scriviABadante: (id: number, testo: string) => chiama<{ contattoId: number }>('POST', `/api/badanti/${id}/messaggi`, { testo }),
   conversazioni: () => chiama<Conversazione[]>('GET', '/api/contatti'),
   conversazione: (id: number) => chiama<DettaglioConversazione>('GET', `/api/contatti/${id}`),
+  traduciMessaggio: (id: number, messaggio: number) => chiama<{ traduzione: string | null }>('POST', `/api/contatti/${id}/messaggi/${messaggio}/traduci`),
   rispondi: (id: number, testo: string) => chiama<void>('POST', `/api/contatti/${id}/messaggi`, { testo }),
   chiudiConversazione: (id: number, chiusa: boolean) => chiama<void>('POST', `/api/contatti/${id}/chiudi`, { chiusa }),
   invitaDaConversazione: (id: number, cerchioId: number) => chiama<void>('POST', `/api/contatti/${id}/invita`, { cerchioId }),

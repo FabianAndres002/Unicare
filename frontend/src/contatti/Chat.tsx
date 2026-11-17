@@ -2,15 +2,33 @@
 // la badante può chiudere la conversazione.
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ArrowLeft, Ban, Send, UserPlus } from 'lucide-react'
+import { ArrowLeft, Ban, Languages, Send, UserPlus } from 'lucide-react'
 import { api, messaggioErrore, type MessaggioChat, type Profilo } from '../comune/api'
+import { LINGUE } from '../interprete/lingue'
 import { Collegamento } from '../comune/router'
 import { useCarica } from '../comune/useCarica'
 import { tempoFa } from '../comune/utili'
 
+const CHIAVE_TRADUCI = 'unicare-chat-traduci'
+const leggiTraduci = () => { try { return localStorage.getItem(CHIAVE_TRADUCI) !== 'no' } catch { return true } }
+
+/** Un messaggio tradotto: la traduzione, e sotto "Tradotto dal rumeno · Originale". */
+function Tradotto({ m, traduzione }: { m: MessaggioChat; traduzione: string }) {
+  const [originale, setOriginale] = useState(false)
+  return (
+    <>
+      <p>{originale ? m.testo : traduzione}</p>
+      <button type="button" className="chat-originale" onClick={() => setOriginale(!originale)}>
+        <Languages size={13} /> {originale ? 'Mostra la traduzione' : `Tradotto dal ${LINGUE[m.lingua].italiano.toLowerCase()} · originale`}
+      </button>
+    </>
+  )
+}
+
 /** Un link d'invito nel messaggio diventa un pulsante "Entra nel cerchio". */
-function Testo({ m }: { m: MessaggioChat }) {
+function Testo({ m, traduzione }: { m: MessaggioChat; traduzione?: string | null }) {
   const invito = m.testo.match(/https?:\/\/\S+(\/invito\/[A-Za-z0-9_-]+)/)
+  if (!invito && traduzione) return <Tradotto m={m} traduzione={traduzione} />
   if (!invito) return <p>{m.testo}</p>
   return (
     <>
@@ -29,6 +47,28 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
   const fondo = useRef<HTMLDivElement>(null)
   const badante = profilo.tipo === 'BADANTE'
   const quanti = dati?.messaggi.length ?? 0
+  const [traduci, setTraduci] = useState(leggiTraduci)
+  const [tradotti, setTradotti] = useState<Record<number, string | null>>({})
+
+  // I messaggi dell'altra persona scritti in un'altra lingua si traducono nella mia, uno alla volta.
+  const daTradurre = traduci && dati
+    ? dati.messaggi.filter((m) => !m.mio && m.lingua !== profilo.lingua && !m.traduzione && !(m.id in tradotti))
+    : []
+  const prossimo = daTradurre[0]?.id
+  useEffect(() => {
+    if (prossimo === undefined) return
+    let annullato = false
+    api.traduciMessaggio(id, prossimo)
+      .then((r) => r.traduzione, () => null)
+      .then((t) => { if (!annullato) setTradotti((x) => ({ ...x, [prossimo]: t })) })
+    return () => { annullato = true }
+  }, [id, prossimo])
+
+  function cambiaTraduci(si: boolean) {
+    setTraduci(si)
+    try { localStorage.setItem(CHIAVE_TRADUCI, si ? 'si' : 'no') } catch { /* niente */ }
+  }
+  const lingueDiverse = dati?.messaggi.some((m) => !m.mio && m.lingua !== profilo.lingua) ?? false
 
   useEffect(() => { fondo.current?.scrollIntoView({ block: 'end' }) }, [quanti])
 
@@ -83,10 +123,21 @@ export default function Chat({ id, profilo }: { id: number; profilo: Profilo }) 
             </div>
           )}
 
+          {lingueDiverse && (
+            <label className="scheda interruttore-riga chat-traduci">
+              <span className="funzione-icona blu"><Languages size={20} /></span>
+              <span className="riga-testo">
+                <strong>Traduci nella mia lingua</strong>
+                <span>{altro.nome} scrive in {LINGUE[dati.messaggi.find((m) => !m.mio)!.lingua].italiano.toLowerCase()}. I messaggi passano da un servizio di traduzione.</span>
+              </span>
+              <input type="checkbox" role="switch" className="interruttore" checked={traduci} onChange={(e) => cambiaTraduci(e.target.checked)} />
+            </label>
+          )}
+
           <ul className="chat-messaggi">
             {dati.messaggi.map((m) => (
               <li key={m.id} className={m.mio ? 'mio' : ''}>
-                <Testo m={m} />
+                <Testo m={m} traduzione={traduci && !m.mio ? (m.traduzione ?? tradotti[m.id]) : null} />
                 <small>{tempoFa(m.creatoIl)}{m.mio && m.lettoIl ? ' · letto' : ''}</small>
               </li>
             ))}

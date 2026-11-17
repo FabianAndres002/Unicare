@@ -5,11 +5,17 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
+import { LINGUE, type Lingua } from '../traduzione/traduzione.service.ts'
 
 export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 
 /** Quello che il frontend vede di un utente (mai la password!). */
-export type Profilo = { id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null }
+export type Profilo = {
+  id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null
+  telefono: string | null; lingua: Lingua
+}
+
+const COLONNE_PROFILO = `id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto, telefono, lingua`
 
 // ---- Regole sui dati in ingresso (zod controlla e rifiuta i dati sbagliati) ----
 
@@ -20,6 +26,7 @@ export const schemaRegistrazione = z.object({
   nome: z.string().trim().min(1, 'obbligatorio').max(80),
   cognome: z.string().trim().min(1, 'obbligatorio').max(80),
   tipo: z.enum(['FAMILIARE', 'BADANTE']),
+  lingua: z.enum(LINGUE).default('it'),
 })
 
 export const schemaLogin = z.object({
@@ -27,7 +34,12 @@ export const schemaLogin = z.object({
   password: z.string().min(1),
 })
 
-export const schemaPreferenze = z.object({ emailAvvisi: z.boolean() })
+export const schemaPreferenze = z.object({
+  emailAvvisi: z.boolean().optional(),
+  // Numero italiano o internazionale: cifre, spazi, +. Vuoto = nessun numero.
+  telefono: z.string().trim().max(20).regex(/^(\+?[0-9 ]{6,19})?$/, 'numero non valido').transform((v) => v.replace(/ /g, '') || null).nullish(),
+  lingua: z.enum(LINGUE).optional(),
+})
 
 export const schemaEliminaAccount = z.object({ password: z.string().min(1, 'Scrivi la tua password per confermare.') })
 
@@ -49,26 +61,27 @@ export function creaServizioAccesso(db: Database) {
       // La password non si salva mai: solo il suo hash bcrypt.
       const hash = await bcrypt.hash(dati.password, 10)
       const [nuovo] = await db.query<Profilo>(
-        `INSERT INTO utente (email, password_hash, nome, cognome, tipo)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto`,
-        [dati.email, hash, dati.nome, dati.cognome, dati.tipo],
+        `INSERT INTO utente (email, password_hash, nome, cognome, tipo, lingua)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto, telefono, lingua`,
+        [dati.email, hash, dati.nome, dati.cognome, dati.tipo, dati.lingua],
       )
       return nuovo!
     },
 
     async verificaCredenziali(email: string, password: string): Promise<Profilo> {
       const [utente] = await db.query<RigaUtente>(
-        `SELECT id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto, password_hash FROM utente WHERE lower(email) = lower($1)`,
+        `SELECT ${COLONNE_PROFILO}, password_hash FROM utente WHERE lower(email) = lower($1)`,
         [email],
       )
       const corretta = await bcrypt.compare(password, utente?.password_hash ?? HASH_FINTO)
       if (!utente || !corretta) throw CREDENZIALI_ERRATE
-      return { id: utente.id, email: utente.email, nome: utente.nome, tipo: utente.tipo, emailAvvisi: utente.emailAvvisi, foto: utente.foto }
+      const { password_hash: _, ...profilo } = utente
+      return profilo
     },
 
     async trovaProfilo(id: number): Promise<Profilo | undefined> {
-      const [utente] = await db.query<Profilo>(`SELECT id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto FROM utente WHERE id = $1`, [id])
+      const [utente] = await db.query<Profilo>(`SELECT ${COLONNE_PROFILO} FROM utente WHERE id = $1`, [id])
       return utente
     },
 
@@ -78,7 +91,7 @@ export function creaServizioAccesso(db: Database) {
      */
     async esportaDati(id: number) {
       const [profilo] = await db.query(
-        `SELECT email, nome, cognome, tipo, email_avvisi AS "emailAvvisi", creato_il AS "registratoIl" FROM utente WHERE id = $1`,
+        `SELECT email, nome, cognome, tipo, email_avvisi AS "emailAvvisi", telefono, lingua, creato_il AS "registratoIl" FROM utente WHERE id = $1`,
         [id],
       )
       if (!profilo) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
@@ -162,7 +175,13 @@ export function creaServizioAccesso(db: Database) {
     },
 
     async impostaPreferenze(id: number, dati: z.infer<typeof schemaPreferenze>): Promise<Profilo | undefined> {
-      await db.query('UPDATE utente SET email_avvisi = $2 WHERE id = $1', [id, dati.emailAvvisi])
+      await db.query(
+        `UPDATE utente SET email_avvisi = COALESCE($2, email_avvisi),
+                telefono = CASE WHEN $3::boolean THEN $4 ELSE telefono END,
+                lingua = COALESCE($5, lingua)
+         WHERE id = $1`,
+        [id, dati.emailAvvisi ?? null, dati.telefono !== undefined, dati.telefono ?? null, dati.lingua ?? null],
+      )
       return this.trovaProfilo(id)
     },
   }

@@ -95,7 +95,7 @@ export function creaApp(
   app.use('/api', rotteMedicine(medicine, pianificatore, push))
   app.use('/api', rotteAppuntamenti(appuntamenti, vocali))
   app.use('/api', rotteDocumenti(creaServizioDocumenti(db)))
-  app.use('/api', rotteBadanti(creaServizioBadanti(db, avvisi, inviti)))
+  app.use('/api', rotteBadanti(creaServizioBadanti(db, avvisi, inviti), traduzione))
   app.use('/api', rotteRicerche(creaServizioRicerche(db, avvisi)))
   app.use('/api', rotteTraduzione(traduzione))
   app.use('/api', rotteDiretta(diretta))

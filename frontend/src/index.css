@@ -1332,3 +1332,38 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .vuoto > svg:first-child { box-sizing: content-box; padding: 16px; border-radius: 50%; color: var(--primario); background: radial-gradient(circle at 30% 30%, #fff, var(--primario-chiaro)); box-shadow: 0 10px 24px -10px rgba(93, 70, 236, 0.5); animation: vuoto-galleggia 3s ease-in-out infinite; }
 @keyframes vuoto-galleggia { 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .vuoto > svg:first-child { animation: none; } }
+
+/* Senior App: "Ascolta di nuovo" il promemoria */
+.senior-ascolta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; align-self: stretch; padding: 14px 18px;
+  border: 0; border-radius: 18px; background: var(--primario-chiaro); color: var(--primario-scuro);
+  font: inherit; font-size: 1.2rem; font-weight: 800; cursor: pointer;
+}
+.senior-ascolta:active { transform: scale(0.98); }
+
+/* Profilo: il mio numero di telefono */
+.telefono-profilo { display: flex; flex-direction: column; gap: 12px; }
+.telefono-profilo-testa { display: flex; gap: 14px; align-items: center; }
+.telefono-profilo-riga { display: flex; gap: 10px; }
+.telefono-profilo-riga .campo { flex: 1; min-width: 0; }
+.telefono-profilo-riga .pulsante { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Senior App: pulsanti grandi "Chiama Anna" */
+.senior-chiamate { display: flex; flex-direction: column; gap: 12px; }
+.senior-chiama {
+  display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 12px 14px 12px 12px; border-radius: 24px;
+  background: linear-gradient(150deg, #3FB58F, #1F8A6B); color: #fff; text-decoration: none;
+  font-size: 1.4rem; font-weight: 800; box-shadow: 0 12px 26px -10px rgba(31, 138, 107, 0.7);
+}
+.senior-chiama:active { transform: scale(0.98); }
+.senior-chiama .avatar { width: 60px; height: 60px; flex: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85); }
+.senior-chiama > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; line-height: 1.15; }
+.senior-chiama small { font-size: 1rem; font-weight: 600; opacity: 0.9; }
+.senior-chiama-icona { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); animation: senior-squilla 2.8s ease-in-out infinite; }
+@keyframes senior-squilla { 0%, 80%, 100% { transform: rotate(0); } 84%, 92% { transform: rotate(-12deg); } 88%, 96% { transform: rotate(12deg); } }
+@media (prefers-reduced-motion: reduce) { .senior-chiama-icona { animation: none; } }
+
+/* Chat tradotta */
+.chat-originale { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 0; border: 0; background: none; font: inherit; font-size: 0.75rem; font-weight: 700; color: inherit; opacity: 0.7; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.chat-traduci { margin: 0; }
+.telefono-profilo .riga-testo > span, .chat-traduci .riga-testo > span { white-space: normal; }

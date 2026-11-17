@@ -11,16 +11,18 @@
 // GET  /api/contatti                      le mie conversazioni
 // GET  /api/contatti/:id                  i messaggi (segna come letti quelli ricevuti)
 // POST /api/contatti/:id/messaggi         risponde {testo}                                  204
+// POST /api/contatti/:id/messaggi/:m/traduci  traduce un messaggio nella mia lingua → {traduzione}
 // POST /api/contatti/:id/chiudi           la badante chiude o riapre {chiusa}               204
 // POST /api/contatti/:id/invita           la famiglia la invita nel cerchio {cerchioId}     204
 
 import { Router } from 'express'
+import { schemaTraduzione, type ServizioTraduzione } from '../traduzione/traduzione.service.ts'
 import { z } from 'zod'
 import { schemaId } from '../comune/validazione.ts'
 import { richiedeAccesso } from '../accesso/sessione.ts'
 import { schemaInvitaDaContatto, schemaMessaggio, schemaProfiloBadante, schemaRicerca, type ServizioBadanti } from './badanti.service.ts'
 
-export function rotteBadanti(badanti: ServizioBadanti): Router {
+export function rotteBadanti(badanti: ServizioBadanti, traduzione: ServizioTraduzione): Router {
   const router = Router()
 
   router.get('/badante/profilo', richiedeAccesso, async (_req, res) => {
@@ -52,6 +54,12 @@ export function rotteBadanti(badanti: ServizioBadanti): Router {
 
   router.get('/contatti/:id', richiedeAccesso, async (req, res) => {
     res.json(await badanti.messaggi(schemaId.parse(req.params.id), res.locals.idUtente))
+  })
+
+  router.post('/contatti/:id/messaggi/:messaggio/traduci', richiedeAccesso, async (req, res) => {
+    const utente = res.locals.idUtente
+    res.json(await badanti.traduciMessaggio(schemaId.parse(req.params.id), utente, schemaId.parse(req.params.messaggio),
+      async (testo, da, a) => (await traduzione.traduci(`u${utente}`, schemaTraduzione.parse({ testo: testo.slice(0, 500), da, a }))).traduzione))
   })
 
   router.post('/contatti/:id/messaggi', richiedeAccesso, async (req, res) => {

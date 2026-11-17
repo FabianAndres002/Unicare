@@ -68,7 +68,11 @@ export type Conversazione = {
   bloccato: boolean
 }
 
-export type Messaggio = { id: number; mio: boolean; autore: string; testo: string; creatoIl: string; lettoIl: string | null }
+export type Messaggio = {
+  id: number; mio: boolean; autore: string; testo: string; creatoIl: string; lettoIl: string | null
+  /** La lingua di chi l'ha scritto e, se c'è già, la traduzione nella lingua di chi legge. */
+  lingua: string; traduzione: string | null
+}
 
 const ISO = (colonna: string) => `to_char(${colonna} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`
 
@@ -227,8 +231,10 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
       const c = await contattoPer(contattoId, utenteId)
       await db.query('UPDATE messaggio_contatto SET letto_il = now() WHERE contatto_id = $1 AND autore_id <> $2 AND letto_il IS NULL', [contattoId, utenteId])
       const messaggi = await db.query<Messaggio>(
-        `SELECT m.id, m.autore_id = $2 AS mio, u.nome AS autore, m.testo, ${ISO('m.creato_il')} AS "creatoIl", ${ISO('m.letto_il')} AS "lettoIl"
+        `SELECT m.id, m.autore_id = $2 AS mio, u.nome AS autore, m.testo, ${ISO('m.creato_il')} AS "creatoIl", ${ISO('m.letto_il')} AS "lettoIl",
+                u.lingua, t.testo AS traduzione
          FROM messaggio_contatto m JOIN utente u ON u.id = m.autore_id
+         LEFT JOIN traduzione_messaggio t ON t.messaggio_id = m.id AND t.lingua = (SELECT lingua FROM utente WHERE id = $2)
          WHERE m.contatto_id = $1 ORDER BY m.creato_il, m.id`,
         [contattoId, utenteId],
       )
@@ -244,6 +250,31 @@ export function creaServizioBadanti(db: Database, avvisi: Avvisi, inviti: Serviz
         )
         : []
       return { conversazione, messaggi, puoInvitare }
+    },
+
+    /**
+     * Traduce un messaggio dell'altra persona nella lingua di chi legge (quella scelta per l'app).
+     * La traduzione si salva: lo stesso messaggio non passa due volte dal servizio esterno.
+     */
+    async traduciMessaggio(contattoId: number, utenteId: number, messaggioId: number,
+      traduci: (testo: string, da: string, a: string) => Promise<string>): Promise<{ traduzione: string | null }> {
+      await contattoPer(contattoId, utenteId)
+      const [m] = await db.query<{ testo: string; da: string; a: string; giaFatta: string | null }>(
+        `SELECT m.testo, u.lingua AS da, io.lingua AS a, t.testo AS "giaFatta"
+         FROM messaggio_contatto m JOIN utente u ON u.id = m.autore_id JOIN utente io ON io.id = $3
+         LEFT JOIN traduzione_messaggio t ON t.messaggio_id = m.id AND t.lingua = io.lingua
+         WHERE m.id = $1 AND m.contatto_id = $2`,
+        [messaggioId, contattoId, utenteId],
+      )
+      if (!m) throw new ErroreApplicativo(404, 'MESSAGGIO_NON_TROVATO', 'Messaggio non trovato.')
+      if (m.giaFatta) return { traduzione: m.giaFatta }
+      if (m.da === m.a) return { traduzione: null }
+      const traduzione = await traduci(m.testo, m.da, m.a)
+      await db.query(
+        'INSERT INTO traduzione_messaggio (messaggio_id, lingua, testo) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+        [messaggioId, m.a, traduzione.slice(0, 4000)],
+      )
+      return { traduzione }
     },
 
     async rispondi(contattoId: number, utenteId: number, testo: string): Promise<void> {

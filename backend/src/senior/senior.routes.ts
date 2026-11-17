@@ -88,8 +88,8 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
        FROM anziano a JOIN cerchio c ON c.id = a.cerchio_id WHERE a.id = $1`,
       [anzianoId],
     )
-    const famiglia = await db.query<{ nome: string; ruolo: string; foto: string | null }>(
-      `SELECT u.nome, m.ruolo, ${fotoUtente('u.id')} AS foto FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
+    const famiglia = await db.query<{ nome: string; ruolo: string; foto: string | null; telefono: string | null }>(
+      `SELECT u.nome, m.ruolo, ${fotoUtente('u.id')} AS foto, u.telefono FROM membro_cerchio m JOIN utente u ON u.id = m.utente_id
        WHERE m.cerchio_id = $1 ORDER BY (m.ruolo = 'BADANTE'), m.entrato_il`,
       [anziano!.cerchioId],
     )

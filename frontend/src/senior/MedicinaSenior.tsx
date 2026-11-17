@@ -1,12 +1,13 @@
 // S5: "È ora delle medicine del mattino" con i pulsanti "Fatto" e "Ricordamelo tra 15 minuti",
 // più l'elenco delle medicine di oggi.
 
-import { useState } from 'react'
-import { Check, Clock, Pill } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Check, Clock, Pill, Volume2 } from 'lucide-react'
+import { parla, sintesiDisponibile, zitto } from '../interprete/voce'
 import { api, messaggioErrore, type Occorrenza } from '../comune/api'
 import { MOMENTI, oraBreve } from '../medicine/aspetto'
 
-type Props = { medicine: Occorrenza[]; adesso: number; onCambiata: () => void }
+type Props = { nome: string; medicine: Occorrenza[]; adesso: number; onCambiata: () => void }
 
 /** Le medicine da prendere adesso: orario arrivato, non ancora confermate, non rimandate. */
 function medicineDaPrendere(medicine: Occorrenza[], adesso: number): Occorrenza[] {
@@ -15,11 +16,25 @@ function medicineDaPrendere(medicine: Occorrenza[], adesso: number): Occorrenza[
   )
 }
 
-function SchedaMedicina({ o, onCambiata }: { o: Occorrenza; onCambiata: () => void }) {
+/** La frase che il telefono legge ad alta voce. */
+function fraseMedicina(nome: string, o: Occorrenza): string {
+  const quali = o.medicine.length ? ` Sono: ${o.medicine.join(', ')}.` : ''
+  return `${nome}, è ora delle ${MOMENTI[o.momento].titolo.toLowerCase()}.${quali} Quando le hai prese, tocca il pulsante verde: Fatto.`
+}
+
+function SchedaMedicina({ nome, o, onCambiata }: { nome: string; o: Occorrenza; onCambiata: () => void }) {
   const [invio, setInvio] = useState(false)
   const [esito, setEsito] = useState<'fatto' | 'rimandato' | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const { titolo, Icona, colore } = MOMENTI[o.momento]
+  const frase = fraseMedicina(nome, o)
+
+  // Appena compare, il telefono legge il promemoria ad alta voce (dopo il campanello).
+  // Se il telefono non lo permette senza un tocco, resta il pulsante "Ascolta".
+  useEffect(() => {
+    const timer = setTimeout(() => parla(frase, 'it-IT'), 2500)
+    return () => { clearTimeout(timer); zitto() }
+  }, [frase])
 
   async function rispondi(fatto: boolean) {
     setInvio(true)
@@ -52,6 +67,11 @@ function SchedaMedicina({ o, onCambiata }: { o: Occorrenza; onCambiata: () => vo
           <p>Erano previste alle {oraBreve(o.previstoIl)}</p>
         </div>
       </div>
+      {sintesiDisponibile() && (
+        <button type="button" className="senior-ascolta" onClick={() => parla(frase, 'it-IT')}>
+          <Volume2 size={26} /> Ascolta di nuovo
+        </button>
+      )}
       {o.medicine.length > 0 && (
         <ul className="senior-nomi-medicine">{o.medicine.map((m) => <li key={m}><Pill size={22} /> {m}</li>)}</ul>
       )}
@@ -68,10 +88,10 @@ function SchedaMedicina({ o, onCambiata }: { o: Occorrenza; onCambiata: () => vo
   )
 }
 
-export function MedicineAdesso({ medicine, adesso, onCambiata }: Props) {
+export function MedicineAdesso({ nome, medicine, adesso, onCambiata }: Props) {
   return (
     <>
-      {medicineDaPrendere(medicine, adesso).map((o) => <SchedaMedicina key={o.id} o={o} onCambiata={onCambiata} />)}
+      {medicineDaPrendere(medicine, adesso).map((o) => <SchedaMedicina key={o.id} nome={nome} o={o} onCambiata={onCambiata} />)}
     </>
   )
 }
