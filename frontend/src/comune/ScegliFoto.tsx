@@ -28,6 +28,11 @@ const DISEGNI = [
   ['ragazza-viola', 'Ragazza viola'], ['uomo', 'Uomo'], ['uomo-elegante', 'Uomo elegante'], ['uomo-cuffia', 'Uomo con cuffia'],
   ['uomo-viola', 'Uomo viola'], ['ragazzo', 'Ragazzo'], ['ragazzo-righe', 'Ragazzo a righe'], ['gatto', 'Gatto'],
   ['cane', 'Cane'], ['cane-felice', 'Cane felice'], ['carlino', 'Carlino'], ['leone', 'Leone'],
+  ['nonna-perle', 'Nonna con le perle'], ['nonno-coppola', 'Nonno con la coppola'], ['nonno-barba', 'Nonno con la barba'], ['signora', 'Signora'],
+  ['donna-sciarpa', 'Donna con sciarpa'], ['ragazza-rossa', 'Ragazza rossa'], ['ragazza-rosa', 'Ragazza coi capelli rosa'], ['ragazza-rasata', 'Ragazza rasata'],
+  ['bimba-barca', 'Bimba con la barchetta'], ['uomo-turbante', 'Uomo col turbante'], ['uomo-camicia', 'Uomo in camicia'], ['uomo-baffetti', 'Uomo coi baffetti'],
+  ['uomo-biondo', 'Uomo biondo'], ['ragazzo-occhiali', 'Ragazzo con gli occhiali'], ['pastore-tedesco', 'Pastore tedesco'], ['volpe', 'Volpe'],
+  ['gufo', 'Gufo'], ['orsetto', 'Orsetto'],
 ] as const
 
 /** Ritaglia al centro un quadrato e lo rimpicciolisce a 512×512 JPEG. */

@@ -18,6 +18,7 @@ export const DIMENSIONE_MASSIMA_FOTO = 1024 * 1024 // 1 MB
 /** I disegni che si possono scegliere al posto della foto (file in frontend/public/avatar). */
 export const DISEGNI = [
   'nonna', 'nonno', 'nonno-baffi', 'donna', 'donna-ricci', 'donna-treccine', 'donna-bionda', 'ragazza', 'ragazza-viola', 'uomo', 'uomo-elegante', 'uomo-cuffia', 'uomo-viola', 'ragazzo', 'ragazzo-righe', 'gatto', 'cane', 'cane-felice', 'carlino', 'leone',
+  'nonna-perle', 'nonno-coppola', 'nonno-barba', 'signora', 'donna-sciarpa', 'ragazza-rossa', 'ragazza-rosa', 'ragazza-rasata', 'bimba-barca', 'uomo-turbante', 'uomo-camicia', 'uomo-baffetti', 'uomo-biondo', 'ragazzo-occhiali', 'pastore-tedesco', 'volpe', 'gufo', 'orsetto',
 ] as const
 
 /** Espressione SQL: la foto dell'utente con quell'id, o il disegno scelto, o null. */
