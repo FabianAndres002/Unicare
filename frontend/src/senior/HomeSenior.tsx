@@ -2,7 +2,8 @@
 // lo stato delle sue richieste ("Se ne occupa Maria"), gli appuntamenti e le medicine.
 
 import { useEffect, useState } from 'react'
-import { Check, Clock, HandHeart, Languages, Phone, UserRound, X } from 'lucide-react'
+import { Check, CircleHelp, Clock, HandHeart, Languages, Phone, UserRound, X } from 'lucide-react'
+import { apriGuida } from '../comune/guidaEventi'
 import { api, messaggioErrore, type Richiesta, type SeniorIo } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
@@ -124,6 +125,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
         <h2>{t('Lingua')}</h2>
         <ScegliLingua grande className="sinistra" salva={(l) => api.senior.lingua(l)} />
       </section>
+
+      <button type="button" className="senior-ascolta" onClick={apriGuida}><CircleHelp size={26} />{' '}{t('Come funziona? Rivedi la guida')}</button>
 
       <section>
         <h2>{t('La tua famiglia')}</h2>

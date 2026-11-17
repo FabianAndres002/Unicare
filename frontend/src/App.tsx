@@ -4,6 +4,7 @@ import { naviga, usePercorso } from './comune/router'
 import Accedi from './accesso/Accedi'
 import Registrati from './accesso/Registrati'
 import AreaRiservata from './cerchio/AreaRiservata'
+import GuidaIniziale from './comune/Guida'
 import InvitoRicevuto from './cerchio/InvitoRicevuto'
 import SeniorApp from './senior/SeniorApp'
 import Privacy from './comune/Privacy'
@@ -64,5 +65,10 @@ export default function App() {
 
   if (!profilo) return percorso === '/registrati' ? <Registrati onEntrato={entrato} /> : <Accedi onEntrato={entrato} />
 
-  return <AreaRiservata profilo={profilo} percorso={percorso} onEsci={esci} onProfilo={setProfilo} />
+  return (
+    <>
+      <AreaRiservata profilo={profilo} percorso={percorso} onEsci={esci} onProfilo={setProfilo} />
+      <GuidaIniziale tipo={profilo.tipo} />
+    </>
+  )
 }

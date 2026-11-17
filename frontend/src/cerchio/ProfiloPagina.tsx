@@ -1,7 +1,8 @@
 // Il tuo account, i tuoi cerchi (per passare dall'uno all'altro) e il pulsante per uscire.
 
 import { useState } from 'react'
-import { Check, Languages, LogOut, Mail, Plus } from 'lucide-react'
+import { Check, CircleHelp, Languages, LogOut, Mail, Plus } from 'lucide-react'
+import { apriGuida } from '../comune/guidaEventi'
 import { api, messaggioErrore, type Profilo, type RiassuntoCerchio } from '../comune/api'
 import { Collegamento } from '../comune/router'
 import ScegliFoto from '../comune/ScegliFoto'
@@ -97,6 +98,8 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
         </label>
         {errore && <p className="errore">{errore}</p>}
       </section>
+
+      <button type="button" className="pulsante fantasma con-icona" onClick={apriGuida}><CircleHelp size={20} />{' '}{t('Rivedi la guida')}</button>
 
       <PrivacyProfilo onEliminato={onEsci} />
 

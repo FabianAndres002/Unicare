@@ -15,6 +15,7 @@ import { useCarica } from '../comune/useCarica'
 import { useDiretta } from '../comune/diretta'
 import CodiceSenior from './CodiceSenior'
 import HomeSenior from './HomeSenior'
+import GuidaIniziale from '../comune/Guida'
 import ChiediAiuto from './ChiediAiuto'
 import InterpreteSenior from '../interprete/InterpreteSenior'
 import { lingua, t } from '../comune/lingua'
@@ -57,6 +58,7 @@ export default function SeniorApp() {
   return (
     <div className="senior">
       <main className="senior-contenuto">{schermata}</main>
+      {typeof dati === 'object' && dati !== null && <GuidaIniziale tipo="SENIOR" />}
       <a className="senior-112" href="tel:118">
         <Phone size={26} />{' '}{t('Emergenza? Chiama il 118')}
       </a>

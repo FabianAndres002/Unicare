@@ -1445,3 +1445,76 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .prova-voce-riga div { display: flex; flex-direction: column; min-width: 0; }
 .prova-voce-riga small { color: var(--testo-tenue); overflow-wrap: anywhere; }
 .prova-voce .nota { margin-top: 10px; }
+
+/* Guida alla prima apertura */
+.tinta-viola { --t1: #8b78ff; --t2: #5d46ec; }
+.tinta-arancio { --t1: #ffa58f; --t2: #e8573a; }
+.tinta-verde { --t1: #4fd98c; --t2: #13945a; }
+.tinta-blu { --t1: #5cb8ff; --t2: #1f6fd1; }
+.tinta-rosso { --t1: #ff8a80; --t2: #c62828; }
+.guida {
+  position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column;
+  background: radial-gradient(120% 70% at 50% 0%, var(--primario-chiaro) 0%, var(--sfondo) 60%);
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  animation: guida-entra 0.35s ease-out both;
+}
+.guida-salta {
+  align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; margin: 12px 16px 0; padding: 8px 12px;
+  border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.8); color: var(--testo-tenue);
+  font: inherit; font-weight: 700; cursor: pointer;
+}
+.guida-binario {
+  flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
+  scrollbar-width: none; overscroll-behavior-x: contain;
+}
+.guida-binario::-webkit-scrollbar { display: none; }
+.guida-scheda {
+  flex: 0 0 100%; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 12px 28px; text-align: center; overflow-y: auto; justify-content: flex-start;
+}
+.guida-scheda > :first-child { margin-top: auto; }
+.guida-scheda > :last-child { margin-bottom: auto; }
+.guida-scheda.installa .guida-disegno { width: 104px; height: 104px; }
+.guida-scheda.installa .guida-disegno svg { width: 48px; height: 48px; }
+.guida-scheda h2 { margin: 6px 0 0; font-size: 1.6rem; font-weight: 900; color: var(--testo); }
+.guida-disegno {
+  display: grid; place-items: center; flex: none; width: 148px; height: 148px; border-radius: 50%; color: #fff;
+  background: linear-gradient(145deg, var(--t1), var(--t2));
+  box-shadow: 0 18px 36px -12px var(--t2), inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+}
+.guida-scheda[aria-hidden="false"] .guida-disegno { animation: pittogramma-salta 0.7s ease-out both; }
+.guida-testo { margin: 0; max-width: 34ch; font-size: 1.08rem; line-height: 1.5; color: var(--testo-tenue); }
+.guida-passi {
+  margin: 0; padding: 0; list-style: none; counter-reset: passo; display: flex; flex-direction: column; gap: 10px;
+  text-align: left; width: 100%; max-width: 360px;
+}
+.guida-passi li {
+  counter-increment: passo; display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: var(--raggio-s); background: var(--bianco); box-shadow: var(--ombra-s); font-weight: 600; line-height: 1.35;
+}
+.guida-passi li::before {
+  content: counter(passo); flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primario); color: #fff; font-weight: 800;
+}
+.guida-simbolo { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--primario-chiaro); color: var(--primario-scuro); }
+.guida-piede { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 8px 24px 24px; }
+.guida-piede > .pulsante, .guida-piede > .senior-pulsante { width: 100%; max-width: 420px; }
+.guida-puntini { display: flex; gap: 8px; }
+.guida-puntini button {
+  width: 10px; height: 10px; padding: 0; border: 0; border-radius: 999px; background: var(--bordo); cursor: pointer;
+  transition: width 0.25s, background 0.25s;
+}
+.guida-puntini button[aria-selected="true"] { width: 28px; background: var(--primario); }
+.guida.grande .guida-scheda h2 { font-size: 2rem; }
+.guida.grande .guida-testo { font-size: 1.35rem; color: var(--testo); }
+.guida.grande .guida-disegno { width: 172px; height: 172px; }
+.guida.grande .guida-salta { font-size: 1.1rem; padding: 10px 16px; }
+.guida.grande .guida-puntini button { width: 14px; height: 14px; }
+.guida.grande .guida-puntini button[aria-selected="true"] { width: 36px; }
+.guida .senior-ascolta { align-self: center; }
+@keyframes guida-entra { from { opacity: 0; transform: translateY(16px); } }
+@media (prefers-reduced-motion: reduce) { .guida, .guida-scheda .guida-disegno { animation: none !important; } }
+.guida-scheda.installa { gap: 10px; }
+.guida-scheda.installa h2 { font-size: 1.35rem; }
+.guida-scheda.installa .guida-passi { gap: 8px; }
+.guida-scheda.installa .guida-passi li { padding: 9px 12px; font-size: 0.95rem; }
