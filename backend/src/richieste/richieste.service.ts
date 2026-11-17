@@ -241,7 +241,11 @@ export function creaServizioRichieste(db: Database, avvisi: Avvisi) {
     async elencoAnziano(anzianoId: number): Promise<Richiesta[]> {
       const righe = await db.query<Riga>(
         `${SELECT_RICHIESTA} WHERE r.anziano_id = $1
-           AND (r.stato IN ('APERTA', 'PRESA_IN_CARICO') OR r.chiusa_il > now() - interval '24 hours')
+           -- Sul telefono dell'anziano le cose fatte restano 3 ore (per vedere "Fatto!"), quelle annullate mezz'ora,
+           -- poi spariscono. Non le cancelliamo: i familiari le ritrovano in "Concluse".
+           AND (r.stato IN ('APERTA', 'PRESA_IN_CARICO')
+                OR (r.stato = 'COMPLETATA' AND r.chiusa_il > now() - interval '3 hours')
+                OR (r.stato = 'ANNULLATA' AND r.chiusa_il > now() - interval '30 minutes'))
          ORDER BY (r.stato IN ('APERTA', 'PRESA_IN_CARICO')) DESC, r.creata_il DESC, r.id DESC LIMIT 20`,
         [anzianoId],
       )
