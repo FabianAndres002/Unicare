@@ -1533,14 +1533,14 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .senior-aggiungi { display: inline-flex; align-items: center; gap: 8px; text-align: left; }
 a.senior-pulsante { display: grid; place-items: center; text-decoration: none; text-align: center; }
 
-/* Home famiglia: più persone assistite */
-.scheda-anziano-azioni { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
-.scheda-anziano-azioni a {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px;
-  border-radius: 16px; background: rgba(255, 255, 255, 0.16); color: var(--bianco); font-weight: 800; font-size: 0.78rem; text-align: center;
+/* Home famiglia: più persone assistite (una alla volta) */
+.cambia-anziano { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 2px; }
+.cambia-anziano button {
+  display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1.5px solid var(--bordo); border-radius: 999px;
+  background: var(--bianco); color: var(--primario-scuro); font: inherit; font-weight: 800; box-shadow: var(--ombra-s); cursor: pointer;
 }
-.scheda-anziano-azioni a:hover { background: rgba(255, 255, 255, 0.26); }
-.scheda-anziano-azioni .distintivo { position: absolute; top: 4px; right: 6px; }
+.cambia-anziano button:hover { border-color: var(--primario); }
+.cambia-anziano .avatar { width: 32px; height: 32px; font-size: 0.8rem; }
 .aggiungi-persona {
   display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: var(--raggio-s);
   border: 2px dashed #CCC7DD; color: var(--primario); font-weight: 800; background: rgba(255, 255, 255, 0.5);

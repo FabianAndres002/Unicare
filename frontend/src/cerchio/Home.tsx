@@ -1,7 +1,8 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { Cake, CalendarDays, ChevronRight, Languages, MapPin, Mic, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
-import { api, type Anziano, type Cerchio, type Profilo } from '../comune/api'
+import { useState } from 'react'
+import { ArrowLeftRight, Cake, CalendarDays, ChevronRight, Languages, MapPin, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
+import { api, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import { useDiretta } from '../comune/diretta'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
@@ -13,39 +14,48 @@ import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
 import { t } from '../comune/lingua'
 
-/** Con più nonni nel cerchio: visite, messaggi e documenti dentro la scheda di ciascuno. */
-function AzioniAnziano({ anziano, documenti }: { anziano: Anziano; documenti: boolean }) {
-  const { dati } = useCarica(() => api.vocali(anziano.id), anziano.id, 30)
-  const nuovi = dati?.filter((v) => v.dallAnziano && !v.ascoltatoDa).length ?? 0
-  return (
-    <div className="scheda-anziano-azioni">
-      <Collegamento a={`/anziano/${anziano.id}/appuntamenti`}><CalendarDays size={20} />{t('Appuntamenti')}</Collegamento>
-      <Collegamento a={`/anziano/${anziano.id}/messaggi`}>
-        <Mic size={20} />{t('Messaggi')}
-        {nuovi > 0 && <span className="distintivo urgente">{nuovi}</span>}
-      </Collegamento>
-      {documenti && <Collegamento a={`/anziano/${anziano.id}/documenti`}><Receipt size={20} />{t('Documenti')}</Collegamento>}
-    </div>
-  )
+const CHIAVE_SCELTO = (cerchioId: number) => `personare-anziano-${cerchioId}`
+function letto(cerchioId: number): number | null {
+  try { return Number(localStorage.getItem(CHIAVE_SCELTO(cerchioId))) || null } catch { return null }
 }
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const puoModificare = cerchio.mioRuolo !== 'BADANTE'
   const { dati: richieste, ricarica } = useCarica(() => api.richieste(cerchio.id, 'attive'), cerchio.id)
   useDiretta('/api/diretta', 'richiesta', ricarica)
-  const daFare = richieste?.filter((r) => r.stato === 'APERTA').length ?? 0
-  // Con una sola persona le sue funzioni stanno nella griglia; con due o più, dentro ogni scheda.
-  const piuPersone = cerchio.anziani.length > 1
-  const unica = piuPersone ? undefined : cerchio.anziani[0]
+  // Con più nonni la Home mostra una persona alla volta; il pulsante in alto passa all'altra.
+  const [scelto, setScelto] = useState(() => letto(cerchio.id))
+  const persona = cerchio.anziani.find((a) => a.id === scelto) ?? cerchio.anziani[0]
+  const altri = cerchio.anziani.filter((a) => a !== persona)
+  const piuPersone = altri.length > 0
+  function vaiA(id: number) {
+    setScelto(id)
+    try { localStorage.setItem(CHIAVE_SCELTO(cerchio.id), String(id)) } catch { /* niente */ }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  const richiesteQui = piuPersone ? richieste?.filter((r) => r.anziano.id === persona?.id) : richieste
+  const daFare = richiesteQui?.filter((r) => r.stato === 'APERTA').length ?? 0
   return (
-    <div className="pagina-app entra">
+    <div className="pagina-app entra" key={persona?.id}>
       <header className="saluto">
         <p className="data-oggi">{dataEstesa(new Date())}</p>
         <h1>{saluto()}, {profilo.nome}</h1>
       </header>
 
+      {piuPersone && (
+        <div className="cambia-anziano">
+          {altri.map((a) => (
+            <button key={a.id} type="button" onClick={() => vaiA(a.id)}>
+              <Avatar nome={a.nome} cognome={a.cognome} foto={a.foto} />
+              <span>{t('Passa a {0}', a.nome)}</span>
+              <ArrowLeftRight size={18} />
+            </button>
+          ))}
+        </div>
+      )}
+
       <section className="anziani">
-        {cerchio.anziani.map((a) => {
+        {persona && [persona].map((a) => {
           const anni = eta(a.dataNascita)
           return (
             <article key={a.id} className="scheda-anziano">
@@ -73,7 +83,6 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
                   return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? t('richiesta attiva') : t('richieste attive')}</span></div>
                 })()}
               </div>
-              {piuPersone && <AzioniAnziano anziano={a} documenti={puoModificare} />}
               {puoModificare && (
                 <Collegamento a={`/anziano/${a.id}`} className="scheda-anziano-telefono">
                   <Smartphone size={20} /> <span>{t('Il telefono di {0} e la Senior App', a.nome)}</span> <ChevronRight size={20} />
@@ -106,12 +115,12 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
             {daFare > 0 && <span className="distintivo urgente">{t('{0} da fare', daFare)}</span>}
             <Collegamento a="/richieste" className="link-sezione">{t('Vedi tutte')}</Collegamento>
           </div>
-          {richieste && richieste.length === 0 && (
+          {richiesteQui && richiesteQui.length === 0 && (
             <p className="nota">{t('Nessuna richiesta in sospeso. Tutto tranquillo!')}</p>
           )}
-          {richieste && richieste.length > 0 && (
+          {richiesteQui && richiesteQui.length > 0 && (
             <div className="elenco-richieste">
-              {richieste.slice(0, 3).map((r, i) => <SchedaRichiesta key={r.id} richiesta={r} indice={i} mioId={profilo.id} onCambiata={ricarica} />)}
+              {richiesteQui.slice(0, 3).map((r, i) => <SchedaRichiesta key={r.id} richiesta={r} indice={i} mioId={profilo.id} onCambiata={ricarica} />)}
             </div>
           )}
           <Collegamento a="/richieste/nuova" className="chiedi-aiuto"><span className="chiedi-aiuto-piu"><Plus size={22} /></span><span><strong>{t('Chiedi aiuto al cerchio')}</strong><small>{t('Spesa, farmacia, un passaggio…')}</small></span><ChevronRight size={20} /></Collegamento>
@@ -121,14 +130,14 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
       <section>
         <div className="titolo-sezione"><h2>{t('Funzioni')}</h2></div>
         <div className="griglia-funzioni">
-          {unica && (
+          {persona && (
             <>
-              <Collegamento a={`/anziano/${unica.id}/appuntamenti`} className="funzione cat-accompagnamento">
+              <Collegamento a={`/anziano/${persona.id}/appuntamenti`} className="funzione cat-accompagnamento">
                 <span className="funzione-icona blu"><CalendarDays size={22} /></span>
                 <strong>{t('Appuntamenti')}</strong>
                 <span>{t('Visite ed esami')}</span>
               </Collegamento>
-              <MessaggiFunzione anziano={unica} />
+              <MessaggiFunzione anziano={persona} />
             </>
           )}
           {profilo.tipo === 'FAMILIARE' && (
@@ -138,8 +147,8 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <span>{t('Chi si propone nella tua zona')}</span>
             </Collegamento>
           )}
-          {unica && puoModificare && (
-            <Collegamento a={`/anziano/${unica.id}/documenti`} className="funzione cat-spesa">
+          {persona && puoModificare && (
+            <Collegamento a={`/anziano/${persona.id}/documenti`} className="funzione cat-spesa">
               <span className="funzione-icona verde"><Receipt size={22} /></span>
               <strong>{t('Documenti')}</strong>
               <span>{t('Ricette, analisi, ecografie, ricevute')}</span>
