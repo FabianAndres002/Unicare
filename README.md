@@ -122,6 +122,13 @@ Ogni test usa un database in memoria tutto suo: i tuoi dati non si toccano.
 - Il riconoscimento della voce e la lettura ad alta voce li fa il telefono (Safari su iPhone,
   Chrome su Android) e servono https: in prova usa il comando "Prova sui telefoni".
 
+## Prova in famiglia (tunnel) con il codice segreto
+
+1. In `backend/.env` scrivi `CODICE_REGISTRAZIONE=unaparolatua` e riavvia Unicare (Ctrl+Shift+B).
+2. Avvia "Prova sui telefoni" e manda l'indirizzo `https://….trycloudflare.com`.
+3. Chi si registra da zero deve scrivere il codice; chi arriva dal link di **Invita** no.
+4. Finita la prova, cancella la riga (o lasciala vuota): la registrazione torna libera.
+
 ## Avviare tutto a mano (dal terminale)
 
 ```bash

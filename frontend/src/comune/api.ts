@@ -15,7 +15,11 @@ export type Profilo = {
   telefono: string | null; lingua: Lingua
 }
 
-export type DatiRegistrazione = { lingua?: Lingua; email: string; password: string; nome: string; cognome: string; tipo: TipoUtente }
+export type DatiRegistrazione = {
+  lingua?: Lingua; email: string; password: string; nome: string; cognome: string; tipo: TipoUtente
+  /** Codice segreto, se il server lo chiede; oppure il link d'invito da cui si arriva. */
+  codice?: string; invito?: string
+}
 
 export type Anziano = { id: number; nome: string; cognome: string; dataNascita: string | null; comune: string | null; foto: string | null }
 export type DatiAnziano = Omit<Anziano, 'id' | 'foto'>
@@ -298,6 +302,7 @@ export const api = {
   io: () => chiama<Profilo>('GET', '/api/auth/io'),
   login: (email: string, password: string) => chiama<Profilo>('POST', '/api/auth/login', { email, password }),
   registrati: (dati: DatiRegistrazione) => chiama<Profilo>('POST', '/api/auth/registrati', dati),
+  registrazione: () => chiama<{ serveCodice: boolean }>('GET', '/api/auth/registrazione'),
   logout: () => chiama<void>('POST', '/api/auth/logout'),
   preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),
 

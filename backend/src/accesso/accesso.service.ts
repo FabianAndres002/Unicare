@@ -27,6 +27,10 @@ export const schemaRegistrazione = z.object({
   cognome: z.string().trim().min(1, 'obbligatorio').max(80),
   tipo: z.enum(['FAMILIARE', 'BADANTE']),
   lingua: z.enum(LINGUE).default('it'),
+  /** Il codice segreto, se il server lo chiede (CODICE_REGISTRAZIONE). */
+  codice: z.string().trim().max(100).optional(),
+  /** Il link d'invito da cui arriva: vale al posto del codice. */
+  invito: z.string().max(200).optional(),
 })
 
 export const schemaLogin = z.object({

@@ -25,6 +25,10 @@ export const config = {
   segretoJwt: process.env.JWT_SECRET ?? 'solo-per-sviluppo-cambiami',
   durataAccessoGiorni: 30,
 
+  // Codice per registrarsi (prova in famiglia via tunnel). Vuoto = registrazione libera.
+  // Chi arriva da un link d'invito non ne ha bisogno.
+  codiceRegistrazione: (process.env.CODICE_REGISTRAZIONE ?? '').trim(),
+
   // Indirizzo dell'app, usato nei link dentro le email.
   urlApp: process.env.URL_APP ?? 'http://localhost:5173',
 

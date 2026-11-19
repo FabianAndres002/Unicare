@@ -154,6 +154,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Bună, {0}! Deschide {1} pe telefon și scrie acest cod: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Bună! Te invit în cercul „{0}” pe Unicare, ca să avem grijă împreună. Deschide linkul: {1}",
  "Codice": "Cod",
+ "Codice di invito": "Cod de invitație",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Cod nevalid sau expirat. Cere un cod nou familiei.",
  "Codice {0}": "Cod {0}",
  "Cognome": "Nume",
@@ -319,6 +320,7 @@
  "Il": "",
  "Il cerchio": "Cercul",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Cercul este grupul de persoane care au grijă de cel drag: tu, ceilalți membri ai familiei și îngrijitoarea.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Codul nu este corect. Verifică mesajul celui care te-a invitat.",
  "Il consenso della persona assistita": "Consimțământul persoanei îngrijite",
  "Il file è troppo grande (massimo 10 MB).": "Fișierul este prea mare (maximum 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Linkul este valabil 7 zile și se poate folosi o singură dată.",
@@ -564,6 +566,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Deocamdată niciuna în provincia ta: te anunțăm noi",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Ca să te oferi, scrie cel puțin două rânduri despre tine (30 de caractere).",
  "Per quanto tempo": "Cât timp",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Ca să te înregistrezi îți trebuie codul trimis de cel care te-a invitat.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Pentru recunoașterea vocii e nevoie de internet. Verifică conexiunea.",
  "Per sempre, non si torna indietro": "Pentru totdeauna, nu se mai poate reveni",
  "Per {0} ·": "Pentru {0} ·",
@@ -944,5 +947,6 @@
  "· chiusa": "· închisă",
  "· invito in attesa, scade il {0}": "· invitație în așteptare, expiră pe {0}",
  "È il telefono di un anziano?": "Este telefonul unei persoane în vârstă?",
+ "è nel messaggio di chi ti ha invitato": "este în mesajul celui care te-a invitat",
  "€ all’ora, facoltativa": "€ pe oră, opțional"
 }

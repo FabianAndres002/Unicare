@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Bonjour {0} ! Ouvre {1} sur ton téléphone et écris ce code : {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Bonjour ! Je t’invite dans le cercle « {0} » sur Unicare, pour prendre soin ensemble. Ouvre le lien : {1}",
  "Codice": "Code",
+ "Codice di invito": "Code d’invitation",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Code non valide ou expiré. Demandez un nouveau code à votre famille.",
  "Codice {0}": "Code {0}",
  "Cognome": "Nom",
@@ -320,6 +321,7 @@
  "Il": "Le",
  "Il cerchio": "Le cercle",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Le cercle est le groupe de personnes qui prend soin de votre proche : vous, les autres membres de la famille et l’aide à domicile.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Le code n’est pas bon. Vérifie le message de la personne qui t’a invité.",
  "Il consenso della persona assistita": "Le consentement de la personne aidée",
  "Il file è troppo grande (massimo 10 MB).": "Le fichier est trop volumineux (10 Mo maximum).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Le lien est valable 7 jours et ne peut être utilisé qu’une seule fois.",
@@ -566,6 +568,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Pour l’instant aucune dans votre province : nous vous préviendrons",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Pour vous proposer, écrivez au moins deux lignes sur vous (30 caractères).",
  "Per quanto tempo": "Pour combien de temps",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Pour t’inscrire, il faut le code envoyé par la personne qui t’a invité.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Pour reconnaître la voix, il faut internet. Vérifiez la connexion.",
  "Per sempre, non si torna indietro": "Définitivement, sans retour en arrière",
  "Per {0} ·": "Pour {0} ·",
@@ -950,5 +953,6 @@
  "· chiusa": "· fermée",
  "· invito in attesa, scade il {0}": "· invitation en attente, expire le {0}",
  "È il telefono di un anziano?": "C’est le téléphone d’une personne âgée ?",
+ "è nel messaggio di chi ti ha invitato": "il est dans le message de la personne qui t’a invité",
  "€ all’ora, facoltativa": "€ de l’heure, facultatif"
 }

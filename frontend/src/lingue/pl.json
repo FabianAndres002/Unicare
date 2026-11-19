@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Cześć {0}! Otwórz {1} na swoim telefonie i wpisz ten kod: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Cześć! Zapraszam Cię do kręgu „{0}” w Unicare, żebyśmy razem się troszczyli. Otwórz link: {1}",
  "Codice": "Kod",
+ "Codice di invito": "Kod zaproszenia",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Kod nieprawidłowy lub wygasł. Poproś rodzinę o nowy kod.",
  "Codice {0}": "Kod {0}",
  "Cognome": "Nazwisko",
@@ -320,6 +321,7 @@
  "Il": "",
  "Il cerchio": "Krąg",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Krąg to grupa osób, które opiekują się Waszym bliskim: Ty, inni członkowie rodziny i opiekunka.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Kod jest nieprawidłowy. Sprawdź wiadomość od osoby, która Cię zaprosiła.",
  "Il consenso della persona assistita": "Zgoda osoby pod opieką",
  "Il file è troppo grande (massimo 10 MB).": "Plik jest za duży (maksymalnie 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Link jest ważny 7 dni i można go użyć tylko raz.",
@@ -566,6 +568,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Na razie żadnej w Twojej prowincji: damy Ci znać",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Aby się zaproponować, napisz co najmniej dwa zdania o sobie (30 znaków).",
  "Per quanto tempo": "Jak długo",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Aby się zarejestrować, potrzebujesz kodu od osoby, która Cię zaprosiła.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Do rozpoznawania głosu potrzebny jest internet. Sprawdź połączenie.",
  "Per sempre, non si torna indietro": "Na zawsze, bez możliwości cofnięcia",
  "Per {0} ·": "Dla {0} ·",
@@ -948,5 +951,6 @@
  "· chiusa": "· zamknięta",
  "· invito in attesa, scade il {0}": "· zaproszenie oczekuje, wygasa {0}",
  "È il telefono di un anziano?": "To telefon osoby starszej?",
+ "è nel messaggio di chi ti ha invitato": "jest w wiadomości od osoby, która Cię zaprosiła",
  "€ all’ora, facoltativa": "€ za godzinę, opcjonalnie"
 }

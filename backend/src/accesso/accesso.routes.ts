@@ -3,6 +3,7 @@
 // POST /api/auth/registrati   crea l'account e fa entrare     (201)
 // POST /api/auth/login        accesso con email e password
 // POST /api/auth/logout       esce                             (204)
+// GET  /api/auth/registrazione  {serveCodice}: se per registrarsi serve il codice segreto
 // GET  /api/auth/io           chi è l'utente collegato         (401 senza login)
 // PATCH /api/auth/io          preferenze (avvisi via email)
 // GET  /api/auth/io/dati      scarica tutti i miei dati (JSON)
@@ -10,18 +11,50 @@
 //
 // Login: dopo 10 password sbagliate dallo stesso indirizzo di rete, 15 minuti di attesa.
 
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { Router } from 'express'
+import { config } from '../config.ts'
+import type { ServizioInviti } from '../cerchio/inviti.service.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { schemaEliminaAccount, schemaLogin, schemaPreferenze, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
 import { creaLimitatore } from '../comune/limitatore.ts'
 import { apriSessione, chiudiSessione, richiedeAccesso } from './sessione.ts'
 
-export function rotteAccesso(accesso: ServizioAccesso): Router {
+/** Confronta due testi senza far capire, dai tempi di risposta, quanto sono simili. */
+function uguali(a: string, b: string): boolean {
+  const h = (x: string) => createHash('sha256').update(x).digest()
+  return timingSafeEqual(h(a), h(b))
+}
+
+export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti): Router {
   const router = Router()
+
+  /**
+   * Con CODICE_REGISTRAZIONE nel .env si registra solo chi conosce il codice
+   * o arriva da un link d'invito valido per la sua email.
+   */
+  async function puoRegistrarsi(email: string, codice?: string, invito?: string): Promise<boolean> {
+    const segreto = config.codiceRegistrazione
+    if (!segreto) return true
+    if (codice && uguali(codice.toLowerCase(), segreto.toLowerCase())) return true
+    if (invito) {
+      const a = await inviti.anteprima(invito).catch(() => null)
+      if (a && a.email.toLowerCase() === email.toLowerCase()) return true
+    }
+    return false
+  }
+
+  router.get('/registrazione', (_req, res) => {
+    res.json({ serveCodice: !!config.codiceRegistrazione })
+  })
   const limiteLogin = creaLimitatore(10, 15)
 
   router.post('/registrati', async (req, res) => {
-    const dati = schemaRegistrazione.parse(req.body)
+    const { codice, invito, ...dati } = schemaRegistrazione.parse(req.body)
+    if (!(await puoRegistrarsi(dati.email, codice, invito))) {
+      if (codice) throw new ErroreApplicativo(403, 'CODICE_REGISTRAZIONE', 'Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.')
+      throw new ErroreApplicativo(403, 'CODICE_REGISTRAZIONE', 'Per registrarti serve il codice che ti ha mandato chi ti ha invitato.')
+    }
     const profilo = await accesso.registra(dati)
     apriSessione(res, profilo.id)
     res.status(201).json(profilo)

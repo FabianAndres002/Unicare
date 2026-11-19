@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Привет, {0}! Открой {1} на своём телефоне и введи этот код: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Привет! Приглашаю тебя в круг «{0}» в Unicare, чтобы заботиться вместе. Открой ссылку: {1}",
  "Codice": "Код",
+ "Codice di invito": "Код приглашения",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Код недействителен или истёк. Попросите у родных новый код.",
  "Codice {0}": "Код {0}",
  "Cognome": "Фамилия",
@@ -320,6 +321,7 @@
  "Il": "",
  "Il cerchio": "Круг",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Круг — это группа людей, которые заботятся о вашем близком: вы, другие родные и сиделка.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Код неверный. Проверьте сообщение от того, кто вас пригласил.",
  "Il consenso della persona assistita": "Согласие подопечного",
  "Il file è troppo grande (massimo 10 MB).": "Файл слишком большой (максимум 10 МБ).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Ссылка действует 7 дней и может быть использована только один раз.",
@@ -567,6 +569,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Пока ни одной в вашей провинции: мы сообщим",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Чтобы предложить себя, напишите о себе хотя бы две строки (30 символов).",
  "Per quanto tempo": "Как долго",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Чтобы зарегистрироваться, нужен код от того, кто вас пригласил.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Для распознавания голоса нужен интернет. Проверьте соединение.",
  "Per sempre, non si torna indietro": "Навсегда, без возврата",
  "Per {0} ·": "Для {0} ·",
@@ -951,5 +954,6 @@
  "· chiusa": "· закрыт",
  "· invito in attesa, scade il {0}": "· приглашение ожидает, истекает {0}",
  "È il telefono di un anziano?": "Это телефон пожилого человека?",
+ "è nel messaggio di chi ti ha invitato": "он в сообщении от того, кто вас пригласил",
  "€ all’ora, facoltativa": "€ в час, необязательно"
 }

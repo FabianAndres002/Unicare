@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Hi {0}! Open {1} on your phone and type this code: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Hi! I’m inviting you to the circle \"{0}\" on Unicare, so we can take care together. Open the link: {1}",
  "Codice": "Code",
+ "Codice di invito": "Invitation code",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Invalid or expired code. Ask your family for a new code.",
  "Codice {0}": "Code {0}",
  "Cognome": "Last name",
@@ -319,6 +320,7 @@
  "Il": "The",
  "Il cerchio": "The circle",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "The circle is the group of people who take care of your loved one: you, the other family members and the carer.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "The code is not right. Check the message from whoever invited you.",
  "Il consenso della persona assistita": "Consent of the person cared for",
  "Il file è troppo grande (massimo 10 MB).": "The file is too big (maximum 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "The link is valid for 7 days and can be used only once.",
@@ -563,6 +565,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "None in your province for now: we’ll let you know",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "To apply, write at least two lines about yourself (30 characters).",
  "Per quanto tempo": "How long",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "To sign up you need the code sent to you by whoever invited you.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Speech recognition needs internet. Check the connection.",
  "Per sempre, non si torna indietro": "Forever, it cannot be undone",
  "Per {0} ·": "For {0} ·",
@@ -945,5 +948,6 @@
  "· chiusa": "· closed",
  "· invito in attesa, scade il {0}": "· invitation pending, expires on {0}",
  "È il telefono di un anziano?": "Is this an elderly person’s phone?",
+ "è nel messaggio di chi ti ha invitato": "it’s in the message from whoever invited you",
  "€ all’ora, facoltativa": "€ per hour, optional"
 }

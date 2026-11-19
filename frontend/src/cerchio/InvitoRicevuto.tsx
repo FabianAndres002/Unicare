@@ -75,7 +75,7 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
         </div>
       ) : modo === 'registrati' ? (
         <>
-          <ModuloRegistrati onEntrato={entratoDaQui} emailIniziale={invito.email} tipoFisso={comeBadante ? 'BADANTE' : 'FAMILIARE'} />
+          <ModuloRegistrati onEntrato={entratoDaQui} invito={token} emailIniziale={invito.email} tipoFisso={comeBadante ? 'BADANTE' : 'FAMILIARE'} />
           <p className="cambio">{t('Hai già un account?')}{' '}<button className="link" onClick={() => setModo('accedi')}>{t('Accedi')}</button></p>
         </>
       ) : (

@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Привіт, {0}! Відкрий {1} на своєму телефоні й введи цей код: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Привіт! Запрошую тебе в коло «{0}» в Unicare, щоб піклуватися разом. Відкрий посилання: {1}",
  "Codice": "Код",
+ "Codice di invito": "Код запрошення",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Код недійсний або прострочений. Попросіть у рідних новий код.",
  "Codice {0}": "Код {0}",
  "Cognome": "Прізвище",
@@ -320,6 +321,7 @@
  "Il": "",
  "Il cerchio": "Коло",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Коло — це група людей, які піклуються про вашу рідну людину: ви, інші рідні та доглядальниця.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Код неправильний. Перевірте повідомлення від того, хто вас запросив.",
  "Il consenso della persona assistita": "Згода людини, за якою доглядають",
  "Il file è troppo grande (massimo 10 MB).": "Файл завеликий (максимум 10 МБ).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Посилання дійсне 7 днів і може бути використане лише один раз.",
@@ -567,6 +569,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Поки що жодної у вашій провінції: ми повідомимо",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Щоб запропонувати себе, напишіть про себе хоча б два речення (30 символів).",
  "Per quanto tempo": "Як довго",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Щоб зареєструватися, потрібен код від того, хто вас запросив.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Для розпізнавання голосу потрібен інтернет. Перевірте з’єднання.",
  "Per sempre, non si torna indietro": "Назавжди, без повернення",
  "Per {0} ·": "Для {0} ·",
@@ -951,5 +954,6 @@
  "· chiusa": "· закрита",
  "· invito in attesa, scade il {0}": "· запрошення очікує, спливає {0}",
  "È il telefono di un anziano?": "Це телефон літньої людини?",
+ "è nel messaggio di chi ti ha invitato": "він у повідомленні від того, хто вас запросив",
  "€ all’ora, facoltativa": "€ за годину, необов’язково"
 }

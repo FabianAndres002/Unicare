@@ -155,6 +155,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Здравей, {0}! Отвори {1} на телефона си и въведи този код: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Здравей! Каня те в кръга „{0}“ в Unicare, за да се грижим заедно. Отвори връзката: {1}",
  "Codice": "Код",
+ "Codice di invito": "Код за покана",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Невалиден или изтекъл код. Поискайте нов код от роднините си.",
  "Codice {0}": "Код {0}",
  "Cognome": "Фамилия",
@@ -320,6 +321,7 @@
  "Il": "",
  "Il cerchio": "Кръгът",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Кръгът е групата хора, които се грижат за вашия близък: вие, другите роднини и болногледачката.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Кодът не е верен. Проверете съобщението от човека, който ви е поканил.",
  "Il consenso della persona assistita": "Съгласието на човека, за когото се грижите",
  "Il file è troppo grande (massimo 10 MB).": "Файлът е твърде голям (максимум 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Връзката важи 7 дни и може да се използва само веднъж.",
@@ -567,6 +569,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Засега няма във вашата провинция: ще ви уведомим",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "За да се предложите, напишете поне два реда за себе си (30 знака).",
  "Per quanto tempo": "За колко време",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "За да се регистрирате, ви трябва кодът от човека, който ви е поканил.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "За разпознаване на глас е нужен интернет. Проверете връзката.",
  "Per sempre, non si torna indietro": "Завинаги, без връщане назад",
  "Per {0} ·": "За {0} ·",
@@ -949,5 +952,6 @@
  "· chiusa": "· затворен",
  "· invito in attesa, scade il {0}": "· чакаща покана, изтича на {0}",
  "È il telefono di un anziano?": "Това телефонът на възрастен човек ли е?",
+ "è nel messaggio di chi ti ha invitato": "има го в съобщението от човека, който ви е поканил",
  "€ all’ora, facoltativa": "€ на час, по избор"
 }

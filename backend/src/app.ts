@@ -87,8 +87,8 @@ export function creaApp(
   app.use(cookieParser()) // legge i cookie (serve per la sessione)
 
   app.use('/api', rotteStato(db))
-  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db)))
   const inviti = creaServizioInviti(db)
+  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db), inviti))
   app.use('/api', rotteCerchio(creaServizioCerchio(db), inviti))
   app.use('/api', rotteRichieste(richieste))
   app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali, traduzione, diretta))

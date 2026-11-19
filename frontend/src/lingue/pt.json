@@ -152,6 +152,7 @@
  "Ciao {0}! Apri {1} sul tuo telefono e scrivi questo codice: {2}": "Olá {0}! Abre {1} no teu telemóvel e escreve este código: {2}",
  "Ciao! Ti invito nel cerchio \"{0}\" su Unicare, per prenderci cura insieme. Apri il link: {1}": "Olá! Convido-te para o círculo “{0}” no Unicare, para cuidarmos juntos. Abre o link: {1}",
  "Codice": "Código",
+ "Codice di invito": "Código de convite",
  "Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.": "Código inválido ou expirado. Peça um novo código aos seus familiares.",
  "Codice {0}": "Código {0}",
  "Cognome": "Apelido",
@@ -316,6 +317,7 @@
  "Il": "O",
  "Il cerchio": "O círculo",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "O círculo é o grupo de pessoas que cuida do vosso ente querido: você, os outros familiares e a cuidadora.",
+ "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "O código não está certo. Verifica a mensagem de quem te convidou.",
  "Il consenso della persona assistita": "O consentimento da pessoa assistida",
  "Il file è troppo grande (massimo 10 MB).": "O ficheiro é demasiado grande (máximo 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "O link é válido durante 7 dias e só pode ser usado uma vez.",
@@ -559,6 +561,7 @@
  "Per ora nessuna nella tua provincia: ti avvisiamo noi": "Por agora nenhuma na sua província: nós avisamos",
  "Per proporti scrivi almeno due righe su di te (30 caratteri).": "Para se propor, escreva pelo menos duas linhas sobre si (30 caracteres).",
  "Per quanto tempo": "Durante quanto tempo",
+ "Per registrarti serve il codice che ti ha mandato chi ti ha invitato.": "Para te registares precisas do código que te enviou quem te convidou.",
  "Per riconoscere la voce serve internet. Controlla la connessione.": "Para reconhecer a voz é preciso internet. Verifique a ligação.",
  "Per sempre, non si torna indietro": "Para sempre, não há volta atrás",
  "Per {0} ·": "Para {0} ·",
@@ -940,5 +943,6 @@
  "· chiusa": "· fechada",
  "· invito in attesa, scade il {0}": "· convite pendente, expira a {0}",
  "È il telefono di un anziano?": "É o telemóvel de um idoso?",
+ "è nel messaggio di chi ti ha invitato": "está na mensagem de quem te convidou",
  "€ all’ora, facoltativa": "€ por hora, opcional"
 }
