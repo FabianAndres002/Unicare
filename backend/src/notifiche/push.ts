@@ -112,14 +112,19 @@ export function creaPush(db: Database, spingitore: Spingitore) {
   }
 
   async function salva(chi: { utenteId: number } | { dispositivoId: number }, s: Iscrizione) {
-    // Lo stesso browser può passare da un utente all'altro: l'iscrizione segue l'ultimo.
-    const utente = 'utenteId' in chi ? chi.utenteId : null
-    const dispositivo = 'dispositivoId' in chi ? chi.dispositivoId : null
-    await db.query(
-      `INSERT INTO iscrizione_push (utente_id, dispositivo_id, endpoint, p256dh, auth) VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (endpoint) DO UPDATE SET utente_id = $1, dispositivo_id = $2, p256dh = $4, auth = $5, creata_il = now()`,
-      [utente, dispositivo, s.endpoint, s.keys.p256dh, s.keys.auth],
-    )
+    await db.transazione(async (tx) => {
+      if ('utenteId' in chi) {
+        // Lo stesso browser può passare da un utente all'altro: l'iscrizione segue l'ultimo.
+        await tx.query('DELETE FROM iscrizione_push WHERE endpoint = $1', [s.endpoint])
+      } else {
+        // Sul telefono dei nonni possono esserci più persone: una riga per ognuna.
+        await tx.query('DELETE FROM iscrizione_push WHERE endpoint = $1 AND (utente_id IS NOT NULL OR dispositivo_id = $2)', [s.endpoint, chi.dispositivoId])
+      }
+      await tx.query(
+        'INSERT INTO iscrizione_push (utente_id, dispositivo_id, endpoint, p256dh, auth) VALUES ($1, $2, $3, $4, $5)',
+        ['utenteId' in chi ? chi.utenteId : null, 'dispositivoId' in chi ? chi.dispositivoId : null, s.endpoint, s.keys.p256dh, s.keys.auth],
+      )
+    })
   }
 
   return {
@@ -142,17 +147,30 @@ export function creaPush(db: Database, spingitore: Spingitore) {
       )
     },
 
-    /** A tutti i telefoni collegati (e non scollegati) di questo anziano. */
+    /**
+     * A tutti i telefoni collegati (e non scollegati) di questo anziano. Se il telefono è
+     * condiviso con un'altra persona assistita, il titolo dice per chi è.
+     */
     async aAnziano(anzianoId: number, avviso: AvvisoPush) {
-      await consegna(
-        await db.query<RigaIscrizione>(
-          `SELECT i.id, i.endpoint, i.p256dh, i.auth, d.lingua FROM iscrizione_push i
-           JOIN dispositivo_anziano d ON d.id = i.dispositivo_id
-           WHERE d.anziano_id = $1 AND d.revocato_il IS NULL`,
-          [anzianoId],
-        ),
-        avviso,
+      const righe = await db.query<RigaIscrizione & { nome: string; condiviso: boolean }>(
+        `SELECT i.id, i.endpoint, i.p256dh, i.auth, d.lingua, a.nome,
+                EXISTS (SELECT 1 FROM iscrizione_push j JOIN dispositivo_anziano e ON e.id = j.dispositivo_id
+                        WHERE j.endpoint = i.endpoint AND e.anziano_id <> d.anziano_id AND e.revocato_il IS NULL) AS condiviso
+         FROM iscrizione_push i
+         JOIN dispositivo_anziano d ON d.id = i.dispositivo_id
+         JOIN anziano a ON a.id = d.anziano_id
+         WHERE d.anziano_id = $1 AND d.revocato_il IS NULL`,
+        [anzianoId],
       )
+      const url = `${avviso.url}${avviso.url.includes('?') ? '&' : '?'}persona=${anzianoId}`
+      const soli = righe.filter((r) => !r.condiviso)
+      const condivisi = righe.filter((r) => r.condiviso)
+      await consegna(soli, { ...avviso, url })
+      if (condivisi.length) {
+        const nome = condivisi[0]!.nome
+        const titolo = avviso.titolo
+        await consegna(condivisi, { ...avviso, url, titolo: (l) => `${nome}: ${rendi(titolo, l)}` })
+      }
     },
   }
 }

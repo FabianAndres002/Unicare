@@ -49,7 +49,7 @@ describe('avvisi nella lingua di ciascuno', () => {
 
     const { codice } = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body
     const nonna = request.agent(app)
-    await nonna.post('/api/senior/collega').send({ codice }).expect(204)
+    await nonna.post('/api/senior/collega').send({ codice }).expect(200)
     await nonna.post('/api/senior/push').send(iscrizione('nonna')).expect(204)
     expect((await nonna.get('/api/senior/io')).body.lingua).toBe('it')
     await nonna.put('/api/senior/lingua').send({ lingua: 'xx' }).expect(400)

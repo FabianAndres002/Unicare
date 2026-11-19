@@ -86,7 +86,7 @@ describe('diretta delle richieste', () => {
     const anzianoId = (await anna.chiedi('POST', `/api/cerchi/${cerchioId}/anziani`, { nome: 'Pina', cognome: 'Rossi', consensoPrivacy: true })).body.id
     const { codice } = (await anna.chiedi('POST', `/api/anziani/${anzianoId}/telefono/codice`)).body
     const nonna = browser()
-    expect((await nonna.chiedi('POST', '/api/senior/collega', { codice })).status).toBe(204)
+    expect((await nonna.chiedi('POST', '/api/senior/collega', { codice })).status).toBe(200)
     const luca = await registrato('luca') // non fa parte del cerchio
 
     const dirAnna = await anna.diretta()

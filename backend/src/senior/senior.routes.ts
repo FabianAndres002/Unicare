@@ -1,12 +1,12 @@
 // Endpoint della Senior App (il telefono dell'anziano) e del collegamento del telefono.
 //
 // Dal telefono dell'anziano (cookie "unicare_senior"):
-// POST /api/senior/collega                  scambia il codice a 6 cifre con il collegamento
+// POST /api/senior/collega                  scambia il codice a 6 cifre con il collegamento → {anzianoId}
 // GET  /api/senior/diretta                  aggiornamenti in diretta (text/event-stream)
 // GET  /api/senior/io                       nome, famiglia e richieste dell'anziano
 // POST /api/senior/richieste                "Chiedi aiuto" con una categoria        (201, 200 se già chiesta)
 // POST /api/senior/richieste/:id/annulla    "Non serve più"                          (204)
-// POST /api/senior/esci                     scollega questo telefono                 (204)
+// POST /api/senior/esci                     scollega la persona scelta da questo telefono (204)
 // POST /api/senior/medicine/:id/fatto       "Fatto": ho preso le medicine             (204)
 // POST /api/senior/medicine/:id/rimanda     "Ricordamelo tra 15 minuti"               (204)
 // POST /api/senior/push                     questo telefono riceve le notifiche       (204)
@@ -14,6 +14,10 @@
 // GET  /api/senior/vocali/:id/audio         ascolta un messaggio
 // POST /api/senior/traduci                  interprete {testo, da, a} → {traduzione}
 // PUT  /api/senior/lingua                   lingua di questo telefono {lingua}: le notifiche arrivano così (204)
+//
+// Due nonni, un telefono: il cookie tiene un collegamento per ogni persona (separati da ".").
+// Ogni chiamata dice per chi è con ?persona=<id anziano>; senza, vale la prima persona.
+// "Esci" scollega solo la persona scelta.
 //
 // Dai familiari (login normale, ruolo familiare o amministratore):
 // GET    /api/anziani/:id/telefono                   telefoni collegati e codice in attesa
@@ -39,6 +43,7 @@ import { schemaDurata, schemaTipoAudio, type ServizioVocali } from '../vocali/vo
 import { LINGUE, schemaTraduzione, type ServizioTraduzione } from '../traduzione/traduzione.service.ts'
 
 const COOKIE = 'unicare_senior'
+const MAX_PERSONE = 4
 
 // Dalla Senior App si sceglie solo tra pulsanti: niente "Altro" da scrivere (arriverà con la voce).
 const schemaRichiestaSenior = z.object({ categoria: z.enum(CATEGORIE.filter((c) => c !== 'ALTRO') as [string, ...string[]]) })
@@ -47,30 +52,54 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
   appuntamenti: ServizioAppuntamenti, vocali: ServizioVocali, traduzione: ServizioTraduzione, diretta: Diretta): Router {
   const router = Router()
 
+  const opzioniCookie = () => ({
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: config.inProduzione,
+    maxAge: config.durataTelefonoAnzianoGiorni * 24 * 60 * 60 * 1000,
+    path: '/',
+  })
+  /** I collegamenti salvati sul telefono (al massimo 4 persone). */
+  function tokenDelTelefono(req: Request): string[] {
+    const c = req.cookies?.[COOKIE]
+    return typeof c === 'string' ? c.split('.').filter(Boolean).slice(0, MAX_PERSONE) : []
+  }
+  /** Le persone ancora collegate a questo telefono, con il loro token. */
+  async function personeDelTelefono(req: Request): Promise<(AnzianoCollegato & { token: string })[]> {
+    const tutte = await Promise.all(tokenDelTelefono(req).map(async (token) => {
+      const c = await telefono.daToken(token)
+      return c && { ...c, token }
+    }))
+    return tutte.filter((c) => c !== undefined)
+  }
+
   /** Come richiedeAccesso, ma per il telefono dell'anziano. */
   async function richiedeTelefono(req: Request, res: Response, next: NextFunction) {
-    const token = req.cookies?.[COOKIE]
-    const collegato = typeof token === 'string' ? await telefono.daToken(token) : undefined
-    if (!collegato) {
+    const token = tokenDelTelefono(req)
+    const persone = await personeDelTelefono(req)
+    if (!persone.length) {
       res.clearCookie(COOKIE, { path: '/' })
       throw new ErroreApplicativo(401, 'TELEFONO_NON_COLLEGATO', 'Questo telefono non è collegato.')
     }
-    res.locals.senior = collegato
+    // Un collegamento tolto dalla famiglia sparisce anche dal telefono.
+    if (persone.length < token.length) res.cookie(COOKIE, persone.map((p) => p.token).join('.'), opzioniCookie())
+    const scelta = Number(req.query.persona)
+    res.locals.senior = persone.find((p) => p.anzianoId === scelta) ?? persone[0]
+    res.locals.persone = persone
     next()
   }
-  const senior = (res: Response) => res.locals.senior as AnzianoCollegato
+  const senior = (res: Response) => res.locals.senior as AnzianoCollegato & { token: string }
+  const persone = (res: Response) => res.locals.persone as (AnzianoCollegato & { token: string })[]
 
   router.post('/senior/collega', async (req, res) => {
     const { codice } = schemaCodice.parse(req.body)
-    const { token } = await telefono.collega(codice, req.ip ?? 'sconosciuto')
-    res.cookie(COOKIE, token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: config.inProduzione,
-      maxAge: config.durataTelefonoAnzianoGiorni * 24 * 60 * 60 * 1000,
-      path: '/',
-    })
-    res.status(204).end()
+    const prima = await personeDelTelefono(req)
+    const { token, anzianoId, dispositivoId } = await telefono.collega(codice, req.ip ?? 'sconosciuto')
+    // Se la stessa persona era già su questo telefono, il vecchio collegamento lascia il posto al nuovo.
+    const altre = prima.filter((p) => p.anzianoId !== anzianoId).slice(0, MAX_PERSONE - 1)
+    await telefono.copiaNotifiche(altre.map((p) => p.dispositivoId), dispositivoId)
+    res.cookie(COOKIE, [...altre.map((p) => p.token), token].join('.'), opzioniCookie())
+    res.json({ anzianoId })
   })
 
   router.put('/senior/lingua', richiedeTelefono, async (req, res) => {
@@ -101,8 +130,14 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
       [anziano!.cerchioId],
     )
     const [dispositivo] = await db.query<{ lingua: string }>('SELECT lingua FROM dispositivo_anziano WHERE id = $1', [senior(res).dispositivoId])
+    const altre = await db.query<{ id: number; nome: string; foto: string | null }>(
+      `SELECT a.id, a.nome, ${fotoAnziano('a.id')} AS foto FROM anziano a WHERE a.id = ANY($1)`,
+      [persone(res).map((p) => p.anzianoId)],
+    )
     res.json({
       anziano: { id: anzianoId, nome: anziano!.nome, cognome: anziano!.cognome, foto: anziano!.foto },
+      // Le persone collegate a questo telefono, nell'ordine in cui sono state aggiunte.
+      persone: persone(res).map((p) => altre.find((a) => a.id === p.anzianoId)!),
       lingua: dispositivo!.lingua,
       cerchio: anziano!.cerchio,
       famiglia,
@@ -135,7 +170,8 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
   })
 
   router.post('/senior/push', richiedeTelefono, async (req, res) => {
-    await push.iscriviTelefono(senior(res).dispositivoId, schemaIscrizione.parse(req.body))
+    const iscrizione = schemaIscrizione.parse(req.body)
+    for (const p of persone(res)) await push.iscriviTelefono(p.dispositivoId, iscrizione)
     res.status(204).end()
   })
 
@@ -151,7 +187,9 @@ export function rotteSenior(db: Database, telefono: ServizioTelefono, richieste:
 
   router.post('/senior/esci', richiedeTelefono, async (_req, res) => {
     await telefono.esci(senior(res).dispositivoId)
-    res.clearCookie(COOKIE, { path: '/' })
+    const restano = persone(res).filter((p) => p.dispositivoId !== senior(res).dispositivoId)
+    if (restano.length) res.cookie(COOKIE, restano.map((p) => p.token).join('.'), opzioniCookie())
+    else res.clearCookie(COOKIE, { path: '/' })
     res.status(204).end()
   })
 

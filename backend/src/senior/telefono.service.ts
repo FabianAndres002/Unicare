@@ -129,14 +129,14 @@ export function creaServizioTelefono(db: Database) {
     },
 
     /** Dal telefono dell'anziano: scambia il codice con il token da tenere nel cookie. */
-    async collega(codice: string, chi: string): Promise<{ token: string; anzianoId: number }> {
+    async collega(codice: string, chi: string): Promise<{ token: string; anzianoId: number; dispositivoId: number }> {
       limitatore.controlla(chi)
       const token = randomBytes(32).toString('base64url')
-      const [r] = await db.query<{ anzianoId: number }>(
+      const [r] = await db.query<{ anzianoId: number; dispositivoId: number }>(
         `UPDATE dispositivo_anziano
            SET token_hash = $2, attivato_il = now(), ultimo_accesso_il = now(), codice_hash = NULL, codice_scade_il = NULL
          WHERE codice_hash = $1 AND codice_scade_il > now() AND attivato_il IS NULL AND revocato_il IS NULL
-         RETURNING anziano_id AS "anzianoId"`,
+         RETURNING anziano_id AS "anzianoId", id AS "dispositivoId"`,
         [improntaCodice(codice), impronta(token)],
       )
       if (!r) {
@@ -144,7 +144,21 @@ export function creaServizioTelefono(db: Database) {
         throw new ErroreApplicativo(400, 'CODICE_NON_VALIDO', 'Codice non valido o scaduto. Chiedi un nuovo codice ai tuoi familiari.')
       }
       limitatore.riuscito(chi)
-      return { token, anzianoId: r.anzianoId }
+      return { token, anzianoId: r.anzianoId, dispositivoId: r.dispositivoId }
+    },
+
+    /**
+     * Un telefono già collegato aggiunge un'altra persona (due nonni, un telefono):
+     * le notifiche già accese su questo telefono valgono subito anche per la nuova persona.
+     */
+    async copiaNotifiche(daDispositivi: number[], aDispositivo: number): Promise<void> {
+      if (!daDispositivi.length) return
+      await db.query(
+        `INSERT INTO iscrizione_push (dispositivo_id, endpoint, p256dh, auth)
+         SELECT DISTINCT ON (endpoint) $2::bigint, endpoint, p256dh, auth FROM iscrizione_push WHERE dispositivo_id = ANY($1)
+         ON CONFLICT DO NOTHING`,
+        [daDispositivi, aDispositivo],
+      )
     },
 
     /** Chi è il telefono che sta chiamando, dal suo token. undefined se scollegato. */

@@ -2,7 +2,7 @@
 // lo stato delle sue richieste ("Se ne occupa Maria"), gli appuntamenti e le medicine.
 
 import { useEffect, useState } from 'react'
-import { Check, CircleHelp, Clock, HandHeart, Languages, Phone, UserRound, X } from 'lucide-react'
+import { Check, CircleHelp, Clock, HandHeart, Languages, Phone, UserPlus, UserRound, X } from 'lucide-react'
 import { apriGuida } from '../comune/guidaEventi'
 import { api, messaggioErrore, type Richiesta, type SeniorIo } from '../comune/api'
 import { Collegamento } from '../comune/router'
@@ -17,7 +17,7 @@ import AppuntamentiSenior from './AppuntamentiSenior'
 import MessaggiSenior from './MessaggiSenior'
 import { t } from '../comune/lingua'
 
-type Props = { io: SeniorIo; benvenuto: boolean; onCambiata: () => void }
+type Props = { io: SeniorIo; benvenuto: boolean; onCambiata: () => void; onPersona: (id: number) => void }
 
 const ICONA_STATO = { APERTA: Clock, PRESA_IN_CARICO: UserRound, COMPLETATA: Check, ANNULLATA: X }
 
@@ -59,7 +59,7 @@ function RichiestaSenior({ r, onCambiata }: { r: Richiesta; onCambiata: () => vo
   )
 }
 
-export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
+export default function HomeSenior({ io, benvenuto, onCambiata, onPersona }: Props) {
   const [oggi] = useState(() => new Date())
   // "Adesso" avanza ogni 15 secondi, così la scheda delle medicine compare all'orario giusto.
   const [adesso, setAdesso] = useState(() => Date.now())
@@ -71,6 +71,16 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
   const chiamabili = io.famiglia.filter((f) => f.telefono)
   return (
     <div className="senior-pagina entra">
+      {io.persone.length > 1 && (
+        <nav className="senior-persone" aria-label={t('Chi sta usando il telefono?')}>
+          {io.persone.map((p) => (
+            <button key={p.id} type="button" aria-pressed={p.id === io.anziano.id} onClick={() => onPersona(p.id)}>
+              <Avatar nome={p.nome} foto={p.foto} />
+              <span>{p.nome}</span>
+            </button>
+          ))}
+        </nav>
+      )}
       <header>
         <p className="senior-data">{dataEstesa(oggi)}</p>
         <h1>{saluto()}, {io.anziano.nome}</h1>
@@ -125,6 +135,8 @@ export default function HomeSenior({ io, benvenuto, onCambiata }: Props) {
         <h2>{t('Lingua')}</h2>
         <ScegliLingua grande className="sinistra" salva={(l) => api.senior.lingua(l)} />
       </section>
+
+      <Collegamento a="/senior/aggiungi" className="senior-link senior-aggiungi"><UserPlus size={24} />{' '}{t('Usate in due questo telefono? Aggiungi un’altra persona')}</Collegamento>
 
       <button type="button" className="senior-ascolta" onClick={apriGuida}><CircleHelp size={26} />{' '}{t('Come funziona? Rivedi la guida')}</button>
 

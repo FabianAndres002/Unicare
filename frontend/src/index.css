@@ -1518,3 +1518,31 @@ select.campo { width: 100%; appearance: none; background: var(--bianco) url("dat
 .guida-scheda.installa h2 { font-size: 1.35rem; }
 .guida-scheda.installa .guida-passi { gap: 8px; }
 .guida-scheda.installa .guida-passi li { padding: 9px 12px; font-size: 0.95rem; }
+
+/* Senior App: due nonni, un telefono */
+.senior-persone { display: flex; gap: 10px; padding: 6px; border-radius: 22px; background: var(--sfondo-scuro); }
+.senior-persone button {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 64px; padding: 8px 10px;
+  border: 0; border-radius: 18px; background: transparent; color: var(--testo-tenue);
+  font: inherit; font-size: 1.15rem; font-weight: 800; cursor: pointer;
+}
+.senior-persone button span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.senior-persone button > :first-child { flex: none; }
+.senior-persone button[aria-pressed="true"] { background: var(--bianco); color: var(--primario-scuro); box-shadow: var(--ombra-s); }
+.senior-persone button:focus-visible { outline: 4px solid var(--primario-scuro); outline-offset: 2px; }
+.senior-aggiungi { display: inline-flex; align-items: center; gap: 8px; text-align: left; }
+a.senior-pulsante { display: grid; place-items: center; text-decoration: none; text-align: center; }
+
+/* Home famiglia: più persone assistite */
+.scheda-anziano-azioni { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+.scheda-anziano-azioni a {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px;
+  border-radius: 16px; background: rgba(255, 255, 255, 0.16); color: var(--bianco); font-weight: 800; font-size: 0.78rem; text-align: center;
+}
+.scheda-anziano-azioni a:hover { background: rgba(255, 255, 255, 0.26); }
+.scheda-anziano-azioni .distintivo { position: absolute; top: 4px; right: 6px; }
+.aggiungi-persona {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: var(--raggio-s);
+  border: 2px dashed #CCC7DD; color: var(--primario); font-weight: 800; background: rgba(255, 255, 255, 0.5);
+}
+.aggiungi-persona:hover { border-color: var(--primario); background: var(--bianco); }

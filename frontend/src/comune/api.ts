@@ -1,5 +1,6 @@
 // Tutte le chiamate al backend passano da qui.
 
+import { conPersona } from '../senior/persona'
 import type { Lingua } from '../interprete/lingue'
 import { t, traduciErrore } from './lingua'
 export type { Lingua }
@@ -187,6 +188,8 @@ export type DettaglioConversazione = { conversazione: Conversazione; messaggi: M
 /** Quello che vede la Senior App. */
 export type SeniorIo = {
   anziano: { id: number; nome: string; cognome: string; foto: string | null }
+  /** Le persone che usano questo telefono (due nonni, un telefono). */
+  persone: { id: number; nome: string; foto: string | null }[]
   /** La lingua delle notifiche di questo telefono. */
   lingua: Lingua
   cerchio: string
@@ -214,7 +217,7 @@ export const messaggioErrore = (err: unknown) =>
   err instanceof ErroreApi ? traduciErrore(err.message) : t('Connessione non riuscita. Riprova.')
 
 async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<T> {
-  const risposta = await fetch(url, {
+  const risposta = await fetch(conPersona(url), {
     method: metodo,
     headers: corpo === undefined ? {} : { 'Content-Type': 'application/json' },
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
@@ -235,7 +238,7 @@ async function chiama<T>(metodo: string, url: string, corpo?: unknown): Promise<
 
 /** Manda un audio registrato così com'è (non in JSON). */
 async function inviaAudio(url: string, audio: Blob, durata: number): Promise<{ id: number }> {
-  const risposta = await fetch(`${url}?durata=${Math.max(1, Math.round(durata))}`, {
+  const risposta = await fetch(conPersona(`${url}?durata=${Math.max(1, Math.round(durata))}`), {
     method: 'POST',
     headers: { 'Content-Type': audio.type || 'audio/webm' },
     body: audio,
@@ -418,8 +421,8 @@ export const api = {
     rimanda: (occorrenzaId: number) => chiama<void>('POST', `/api/senior/medicine/${occorrenzaId}/rimanda`),
     iscriviPush: (s: IscrizionePush) => chiama<void>('POST', '/api/senior/push', s),
     inviaVocale: (audio: Blob, durata: number) => inviaAudio('/api/senior/vocali', audio, durata),
-    audioVocale: (id: number) => `/api/senior/vocali/${id}/audio`,
-    collega: (codice: string) => chiama<void>('POST', '/api/senior/collega', { codice }),
+    audioVocale: (id: number) => conPersona(`/api/senior/vocali/${id}/audio`),
+    collega: (codice: string) => chiama<{ anzianoId: number }>('POST', '/api/senior/collega', { codice }),
     io: () => chiama<SeniorIo>('GET', '/api/senior/io'),
     lingua: (lingua: Lingua) => chiama<void>('PUT', '/api/senior/lingua', { lingua }),
     chiedi: (categoria: Categoria) => chiama<Richiesta>('POST', '/api/senior/richieste', { categoria }),

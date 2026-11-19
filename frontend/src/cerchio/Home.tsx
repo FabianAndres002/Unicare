@@ -1,7 +1,7 @@
 // Dashboard della famiglia: la scheda della persona assistita, le funzioni in arrivo e il cerchio.
 
-import { Cake, CalendarDays, ChevronRight, Languages, MapPin, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
-import { api, type Cerchio, type Profilo } from '../comune/api'
+import { Cake, CalendarDays, ChevronRight, Languages, MapPin, Mic, Pencil, Plus, Receipt, Smartphone, UserPlus, UserSearch, Watch } from 'lucide-react'
+import { api, type Anziano, type Cerchio, type Profilo } from '../comune/api'
 import { useCarica } from '../comune/useCarica'
 import { useDiretta } from '../comune/diretta'
 import SchedaRichiesta from '../richieste/SchedaRichiesta'
@@ -13,12 +13,30 @@ import Avatar from '../comune/Avatar'
 import { dataEstesa, eta, saluto } from '../comune/utili'
 import { t } from '../comune/lingua'
 
+/** Con più nonni nel cerchio: visite, messaggi e documenti dentro la scheda di ciascuno. */
+function AzioniAnziano({ anziano, documenti }: { anziano: Anziano; documenti: boolean }) {
+  const { dati } = useCarica(() => api.vocali(anziano.id), anziano.id, 30)
+  const nuovi = dati?.filter((v) => v.dallAnziano && !v.ascoltatoDa).length ?? 0
+  return (
+    <div className="scheda-anziano-azioni">
+      <Collegamento a={`/anziano/${anziano.id}/appuntamenti`}><CalendarDays size={20} />{t('Appuntamenti')}</Collegamento>
+      <Collegamento a={`/anziano/${anziano.id}/messaggi`}>
+        <Mic size={20} />{t('Messaggi')}
+        {nuovi > 0 && <span className="distintivo urgente">{nuovi}</span>}
+      </Collegamento>
+      {documenti && <Collegamento a={`/anziano/${anziano.id}/documenti`}><Receipt size={20} />{t('Documenti')}</Collegamento>}
+    </div>
+  )
+}
 
 export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: Cerchio }) {
   const puoModificare = cerchio.mioRuolo !== 'BADANTE'
   const { dati: richieste, ricarica } = useCarica(() => api.richieste(cerchio.id, 'attive'), cerchio.id)
   useDiretta('/api/diretta', 'richiesta', ricarica)
   const daFare = richieste?.filter((r) => r.stato === 'APERTA').length ?? 0
+  // Con una sola persona le sue funzioni stanno nella griglia; con due o più, dentro ogni scheda.
+  const piuPersone = cerchio.anziani.length > 1
+  const unica = piuPersone ? undefined : cerchio.anziani[0]
   return (
     <div className="pagina-app entra">
       <header className="saluto">
@@ -55,6 +73,7 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
                   return <div><span className="numero">{n ?? '—'}</span><span>{n === 1 ? t('richiesta attiva') : t('richieste attive')}</span></div>
                 })()}
               </div>
+              {piuPersone && <AzioniAnziano anziano={a} documenti={puoModificare} />}
               {puoModificare && (
                 <Collegamento a={`/anziano/${a.id}`} className="scheda-anziano-telefono">
                   <Smartphone size={20} /> <span>{t('Il telefono di {0} e la Senior App', a.nome)}</span> <ChevronRight size={20} />
@@ -63,6 +82,11 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
             </article>
           )
         })}
+        {cerchio.anziani.length > 0 && puoModificare && (
+          <Collegamento a="/anziano/nuovo" className="aggiungi-persona">
+            <Plus size={20} />{' '}{t('Aggiungi un’altra persona da assistere')}
+          </Collegamento>
+        )}
         {cerchio.anziani.length === 0 && (
           puoModificare ? (
             <Collegamento a="/anziano/nuovo" className="scheda-vuota">
@@ -97,14 +121,14 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
       <section>
         <div className="titolo-sezione"><h2>{t('Funzioni')}</h2></div>
         <div className="griglia-funzioni">
-          {cerchio.anziani[0] && (
+          {unica && (
             <>
-              <Collegamento a={`/anziano/${cerchio.anziani[0].id}/appuntamenti`} className="funzione cat-accompagnamento">
+              <Collegamento a={`/anziano/${unica.id}/appuntamenti`} className="funzione cat-accompagnamento">
                 <span className="funzione-icona blu"><CalendarDays size={22} /></span>
                 <strong>{t('Appuntamenti')}</strong>
                 <span>{t('Visite ed esami')}</span>
               </Collegamento>
-              <MessaggiFunzione anziano={cerchio.anziani[0]} />
+              <MessaggiFunzione anziano={unica} />
             </>
           )}
           {profilo.tipo === 'FAMILIARE' && (
@@ -114,8 +138,8 @@ export default function Home({ profilo, cerchio }: { profilo: Profilo; cerchio: 
               <span>{t('Chi si propone nella tua zona')}</span>
             </Collegamento>
           )}
-          {cerchio.anziani[0] && puoModificare && (
-            <Collegamento a={`/anziano/${cerchio.anziani[0].id}/documenti`} className="funzione cat-spesa">
+          {unica && puoModificare && (
+            <Collegamento a={`/anziano/${unica.id}/documenti`} className="funzione cat-spesa">
               <span className="funzione-icona verde"><Receipt size={22} /></span>
               <strong>{t('Documenti')}</strong>
               <span>{t('Ricette, analisi, ecografie, ricevute')}</span>

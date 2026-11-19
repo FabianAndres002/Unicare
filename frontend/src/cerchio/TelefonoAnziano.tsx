@@ -71,6 +71,7 @@ export default function TelefonoAnziano({ anziano }: Props) {
             {codice.codice.slice(0, 3)}<span> </span>{codice.codice.slice(3)}
           </p>
           <p className="nota">{t('Vale fino a {0} e si usa una volta sola.', ora(codice.scadeIl))}</p>
+          <p className="nota">{t('Il telefono è lo stesso di un’altra persona del cerchio? Nella sua app tocca “Aggiungi un’altra persona” in fondo e scrivi questo codice.')}</p>
           <div className="due-colonne">
             <a className="pulsante whatsapp con-icona" href={`https://wa.me/?text=${encodeURIComponent(messaggio)}`} target="_blank" rel="noreferrer">
               <MessageCircle size={20} />{' '}WhatsApp

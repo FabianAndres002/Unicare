@@ -60,7 +60,7 @@ describe('interprete', () => {
     const { codice } = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body
     await request(app).post('/api/senior/traduci').send({ testo: 'Ho freddo', da: 'it', a: 'uk' }).expect(401)
     const nonna = request.agent(app)
-    await nonna.post('/api/senior/collega').send({ codice }).expect(204)
+    await nonna.post('/api/senior/collega').send({ codice }).expect(200)
     expect((await nonna.post('/api/senior/traduci').send({ testo: 'Ho freddo', da: 'it', a: 'uk' }).expect(200)).body).toEqual({ traduzione: '[uk] Ho freddo' })
   })
 
@@ -90,7 +90,7 @@ describe('lingua, telefono e chat tradotta', () => {
     const anzianoId = (await anna.post(`/api/cerchi/${cerchioId}/anziani`).send({ nome: 'Pina', cognome: 'Rossi', consensoPrivacy: true })).body.id
     const { codice } = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body
     const nonna = request.agent(app)
-    await nonna.post('/api/senior/collega').send({ codice }).expect(204)
+    await nonna.post('/api/senior/collega').send({ codice }).expect(200)
     expect((await nonna.get('/api/senior/io').expect(200)).body.famiglia[0]).toMatchObject({ nome: 'Anna', telefono: '3331234567' })
   })
 

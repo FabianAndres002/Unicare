@@ -38,7 +38,7 @@ async function famiglia() {
 async function telefonoDellaNonna(chi: request.Agent, anzianoId: number) {
   const { codice } = (await chi.post(`/api/anziani/${anzianoId}/telefono/codice`).expect(201)).body
   const telefono = request.agent(app)
-  await telefono.post('/api/senior/collega').send({ codice }).expect(204)
+  await telefono.post('/api/senior/collega').send({ codice }).expect(200)
   return telefono
 }
 
@@ -88,7 +88,7 @@ describe('collegare il telefono dell\'anziano', () => {
     expect((await anna.get(`/api/anziani/${anzianoId}/telefono`)).body).toMatchObject({ collegati: [], codiceScadeIl: r.body.scadeIl })
 
     const telefono = request.agent(app)
-    await telefono.post('/api/senior/collega').send({ codice: r.body.codice }).expect(204)
+    await telefono.post('/api/senior/collega').send({ codice: r.body.codice }).expect(200)
     const io = await telefono.get('/api/senior/io')
     expect(io.status).toBe(200)
     expect(io.body).toMatchObject({ anziano: { nome: 'Pina' }, cerchio: 'Famiglia Rossi', richieste: [] })
@@ -105,7 +105,7 @@ describe('collegare il telefono dell\'anziano', () => {
     const vecchio = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body.codice
     const nuovo = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body.codice
     if (vecchio !== nuovo) expect((await request(app).post('/api/senior/collega').send({ codice: vecchio })).status).toBe(400)
-    expect((await request(app).post('/api/senior/collega').send({ codice: nuovo })).status).toBe(204)
+    expect((await request(app).post('/api/senior/collega').send({ codice: nuovo })).status).toBe(200)
   })
 
   it('dopo 5 codici sbagliati bisogna aspettare', async () => {

@@ -52,7 +52,7 @@ async function famiglia() {
   const maria = await entra('Maria', 'BADANTE')
   const { codice } = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body
   const nonna = request.agent(app)
-  await nonna.post('/api/senior/collega').send({ codice }).expect(204)
+  await nonna.post('/api/senior/collega').send({ codice }).expect(200)
   await nonna.post('/api/senior/push').send(iscrizione('nonna')).expect(204)
   return { anna, marco, maria, cerchioId, anzianoId, nonna }
 }

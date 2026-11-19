@@ -45,7 +45,7 @@ async function famiglia() {
   // Il telefono della nonna, collegato e con le notifiche accese.
   const { codice } = (await anna.post(`/api/anziani/${anzianoId}/telefono/codice`)).body
   const nonna = request.agent(app)
-  await nonna.post('/api/senior/collega').send({ codice }).expect(204)
+  await nonna.post('/api/senior/collega').send({ codice }).expect(200)
   await nonna.post('/api/senior/push').send(iscrizione('nonna')).expect(204)
   return { anna, marco, maria, cerchioId, anzianoId, nonna }
 }
@@ -122,7 +122,7 @@ describe('il promemoria scatta', () => {
     await pianificatore.giro(new Date(previsto.getTime() + 40_000))
     const arrivate = await notifiche()
     expect(arrivate).toHaveLength(1)
-    expect(arrivate[0]).toMatchObject({ endpoint: 'https://push.example/nonna', messaggio: { titolo: 'È ora: medicine del mattino', url: '/senior', insistente: true } })
+    expect(arrivate[0]).toMatchObject({ endpoint: 'https://push.example/nonna', messaggio: { titolo: 'È ora: medicine del mattino', url: expect.stringMatching(/^\/senior\?persona=\d+$/), insistente: true } })
     // Il nome della medicina non compare mai nella notifica (si vede a telefono bloccato).
     expect(JSON.stringify(arrivate)).not.toContain('Cardioaspirina')
 
@@ -203,7 +203,7 @@ describe('il promemoria scatta', () => {
     const a2 = (await altra.post(`/api/cerchi/${c2}/anziani`).send({ nome: 'Ada', cognome: 'Bianchi', consensoPrivacy: true })).body.id
     const { codice } = (await altra.post(`/api/anziani/${a2}/telefono/codice`)).body
     const ada = request.agent(app)
-    await ada.post('/api/senior/collega').send({ codice }).expect(204)
+    await ada.post('/api/senior/collega').send({ codice }).expect(200)
     expect((await ada.post(`/api/senior/medicine/${occ.id}/fatto`)).status).toBe(404)
     expect((await nonna.post(`/api/senior/medicine/${occ.id}/fatto`)).status).toBe(204)
   })
