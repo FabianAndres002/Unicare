@@ -13,7 +13,7 @@ import { generateVAPIDKeys, sendNotification, WebPushError } from 'web-push'
 import { z } from 'zod'
 import type { Database } from '../db/db.ts'
 import { config } from '../config.ts'
-import { comeLingua, rendi, type Testo } from '../comune/testi.ts'
+import { comeLingua, rendi, tr, type Testo } from '../comune/testi.ts'
 
 export const schemaIscrizione = z.object({
   endpoint: z.string().url().max(1000),
@@ -95,8 +95,10 @@ export function creaPush(db: Database, spingitore: Spingitore) {
     return chiavi
   }
 
+  /** Consegna a ogni iscrizione. Restituisce quante sono partite, quante erano scadute e gli errori. */
   async function consegna(iscrizioni: RigaIscrizione[], avviso: AvvisoPush) {
-    if (!iscrizioni.length) return
+    const esito = { consegnate: 0, scadute: 0, errori: [] as string[] }
+    if (!iscrizioni.length) return esito
     const c = await leChiavi()
     for (const i of iscrizioni) {
       const lingua = comeLingua(i.lingua)
@@ -104,11 +106,15 @@ export function creaPush(db: Database, spingitore: Spingitore) {
       try {
         if ((await spingitore.invia(c, i, messaggio)) === 'scaduta') {
           await db.query('DELETE FROM iscrizione_push WHERE id = $1', [i.id])
-        }
+          esito.scadute++
+        } else esito.consegnate++
       } catch (e) {
-        console.error('Notifica push non consegnata:', e instanceof Error ? e.message : e)
+        const m = e instanceof Error ? e.message : String(e)
+        console.error('Notifica push non consegnata:', m)
+        esito.errori.push(m.slice(0, 200))
       }
     }
+    return esito
   }
 
   async function salva(chi: { utenteId: number } | { dispositivoId: number }, s: Iscrizione) {
@@ -131,6 +137,20 @@ export function creaPush(db: Database, spingitore: Spingitore) {
     chiavePubblica: async () => (await leChiavi()).pubblica,
     iscriviUtente: (utenteId: number, s: Iscrizione) => salva({ utenteId }, s),
     iscriviTelefono: (dispositivoId: number, s: Iscrizione) => salva({ dispositivoId }, s),
+    /** "Manda una notifica di prova": a tutti i telefoni di questo utente, con l'esito. */
+    async prova(utenteId: number) {
+      const iscrizioni = await db.query<RigaIscrizione>(
+        `SELECT i.id, i.endpoint, i.p256dh, i.auth, u.lingua FROM iscrizione_push i JOIN utente u ON u.id = i.utente_id WHERE i.utente_id = $1`,
+        [utenteId],
+      )
+      const esito = await consegna(iscrizioni, {
+        titolo: tr('Notifica di prova'),
+        testo: tr('Se leggi questo messaggio, le notifiche di Unicare funzionano su questo telefono.'),
+        url: '/profilo',
+        tag: 'prova',
+      })
+      return { telefoni: iscrizioni.length, ...esito }
+    },
     async cancellaUtente(endpoint: string, utenteId: number) {
       await db.query('DELETE FROM iscrizione_push WHERE endpoint = $1 AND utente_id = $2', [endpoint, utenteId])
     },

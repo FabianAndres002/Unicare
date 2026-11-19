@@ -417,6 +417,7 @@ export const api = {
     chiave: () => chiama<{ chiave: string }>('GET', '/api/push/chiave'),
     iscrivi: (s: IscrizionePush) => chiama<void>('POST', '/api/push/iscrizione', s),
     cancella: (endpoint: string) => chiama<void>('DELETE', '/api/push/iscrizione', { endpoint }),
+    prova: () => chiama<{ telefoni: number; consegnate: number; scadute: number; errori: string[] }>('POST', '/api/push/prova'),
   },
 
   // Senior App (il telefono dell'anziano)

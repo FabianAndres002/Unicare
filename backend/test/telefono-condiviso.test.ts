@@ -88,3 +88,14 @@ describe('un telefono per due nonni', () => {
     expect(io.persone).toHaveLength(1)
   })
 })
+
+describe('notifica di prova', () => {
+  it('arriva ai telefoni dell\'utente e dice quanti sono', async () => {
+    const { anna } = await nonni()
+    expect((await anna.post('/api/push/prova').expect(200)).body).toEqual({ telefoni: 0, consegnate: 0, scadute: 0, errori: [] })
+    await anna.post('/api/push/iscrizione').send({ endpoint: 'https://push.example/anna', keys: { p256dh: 'k', auth: 'a' } }).expect(204)
+    expect((await anna.post('/api/push/prova').expect(200)).body).toMatchObject({ telefoni: 1, consegnate: 1 })
+    const n = (await notifiche()).at(-1)!
+    expect(n.messaggio.titolo).toBe('Notifica di prova')
+  })
+})

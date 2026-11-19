@@ -8,6 +8,7 @@
 // GET    /api/push/chiave              chiave pubblica per iscriversi alle notifiche  (nessun login)
 // POST   /api/push/iscrizione          questo browser riceve le notifiche dell'utente (login)        204
 // DELETE /api/push/iscrizione          non più                                         (login)        204
+// POST   /api/push/prova               notifica di prova ai miei telefoni → {telefoni, consegnate, scadute, errori}
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -43,6 +44,10 @@ export function rotteMedicine(medicine: ServizioMedicine, pianificatore: Pianifi
 
   router.get('/push/chiave', async (_req, res) => {
     res.json({ chiave: await push.chiavePubblica() })
+  })
+
+  router.post('/push/prova', richiedeAccesso, async (_req, res) => {
+    res.json(await push.prova(res.locals.idUtente))
   })
 
   router.post('/push/iscrizione', richiedeAccesso, async (req, res) => {

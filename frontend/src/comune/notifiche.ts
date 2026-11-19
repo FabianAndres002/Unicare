@@ -35,6 +35,13 @@ function chiaveInByte(base64url: string): Uint8Array<ArrayBuffer> {
   return byte
 }
 
+function stessaChiave(attuale: ArrayBuffer | null | undefined, chiave: string): boolean {
+  if (!attuale) return true // il browser non la dice: non possiamo controllare
+  const a = new Uint8Array(attuale)
+  const b = chiaveInByte(chiave)
+  return a.length === b.length && a.every((x, i) => x === b[i])
+}
+
 /**
  * Chiede il permesso, iscrive questo browser e manda l'iscrizione al server.
  * salva: dove registrarla (familiare o telefono dell'anziano).
@@ -43,9 +50,15 @@ export async function attivaNotifiche(salva: (s: IscrizionePush) => Promise<void
   const permesso = await Notification.requestPermission()
   if (permesso !== 'granted') return permesso === 'denied' ? 'negate' : 'spente'
   const registrazione = await navigator.serviceWorker.ready
+  const { chiave } = await api.push.chiave()
   let iscrizione = await registrazione.pushManager.getSubscription()
+  // Un'iscrizione fatta con una chiave diversa (per esempio dopo aver azzerato il database)
+  // non riceve più niente: la rifacciamo.
+  if (iscrizione && !stessaChiave(iscrizione.options.applicationServerKey, chiave)) {
+    await iscrizione.unsubscribe().catch(() => {})
+    iscrizione = null
+  }
   if (!iscrizione) {
-    const { chiave } = await api.push.chiave()
     iscrizione = await registrazione.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chiaveInByte(chiave) })
   }
   await salva(iscrizione.toJSON() as IscrizionePush)
