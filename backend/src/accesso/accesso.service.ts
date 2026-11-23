@@ -15,10 +15,12 @@ export type Profilo = {
   telefono: string | null; lingua: Lingua
   /** Ha scritto il codice ricevuto per email. */
   emailConfermata: boolean
+  /** Ha già visto (o saltato) la visita guidata. */
+  guidaVista: boolean
 }
 
 const COLONNE_PROFILO = `id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto, telefono, lingua,
-  email_confermata_il IS NOT NULL AS "emailConfermata"`
+  email_confermata_il IS NOT NULL AS "emailConfermata", guida_vista_il IS NOT NULL AS "guidaVista"`
 
 // ---- Regole sui dati in ingresso (zod controlla e rifiuta i dati sbagliati) ----
 
@@ -63,6 +65,8 @@ export const schemaPreferenze = z.object({
   // Numero italiano o internazionale: cifre, spazi, +. Vuoto = nessun numero.
   telefono: z.string().trim().max(20).regex(/^(\+?[0-9 ]{6,19})?$/, 'numero non valido').transform((v) => v.replace(/ /g, '') || null).nullish(),
   lingua: z.enum(LINGUE).optional(),
+  /** true quando finisce o salta la visita guidata; false per rivederla al prossimo accesso. */
+  guidaVista: z.boolean().optional(),
 })
 
 export const schemaEliminaAccount = z.object({ password: z.string().min(1, 'Scrivi la tua password per confermare.') })
@@ -87,7 +91,7 @@ export function creaServizioAccesso(db: Database) {
       const [nuovo] = await db.query<Profilo>(
         `INSERT INTO utente (email, password_hash, nome, cognome, tipo, lingua)
          VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto, telefono, lingua, false AS "emailConfermata"`,
+         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto, telefono, lingua, false AS "emailConfermata", false AS "guidaVista"`,
         [dati.email, hash, dati.nome, dati.cognome, dati.tipo, dati.lingua],
       )
       return nuovo!
@@ -246,9 +250,10 @@ export function creaServizioAccesso(db: Database) {
       await db.query(
         `UPDATE utente SET email_avvisi = COALESCE($2, email_avvisi),
                 telefono = CASE WHEN $3::boolean THEN $4 ELSE telefono END,
-                lingua = COALESCE($5, lingua)
+                lingua = COALESCE($5, lingua),
+                guida_vista_il = CASE WHEN $6::boolean IS NULL THEN guida_vista_il WHEN $6 THEN COALESCE(guida_vista_il, now()) ELSE NULL END
          WHERE id = $1`,
-        [id, dati.emailAvvisi ?? null, dati.telefono !== undefined, dati.telefono ?? null, dati.lingua ?? null],
+        [id, dati.emailAvvisi ?? null, dati.telefono !== undefined, dati.telefono ?? null, dati.lingua ?? null, dati.guidaVista ?? null],
       )
       return this.trovaProfilo(id)
     },

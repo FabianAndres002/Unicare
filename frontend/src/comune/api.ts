@@ -15,6 +15,8 @@ export type Profilo = {
   telefono: string | null; lingua: Lingua
   /** Deve ancora scrivere il codice ricevuto per email (solo se la conferma è accesa). */
   daConfermare?: boolean
+  /** Ha già visto (o saltato) la visita guidata, su qualsiasi telefono. */
+  guidaVista?: boolean
 }
 
 export type DatiRegistrazione = {
@@ -312,7 +314,7 @@ export const api = {
   nuovaPassword: (dati: { email: string; codice: string; password: string }) => chiama<Profilo>('POST', '/api/auth/nuova-password', dati),
   /** Gli altri telefoni escono e smettono di ricevere notifiche; endpoint = le notifiche di questo, che restano. */
   esciOvunque: (endpoint?: string) => chiama<void>('POST', '/api/auth/esci-ovunque', { endpoint }),
-  preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),
+  preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua; guidaVista?: boolean }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),
 
   // Cerchi e anziani
   cerchi: () => chiama<RiassuntoCerchio[]>('GET', '/api/cerchi'),

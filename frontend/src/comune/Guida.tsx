@@ -2,6 +2,8 @@
 // e spiega a cosa servono, passando da una pagina all'altra (Home, Richieste, Cerchio…).
 // Una versione per la famiglia, una per la badante e una (più grande, con la voce) per la
 // Senior App. I passi sono in passiTour.ts. Si rivede dal Profilo e dalla Senior App.
+// Familiari e badanti: "già vista" è salvato nell'account (ogni account nuovo la vede, anche
+// su un telefono dove qualcuno l'aveva già vista). Senior App: salvato sul telefono.
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
@@ -10,6 +12,7 @@ import { lingua, t } from './lingua'
 import { installaOra, installata, puoInstallareSubito, suIphone } from './installa'
 import { EVENTO_GUIDA } from './guidaEventi'
 import { naviga, usePercorso } from './router'
+import { api } from './api'
 import { passiTour, type Passo, type TipoGuida } from './passiTour'
 import { LINGUE } from '../interprete/lingue'
 import { parla, zitto } from '../interprete/voce'
@@ -193,14 +196,25 @@ function Giro({ tipo, onFine }: { tipo: TipoGuida; onFine: () => void }) {
   )
 }
 
-/** Avvia la visita guidata la prima volta su questo telefono, e ogni volta che la si richiede. */
-export default function GuidaIniziale({ tipo }: { tipo: TipoGuida }) {
-  const [aperta, setAperta] = useState(() => !vista(tipo))
+/**
+ * Avvia la visita guidata la prima volta e ogni volta che la si richiede.
+ * vistaAccount: per familiari e badanti, se l'account l'ha già vista (dal server).
+ */
+// Vista in questa apertura dell'app: non riparte se la pagina si ricompone prima che
+// il profilo aggiornato arrivi dal server.
+let vistaOra = false
+
+export default function GuidaIniziale({ tipo, vistaAccount }: { tipo: TipoGuida; vistaAccount?: boolean }) {
+  const [aperta, setAperta] = useState(() => (vistaAccount === undefined ? !vista(tipo) : !vistaAccount && !vistaOra))
   useEffect(() => {
     const apri = () => setAperta(true)
     window.addEventListener(EVENTO_GUIDA, apri)
     return () => window.removeEventListener(EVENTO_GUIDA, apri)
   }, [])
-  const chiudi = useCallback(() => setAperta(false), [])
+  const chiudi = useCallback(() => {
+    setAperta(false)
+    vistaOra = true
+    if (vistaAccount !== undefined) void api.preferenze({ guidaVista: true }).catch(() => {})
+  }, [vistaAccount])
   return aperta ? <Giro tipo={tipo} onFine={chiudi} /> : null
 }

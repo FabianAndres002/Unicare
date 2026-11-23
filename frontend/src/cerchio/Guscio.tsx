@@ -50,7 +50,7 @@ export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, ha
 
       <main className="contenuto">{children}</main>
       {/* La visita guidata parte qui: solo dentro l'app vera (non sulla pagina "crea il cerchio"). */}
-      <GuidaIniziale tipo={profilo.tipo} />
+      <GuidaIniziale tipo={profilo.tipo} vistaAccount={profilo.guidaVista ?? false} />
     </div>
   )
 }
