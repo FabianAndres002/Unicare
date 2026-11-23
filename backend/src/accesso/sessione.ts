@@ -36,7 +36,7 @@ function idDalCookie(req: Request): number | undefined {
   const token = req.cookies?.[NOME_COOKIE]
   if (!token) return undefined
   try {
-    const dati = jwt.verify(token, config.segretoJwt)
+    const dati = jwt.verify(token, config.segretoJwt, { algorithms: ['HS256'] })
     return typeof dati === 'object' && dati.sub ? Number(dati.sub) : undefined
   } catch {
     return undefined // token scaduto o manomesso

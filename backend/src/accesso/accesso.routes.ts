@@ -9,7 +9,8 @@
 // GET  /api/auth/io/dati      scarica tutti i miei dati (JSON)
 // DELETE /api/auth/io         cancella l'account {password}   (204)
 //
-// Login: dopo 10 password sbagliate dallo stesso indirizzo di rete, 15 minuti di attesa.
+// Login: dopo 10 password sbagliate dallo stesso indirizzo di rete, oppure per lo stesso account
+// (anche da indirizzi diversi), 15 minuti di attesa. Registrazioni: massimo 10 all'ora per indirizzo.
 
 import { createHash, timingSafeEqual } from 'node:crypto'
 import { Router } from 'express'
@@ -17,7 +18,7 @@ import { config } from '../config.ts'
 import type { ServizioInviti } from '../cerchio/inviti.service.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
 import { schemaEliminaAccount, schemaLogin, schemaPreferenze, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
-import { creaLimitatore } from '../comune/limitatore.ts'
+import { creaFrequenza, creaLimitatore } from '../comune/limitatore.ts'
 import { apriSessione, chiudiSessione, richiedeAccesso } from './sessione.ts'
 
 /** Confronta due testi senza far capire, dai tempi di risposta, quanto sono simili. */
@@ -26,7 +27,7 @@ function uguali(a: string, b: string): boolean {
   return timingSafeEqual(h(a), h(b))
 }
 
-export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti): Router {
+export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, registrazioniOra: number): Router {
   const router = Router()
 
   /**
@@ -48,9 +49,13 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti): 
     res.json({ serveCodice: !!config.codiceRegistrazione })
   })
   const limiteLogin = creaLimitatore(10, 15)
+  const limiteAccount = creaLimitatore(10, 15)
+  const limiteRegistrazioni = creaFrequenza(registrazioniOra, 3_600_000,
+    () => new ErroreApplicativo(429, 'TROPPE_REGISTRAZIONI', 'Troppi account creati da questa rete. Riprova tra un’ora.'))
 
   router.post('/registrati', async (req, res) => {
     const { codice, invito, ...dati } = schemaRegistrazione.parse(req.body)
+    limiteRegistrazioni.conta(req.ip ?? 'sconosciuto')
     if (!(await puoRegistrarsi(dati.email, codice, invito))) {
       if (codice) throw new ErroreApplicativo(403, 'CODICE_REGISTRAZIONE', 'Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.')
       throw new ErroreApplicativo(403, 'CODICE_REGISTRAZIONE', 'Per registrarti serve il codice che ti ha mandato chi ti ha invitato.')
@@ -63,15 +68,21 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti): 
   router.post('/login', async (req, res) => {
     const { email, password } = schemaLogin.parse(req.body)
     const chi = req.ip ?? 'sconosciuto'
+    const account = email.trim().toLowerCase()
     limiteLogin.controlla(chi)
+    limiteAccount.controlla(account)
     let profilo
     try {
       profilo = await accesso.verificaCredenziali(email, password)
     } catch (e) {
-      if (e instanceof ErroreApplicativo && e.stato === 401) limiteLogin.sbagliato(chi)
+      if (e instanceof ErroreApplicativo && e.stato === 401) {
+        limiteLogin.sbagliato(chi)
+        limiteAccount.sbagliato(account)
+      }
       throw e
     }
     limiteLogin.riuscito(chi)
+    limiteAccount.riuscito(account)
     apriSessione(res, profilo.id)
     res.json(profilo)
   })

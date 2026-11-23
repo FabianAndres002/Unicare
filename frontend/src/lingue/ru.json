@@ -329,6 +329,7 @@
  "Il cerchio": "Круг",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Круг — это группа людей, которые заботятся о вашем близком: вы, другие родные и сиделка.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Код неверный. Проверьте сообщение от того, кто вас пригласил.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "Подключение телефонов приостановлено в целях безопасности. Попробуйте через час.",
  "Il consenso della persona assistita": "Согласие подопечного",
  "Il file è troppo grande (massimo 10 MB).": "Файл слишком большой (максимум 10 МБ).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Ссылка действует 7 дней и может быть использована только один раз.",
@@ -839,6 +840,8 @@
  "Traduci nella mia lingua": "Переводить на мой язык",
  "Traduco": "Перевожу",
  "Troppe pagine aperte: chiudine qualcuna.": "Слишком много открытых страниц: закройте некоторые.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Слишком много запросов за короткое время. Подождите немного и попробуйте снова.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "С этой сети создано слишком много аккаунтов. Попробуйте через час.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Слишком коротко: говорите чуть дольше, прежде чем остановить.",
  "Trova una badante": "Найти сиделку",
  "Tu": "Вы",
@@ -1001,5 +1004,6 @@
  "· invito in attesa, scade il {0}": "· приглашение ожидает, истекает {0}",
  "È il telefono di un anziano?": "Это телефон пожилого человека?",
  "è nel messaggio di chi ti ha invitato": "он в сообщении от того, кто вас пригласил",
+ "è troppo facile da indovinare: scegline una meno comune": "слишком легко угадать: выберите менее распространённый",
  "€ all’ora, facoltativa": "€ в час, необязательно"
 }

@@ -62,6 +62,14 @@ export const config = {
   // Senza chiave, in sviluppo si usa un servizio di prova gratuito; in produzione l'interprete resta spento.
   deeplChiave: process.env.DEEPL_API_KEY ?? '',
 
+  // Limiti contro chi prova a sovraccaricare il server o a creare account in massa.
+  limiti: {
+    /** Chiamate alle API per indirizzo di rete, al minuto. */
+    richiesteMinuto: Number(process.env.LIMITE_RICHIESTE_MINUTO ?? 600),
+    /** Nuovi account per indirizzo di rete, all'ora (nei test molti di più). */
+    registrazioniOra: Number(process.env.LIMITE_REGISTRAZIONI_ORA ?? (process.env.VITEST ? 1000 : 10)),
+  },
+
   // Il telefono dell'anziano resta collegato a lungo: non deve rifare il codice ogni mese.
   durataTelefonoAnzianoGiorni: 365,
 }

@@ -329,6 +329,7 @@
  "Il cerchio": "Кръгът",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Кръгът е групата хора, които се грижат за вашия близък: вие, другите роднини и болногледачката.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Кодът не е верен. Проверете съобщението от човека, който ви е поканил.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "Свързването на телефони е спряно временно от съображения за сигурност. Опитай след един час.",
  "Il consenso della persona assistita": "Съгласието на човека, за когото се грижите",
  "Il file è troppo grande (massimo 10 MB).": "Файлът е твърде голям (максимум 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Връзката важи 7 дни и може да се използва само веднъж.",
@@ -839,6 +840,8 @@
  "Traduci nella mia lingua": "Превеждай на моя език",
  "Traduco": "Превеждам",
  "Troppe pagine aperte: chiudine qualcuna.": "Твърде много отворени страници: затворете някои.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Твърде много заявки за кратко време. Изчакай малко и опитай отново.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "От тази мрежа са създадени твърде много профили. Опитай след един час.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Твърде кратко: говорете малко по-дълго, преди да спрете.",
  "Trova una badante": "Намерете болногледачка",
  "Tu": "Вие",
@@ -999,5 +1002,6 @@
  "· invito in attesa, scade il {0}": "· чакаща покана, изтича на {0}",
  "È il telefono di un anziano?": "Това телефонът на възрастен човек ли е?",
  "è nel messaggio di chi ti ha invitato": "има го в съобщението от човека, който ви е поканил",
+ "è troppo facile da indovinare: scegline una meno comune": "е твърде лесна за отгатване: избери по-рядко срещана",
  "€ all’ora, facoltativa": "€ на час, по избор"
 }

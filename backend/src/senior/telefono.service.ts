@@ -23,6 +23,12 @@ export const schemaCodice = z.object({ codice: z.string().trim().regex(/^\d{6}$/
 const ORE_VALIDITA_CODICE = 24
 const MAX_TENTATIVI = 5
 const MINUTI_BLOCCO = 15
+/**
+ * In tutto il server: oltre 30 codici sbagliati in un'ora (da qualsiasi indirizzo) si ferma
+ * il collegamento per tutti fino all'ora dopo. Chi usa molti indirizzi diversi non può
+ * comunque provare migliaia di codici.
+ */
+const MAX_ERRORI_TOTALI_ORA = 30
 
 const impronta = (token: string) => createHash('sha256').update(token).digest('hex')
 const improntaCodice = (codice: string) => createHmac('sha256', config.segretoJwt).update(`codice:${codice}`).digest('hex')
@@ -42,8 +48,13 @@ export type AnzianoCollegato = { dispositivoId: number; anzianoId: number }
  */
 function creaLimitatore() {
   const errori = new Map<string, { quanti: number; finoAl: number }>()
+  let totali = { quanti: 0, dal: Date.now() }
   return {
     controlla(chi: string) {
+      if (Date.now() - totali.dal >= 3_600_000) totali = { quanti: 0, dal: Date.now() }
+      if (totali.quanti >= MAX_ERRORI_TOTALI_ORA) {
+        throw new ErroreApplicativo(429, 'TROPPI_TENTATIVI_TOTALI', 'Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.')
+      }
       const e = errori.get(chi)
       if (e && e.quanti >= MAX_TENTATIVI && e.finoAl > Date.now()) {
         const minuti = Math.ceil((e.finoAl - Date.now()) / 60000)
@@ -51,9 +62,11 @@ function creaLimitatore() {
       }
     },
     sbagliato(chi: string) {
+      totali.quanti++
       const e = errori.get(chi)
       const valido = e && e.finoAl > Date.now()
       errori.set(chi, { quanti: (valido ? e.quanti : 0) + 1, finoAl: Date.now() + MINUTI_BLOCCO * 60000 })
+      if (errori.size > 10_000) for (const [k, v] of errori) if (v.finoAl <= Date.now()) errori.delete(k)
     },
     riuscito(chi: string) {
       errori.delete(chi)

@@ -329,6 +329,7 @@
  "Il cerchio": "Le cercle",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Le cercle est le groupe de personnes qui prend soin de votre proche : vous, les autres membres de la famille et l’aide à domicile.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Le code n’est pas bon. Vérifie le message de la personne qui t’a invité.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "La connexion des téléphones est en pause par sécurité. Réessayez dans une heure.",
  "Il consenso della persona assistita": "Le consentement de la personne aidée",
  "Il file è troppo grande (massimo 10 MB).": "Le fichier est trop volumineux (10 Mo maximum).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Le lien est valable 7 jours et ne peut être utilisé qu’une seule fois.",
@@ -838,6 +839,8 @@
  "Traduci nella mia lingua": "Traduire dans ma langue",
  "Traduco": "Traduction",
  "Troppe pagine aperte: chiudine qualcuna.": "Trop de pages ouvertes : fermez-en quelques-unes.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Trop de demandes en peu de temps. Attendez un moment et réessayez.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "Trop de comptes créés depuis ce réseau. Réessayez dans une heure.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Trop court : parlez un peu plus avant d’arrêter.",
  "Trova una badante": "Trouver une aide à domicile",
  "Tu": "Vous",
@@ -1000,5 +1003,6 @@
  "· invito in attesa, scade il {0}": "· invitation en attente, expire le {0}",
  "È il telefono di un anziano?": "C’est le téléphone d’une personne âgée ?",
  "è nel messaggio di chi ti ha invitato": "il est dans le message de la personne qui t’a invité",
+ "è troppo facile da indovinare: scegline una meno comune": "est trop facile à deviner : choisissez-en un moins courant",
  "€ all’ora, facoltativa": "€ de l’heure, facultatif"
 }

@@ -26,3 +26,26 @@ export function creaLimitatore(massimo: number, minuti: number) {
     },
   }
 }
+
+/**
+ * Quante volte al massimo in una finestra di tempo (per esempio 10 registrazioni all'ora
+ * dallo stesso indirizzo). Conta tutto, non solo gli errori. In memoria: si azzera al riavvio.
+ */
+export function creaFrequenza(massimo: number, finestraMs: number,
+  errore = () => new ErroreApplicativo(429, 'TROPPE_RICHIESTE', 'Troppe richieste in poco tempo. Aspetta un momento e riprova.')) {
+  const conti = new Map<string, { quanti: number; dal: number }>()
+  return {
+    /** Conta un tentativo; 429 se si è oltre il limite. */
+    conta(chi: string) {
+      const ora = Date.now()
+      let c = conti.get(chi)
+      if (!c || ora - c.dal >= finestraMs) {
+        c = { quanti: 0, dal: ora }
+        conti.set(chi, c)
+        if (conti.size > 20_000) for (const [k, v] of conti) if (ora - v.dal >= finestraMs) conti.delete(k)
+      }
+      c.quanti++
+      if (c.quanti > massimo) throw errore()
+    },
+  }
+}

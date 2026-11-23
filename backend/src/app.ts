@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import type { Database } from './db/db.ts'
 import { config } from './config.ts'
 import { gestoreErrori, ErroreApplicativo } from './comune/errori.ts'
+import { creaFrequenza } from './comune/limitatore.ts'
 import { rotteStato } from './comune/stato.routes.ts'
 import { creaServizioAccesso } from './accesso/accesso.service.ts'
 import { rotteAccesso } from './accesso/accesso.routes.ts'
@@ -42,7 +43,7 @@ import { rotteFoto } from './foto/foto.routes.ts'
 /** postino, spingitore, traduttore: chi consegna email e push e chi traduce (i test ne passano di finti). */
 export function creaApp(
   db: Database,
-  opzioni: { postino?: Postino; spingitore?: Spingitore; traduttore?: Traduttore | null } = {},
+  opzioni: { postino?: Postino; spingitore?: Spingitore; traduttore?: Traduttore | null; limiti?: Partial<typeof config.limiti> } = {},
 ): express.Express & { avvisi: Avvisi; pianificatore: Pianificatore; diretta: Diretta } {
   const app = express()
   const push = creaPush(db, opzioni.spingitore ?? spingitoreWebPush())
@@ -85,12 +86,39 @@ export function creaApp(
     if (config.inProduzione) res.set('Strict-Transport-Security', 'max-age=31536000')
     next()
   })
+  // Pagine dell'app (solo online): da dove possono arrivare script, stili, immagini.
+  // Anche se qualcuno riuscisse a infilare un testo malevolo, il browser non eseguirebbe codice esterno.
+  if (config.inProduzione) {
+    app.use((req, res, next) => {
+      if (!req.path.startsWith('/api/')) {
+        res.set({
+          'Content-Security-Policy': [
+            "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com", "img-src 'self' data: blob:", "media-src 'self' blob:",
+            "connect-src 'self'", "worker-src 'self'", "manifest-src 'self'", "object-src 'none'",
+            "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'",
+          ].join('; '),
+          'Cross-Origin-Opener-Policy': 'same-origin',
+        })
+      }
+      next()
+    })
+  }
+
+  // Contro chi tempesta il server di chiamate: oltre il limite al minuto, 429 per quell'indirizzo.
+  const limiti = { ...config.limiti, ...opzioni.limiti }
+  const frequenzaApi = creaFrequenza(limiti.richiesteMinuto, 60_000)
+  app.use('/api', (req, _res, next) => {
+    frequenzaApi.conta(req.ip ?? 'sconosciuto')
+    next()
+  })
+
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
   app.use(cookieParser()) // legge i cookie (serve per la sessione)
 
   app.use('/api', rotteStato(db))
   const inviti = creaServizioInviti(db)
-  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db), inviti))
+  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db), inviti, limiti.registrazioniOra))
   app.use('/api', rotteCerchio(creaServizioCerchio(db), inviti))
   app.use('/api', rotteRichieste(richieste))
   app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali, traduzione, diretta))

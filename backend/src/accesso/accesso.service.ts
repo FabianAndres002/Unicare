@@ -19,10 +19,24 @@ const COLONNE_PROFILO = `id, email, nome, tipo, email_avvisi AS "emailAvvisi", $
 
 // ---- Regole sui dati in ingresso (zod controlla e rifiuta i dati sbagliati) ----
 
+// Le password che i programmi di attacco provano per prime (anche con maiuscole diverse).
+const PASSWORD_COMUNI = new Set([
+  '12345678', '123456789', '1234567890', '87654321', '11111111', '00000000', '12341234', '11223344',
+  'password', 'password1', 'password123', 'passw0rd', 'qwertyui', 'qwerty123', 'qwertyuiop', 'asdfghjk',
+  'iloveyou', 'abcd1234', 'abc12345', 'aaaaaaaa', 'trustno1', 'football', 'baseball', 'superman',
+  'unicare1', 'unicare123', 'ciaociao', 'ciao1234', 'amoremio', 'juventus', 'napoli1926', 'forzainter',
+  'forzamilan', 'forzaroma', 'francesca', 'alessandro', 'giuseppe', 'antonio1', 'cambiami', 'nonnanonna',
+])
+function passwordTroppoFacile(p: string): boolean {
+  const x = p.toLowerCase()
+  return PASSWORD_COMUNI.has(x) || /^(.)\1+$/.test(x) || '01234567890123456789'.includes(x) || 'abcdefghijklmnopqrstuvwxyz'.includes(x)
+}
+
 export const schemaRegistrazione = z.object({
   email: z.string().trim().email('email non valida').max(254),
   // bcrypt considera al massimo 72 byte: oltre non avrebbe senso.
-  password: z.string().min(8, 'deve avere almeno 8 caratteri').max(72),
+  password: z.string().min(8, 'deve avere almeno 8 caratteri').max(72)
+    .refine((p) => !passwordTroppoFacile(p), 'è troppo facile da indovinare: scegline una meno comune'),
   nome: z.string().trim().min(1, 'obbligatorio').max(80),
   cognome: z.string().trim().min(1, 'obbligatorio').max(80),
   tipo: z.enum(['FAMILIARE', 'BADANTE']),

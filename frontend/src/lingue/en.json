@@ -328,6 +328,7 @@
  "Il cerchio": "The circle",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "The circle is the group of people who take care of your loved one: you, the other family members and the carer.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "The code is not right. Check the message from whoever invited you.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "Connecting phones is paused for security. Try again in an hour.",
  "Il consenso della persona assistita": "Consent of the person cared for",
  "Il file è troppo grande (massimo 10 MB).": "The file is too big (maximum 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "The link is valid for 7 days and can be used only once.",
@@ -835,6 +836,8 @@
  "Traduci nella mia lingua": "Translate into my language",
  "Traduco": "Translating",
  "Troppe pagine aperte: chiudine qualcuna.": "Too many pages open: close some.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Too many requests in a short time. Wait a moment and try again.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "Too many accounts created from this network. Try again in an hour.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Too short: speak a little longer before stopping.",
  "Trova una badante": "Find a carer",
  "Tu": "You",
@@ -995,5 +998,6 @@
  "· invito in attesa, scade il {0}": "· invitation pending, expires on {0}",
  "È il telefono di un anziano?": "Is this an elderly person’s phone?",
  "è nel messaggio di chi ti ha invitato": "it’s in the message from whoever invited you",
+ "è troppo facile da indovinare: scegline una meno comune": "is too easy to guess: choose a less common one",
  "€ all’ora, facoltativa": "€ per hour, optional"
 }

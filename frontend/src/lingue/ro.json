@@ -328,6 +328,7 @@
  "Il cerchio": "Cercul",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "Cercul este grupul de persoane care au grijă de cel drag: tu, ceilalți membri ai familiei și îngrijitoarea.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "Codul nu este corect. Verifică mesajul celui care te-a invitat.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "Conectarea telefoanelor este în pauză din motive de siguranță. Încearcă peste o oră.",
  "Il consenso della persona assistita": "Consimțământul persoanei îngrijite",
  "Il file è troppo grande (massimo 10 MB).": "Fișierul este prea mare (maximum 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "Linkul este valabil 7 zile și se poate folosi o singură dată.",
@@ -835,6 +836,8 @@
  "Traduci nella mia lingua": "Tradu în limba mea",
  "Traduco": "Traduc",
  "Troppe pagine aperte: chiudine qualcuna.": "Prea multe pagini deschise: închide câteva.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Prea multe cereri într-un timp scurt. Așteaptă puțin și încearcă din nou.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "Prea multe conturi create din această rețea. Încearcă peste o oră.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Prea scurt: vorbește puțin mai mult înainte să oprești.",
  "Trova una badante": "Găsește o îngrijitoare",
  "Tutte le badanti": "Toate îngrijitoarele",
@@ -994,5 +997,6 @@
  "· invito in attesa, scade il {0}": "· invitație în așteptare, expiră pe {0}",
  "È il telefono di un anziano?": "Este telefonul unei persoane în vârstă?",
  "è nel messaggio di chi ti ha invitato": "este în mesajul celui care te-a invitat",
+ "è troppo facile da indovinare: scegline una meno comune": "este prea ușor de ghicit: alege una mai puțin obișnuită",
  "€ all’ora, facoltativa": "€ pe oră, opțional"
 }

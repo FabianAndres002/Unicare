@@ -325,6 +325,7 @@
  "Il cerchio": "O círculo",
  "Il cerchio è il gruppo di persone che si prende cura del vostro caro: tu, gli altri familiari e la badante.": "O círculo é o grupo de pessoas que cuida do vosso ente querido: você, os outros familiares e a cuidadora.",
  "Il codice non è giusto. Controlla il messaggio di chi ti ha invitato.": "O código não está certo. Verifica a mensagem de quem te convidou.",
+ "Il collegamento dei telefoni è in pausa per sicurezza. Riprova tra un’ora.": "A ligação de telefones está em pausa por segurança. Tenta daqui a uma hora.",
  "Il consenso della persona assistita": "O consentimento da pessoa assistida",
  "Il file è troppo grande (massimo 10 MB).": "O ficheiro é demasiado grande (máximo 10 MB).",
  "Il link vale 7 giorni e si può usare una volta sola.": "O link é válido durante 7 dias e só pode ser usado uma vez.",
@@ -830,6 +831,8 @@
  "Traduci nella mia lingua": "Traduzir para a minha língua",
  "Traduco": "A traduzir",
  "Troppe pagine aperte: chiudine qualcuna.": "Demasiadas páginas abertas: feche algumas.",
+ "Troppe richieste in poco tempo. Aspetta un momento e riprova.": "Demasiados pedidos em pouco tempo. Espera um momento e tenta de novo.",
+ "Troppi account creati da questa rete. Riprova tra un’ora.": "Demasiadas contas criadas a partir desta rede. Tenta daqui a uma hora.",
  "Troppo corto: parla un po’ di più prima di fermare.": "Demasiado curto: fale um pouco mais antes de parar.",
  "Trova una badante": "Encontrar uma cuidadora",
  "Tu": "Você",
@@ -990,5 +993,6 @@
  "· invito in attesa, scade il {0}": "· convite pendente, expira a {0}",
  "È il telefono di un anziano?": "É o telemóvel de um idoso?",
  "è nel messaggio di chi ti ha invitato": "está na mensagem de quem te convidou",
+ "è troppo facile da indovinare: scegline una meno comune": "é demasiado fácil de adivinhar: escolhe uma menos comum",
  "€ all’ora, facoltativa": "€ por hora, opcional"
 }
