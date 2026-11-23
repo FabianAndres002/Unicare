@@ -3,6 +3,8 @@ import { api, type Profilo } from './comune/api'
 import { naviga, usePercorso } from './comune/router'
 import Accedi from './accesso/Accedi'
 import Registrati from './accesso/Registrati'
+import ConfermaEmail from './accesso/ConfermaEmail'
+import PasswordDimenticata from './accesso/PasswordDimenticata'
 import AreaRiservata from './cerchio/AreaRiservata'
 import InvitoRicevuto from './cerchio/InvitoRicevuto'
 import SeniorApp from './senior/SeniorApp'
@@ -48,7 +50,7 @@ export default function App() {
       else return scegliLingua(p.lingua)
     }
     setProfilo(p)
-    if (percorso === '/registrati') naviga('/', true)
+    if (percorso === '/registrati' || percorso === '/password-dimenticata') naviga('/', true)
   }
 
   if (senior) return <SeniorApp />
@@ -58,11 +60,19 @@ export default function App() {
   // L'informativa si legge anche senza login.
   if (percorso === '/privacy' && !profilo) return <div className="contenuto-pubblico"><Privacy indietro="/" /></div>
 
+  // Registrato ma senza aver scritto il codice arrivato per email (anche se arriva da un invito:
+  // dopo la conferma resta sulla stessa pagina e l'invito si accetta).
+  if (profilo?.daConfermare) return <ConfermaEmail profilo={profilo} onConfermato={setProfilo} onEsci={esci} />
+
   // Il link d'invito funziona sia con sia senza login.
   const invito = percorso.match(/^\/invito\/([A-Za-z0-9_-]+)$/)
   if (invito) return <InvitoRicevuto token={invito[1]!} profilo={profilo} onEntrato={setProfilo} onEsci={esci} />
 
-  if (!profilo) return percorso === '/registrati' ? <Registrati onEntrato={entrato} /> : <Accedi onEntrato={entrato} />
+  if (!profilo) {
+    if (percorso === '/registrati') return <Registrati onEntrato={entrato} />
+    if (percorso === '/password-dimenticata') return <PasswordDimenticata onEntrato={entrato} />
+    return <Accedi onEntrato={entrato} />
+  }
 
   return <AreaRiservata profilo={profilo} percorso={percorso} onEsci={esci} onProfilo={setProfilo} />
 }

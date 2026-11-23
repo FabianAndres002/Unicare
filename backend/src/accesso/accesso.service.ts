@@ -13,9 +13,12 @@ export type TipoUtente = 'FAMILIARE' | 'BADANTE'
 export type Profilo = {
   id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null
   telefono: string | null; lingua: Lingua
+  /** Ha scritto il codice ricevuto per email. */
+  emailConfermata: boolean
 }
 
-const COLONNE_PROFILO = `id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto, telefono, lingua`
+const COLONNE_PROFILO = `id, email, nome, tipo, email_avvisi AS "emailAvvisi", ${fotoUtente('utente.id')} AS foto, telefono, lingua,
+  email_confermata_il IS NOT NULL AS "emailConfermata"`
 
 // ---- Regole sui dati in ingresso (zod controlla e rifiuta i dati sbagliati) ----
 
@@ -32,11 +35,14 @@ function passwordTroppoFacile(p: string): boolean {
   return PASSWORD_COMUNI.has(x) || /^(.)\1+$/.test(x) || '01234567890123456789'.includes(x) || 'abcdefghijklmnopqrstuvwxyz'.includes(x)
 }
 
+/** Le regole per una password nuova (registrazione e "password dimenticata"). */
+export const schemaPassword = z.string().min(8, 'deve avere almeno 8 caratteri').max(72)
+  .refine((p) => !passwordTroppoFacile(p), 'è troppo facile da indovinare: scegline una meno comune')
+
 export const schemaRegistrazione = z.object({
   email: z.string().trim().email('email non valida').max(254),
   // bcrypt considera al massimo 72 byte: oltre non avrebbe senso.
-  password: z.string().min(8, 'deve avere almeno 8 caratteri').max(72)
-    .refine((p) => !passwordTroppoFacile(p), 'è troppo facile da indovinare: scegline una meno comune'),
+  password: schemaPassword,
   nome: z.string().trim().min(1, 'obbligatorio').max(80),
   cognome: z.string().trim().min(1, 'obbligatorio').max(80),
   tipo: z.enum(['FAMILIARE', 'BADANTE']),
@@ -81,7 +87,7 @@ export function creaServizioAccesso(db: Database) {
       const [nuovo] = await db.query<Profilo>(
         `INSERT INTO utente (email, password_hash, nome, cognome, tipo, lingua)
          VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto, telefono, lingua`,
+         RETURNING id, email, nome, tipo, email_avvisi AS "emailAvvisi", NULL::text AS foto, telefono, lingua, false AS "emailConfermata"`,
         [dati.email, hash, dati.nome, dati.cognome, dati.tipo, dati.lingua],
       )
       return nuovo!
@@ -107,6 +113,29 @@ export function creaServizioAccesso(db: Database) {
      * Tutti i dati personali dell'utente, da scaricare (diritto di accesso e portabilità, GDPR art. 15 e 20).
      * Dei cerchi riporta solo il suo ruolo e cosa ha fatto lui: i dati degli altri non sono suoi.
      */
+    /** L'id dell'account con questa email, se esiste. */
+    async idDaEmail(email: string): Promise<number | undefined> {
+      const [u] = await db.query<{ id: number }>('SELECT id FROM utente WHERE lower(email) = lower($1)', [email.trim()])
+      return u?.id
+    },
+
+    async confermaEmail(id: number): Promise<void> {
+      await db.query('UPDATE utente SET email_confermata_il = COALESCE(email_confermata_il, now()) WHERE id = $1', [id])
+    },
+
+    /**
+     * Nuova password dopo il codice ricevuto per email: tutti gli accessi vecchi smettono di
+     * valere (anche quello di chi l'avesse rubata). Restituisce la nuova versione per il cookie.
+     */
+    async cambiaPassword(id: number, password: string): Promise<number> {
+      const hash = await bcrypt.hash(password, 10)
+      const [u] = await db.query<{ v: number }>(
+        `UPDATE utente SET password_hash = $2, sessione_versione = sessione_versione + 1,
+                email_confermata_il = COALESCE(email_confermata_il, now())
+         WHERE id = $1 RETURNING sessione_versione AS v`, [id, hash])
+      return u!.v
+    },
+
     /** La versione attuale degli accessi di questo utente (va scritta nel cookie). */
     async versioneSessione(id: number): Promise<number> {
       const [u] = await db.query<{ v: number }>('SELECT sessione_versione AS v FROM utente WHERE id = $1', [id])

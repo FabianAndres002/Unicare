@@ -13,6 +13,8 @@ export type Ruolo = 'ADMIN' | 'FAMILIARE' | 'BADANTE'
 export type Profilo = {
   id: number; email: string; nome: string; tipo: TipoUtente; emailAvvisi: boolean; foto: string | null
   telefono: string | null; lingua: Lingua
+  /** Deve ancora scrivere il codice ricevuto per email (solo se la conferma è accesa). */
+  daConfermare?: boolean
 }
 
 export type DatiRegistrazione = {
@@ -304,6 +306,10 @@ export const api = {
   registrati: (dati: DatiRegistrazione) => chiama<Profilo>('POST', '/api/auth/registrati', dati),
   registrazione: () => chiama<{ serveCodice: boolean }>('GET', '/api/auth/registrazione'),
   logout: () => chiama<void>('POST', '/api/auth/logout'),
+  confermaEmail: (codice: string) => chiama<Profilo>('POST', '/api/auth/conferma-email', { codice }),
+  reinviaConferma: () => chiama<void>('POST', '/api/auth/conferma-email/reinvia'),
+  passwordDimenticata: (email: string) => chiama<void>('POST', '/api/auth/password-dimenticata', { email }),
+  nuovaPassword: (dati: { email: string; codice: string; password: string }) => chiama<Profilo>('POST', '/api/auth/nuova-password', dati),
   /** Gli altri telefoni escono e smettono di ricevere notifiche; endpoint = le notifiche di questo, che restano. */
   esciOvunque: (endpoint?: string) => chiama<void>('POST', '/api/auth/esci-ovunque', { endpoint }),
   preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),

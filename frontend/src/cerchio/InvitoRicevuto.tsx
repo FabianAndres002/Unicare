@@ -39,7 +39,8 @@ export default function InvitoRicevuto({ token, profilo, onEntrato, onEsci }: Pr
   // Appena fatto l'accesso dal link, entriamo direttamente nel cerchio.
   async function entratoDaQui(p: Profilo) {
     onEntrato(p)
-    await accetta()
+    // Se prima deve confermare l'email, l'invito si accetta dopo (con "Entra nel cerchio").
+    if (!p.daConfermare) await accetta()
   }
 
   if (!invito) {

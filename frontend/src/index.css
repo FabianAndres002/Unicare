@@ -1585,3 +1585,6 @@ a.senior-pulsante { display: grid; place-items: center; text-decoration: none; t
 @keyframes giro-fumetto { from { opacity: 0; transform: translate(-50%, 8px); } to { transform: translateX(-50%); } }
 @keyframes giro-pulsa { 50% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.75), 0 0 0 9999px rgba(20, 16, 40, 0.62); } }
 @media (prefers-reduced-motion: reduce) { .giro-luce, .giro-fumetto, .giro-velo { animation: none; transition: none; } }
+
+/* Codice di 6 numeri arrivato per email */
+.campo-codice { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.4em; text-align: center; }

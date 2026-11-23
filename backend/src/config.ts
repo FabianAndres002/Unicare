@@ -41,11 +41,15 @@ export const config = {
   cartellaPostaLocale: process.env.CARTELLA_POSTA ?? '.posta-locale',
   smtp: {
     host: process.env.SMTP_HOST ?? '',
-    porta: Number(process.env.SMTP_PORT ?? 587),
+    porta: Number(process.env.SMTP_PORT || 587),
     utente: process.env.SMTP_USER ?? '',
     password: process.env.SMTP_PASSWORD ?? '',
-    mittente: process.env.SMTP_FROM ?? 'Unicare <avvisi@unicare.local>',
+    mittente: process.env.SMTP_FROM || 'Unicare <avvisi@unicare.local>',
   },
+
+  // Conferma dell'email con un codice dopo la registrazione. Di solito si accende da sola
+  // quando le email partono davvero (SMTP_HOST); CONFERMA_EMAIL=1 o 0 la forza.
+  confermaEmail: process.env.CONFERMA_EMAIL ? process.env.CONFERMA_EMAIL === '1' : !!process.env.SMTP_HOST,
 
   // Gli orari dei promemoria sono quelli italiani (anche se il server sta altrove).
   fusoOrario: process.env.FUSO_ORARIO ?? 'Europe/Rome',

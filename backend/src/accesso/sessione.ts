@@ -52,20 +52,33 @@ function leggiCookie(req: Request): { id: number; versione: number } | undefined
  * dell'utente, segna chi è collegato. Un cookie vecchio (dopo "Esci dagli altri telefoni")
  * o di un utente cancellato viene tolto.
  */
-export function controlloSessione(db: Database) {
+export function controlloSessione(db: Database, confermaEmail: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const c = leggiCookie(req)
     if (c) {
-      const [u] = await db.query<{ v: number }>('SELECT sessione_versione AS v FROM utente WHERE id = $1', [c.id])
-      if (u && u.v === c.versione) res.locals.idUtente = c.id
-      else chiudiSessione(res)
+      const [u] = await db.query<{ v: number; confermata: boolean }>(
+        'SELECT sessione_versione AS v, email_confermata_il IS NOT NULL AS confermata FROM utente WHERE id = $1', [c.id])
+      if (!u || u.v !== c.versione) chiudiSessione(res)
+      // Con la conferma dell'email accesa, finché non scrive il codice può solo confermare,
+      // chiedere un codice nuovo, uscire, cambiare lingua o cancellare l'account.
+      else if (confermaEmail && !u.confermata && !PERMESSE_SENZA_CONFERMA.has(`${req.method} ${req.path}`)) res.locals.daConfermare = true
+      else res.locals.idUtente = c.id
     }
     next()
   }
 }
 
+const PERMESSE_SENZA_CONFERMA = new Set([
+  'GET /auth/io', 'PATCH /auth/io', 'DELETE /auth/io', 'POST /auth/logout',
+  'POST /auth/conferma-email', 'POST /auth/conferma-email/reinvia',
+])
+
 /** Da mettere davanti alle rotte protette: senza login risponde 401. */
 export function richiedeAccesso(_req: Request, res: Response, next: NextFunction): void {
+  if (res.locals.daConfermare) {
+    next(new ErroreApplicativo(403, 'EMAIL_DA_CONFERMARE', 'Prima conferma la tua email con il codice che ti abbiamo mandato.'))
+    return
+  }
   if (typeof res.locals.idUtente !== 'number') {
     next(new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.'))
     return

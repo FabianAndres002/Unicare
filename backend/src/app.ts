@@ -13,6 +13,7 @@ import { rotteStato } from './comune/stato.routes.ts'
 import { creaServizioAccesso } from './accesso/accesso.service.ts'
 import { rotteAccesso } from './accesso/accesso.routes.ts'
 import { controlloSessione } from './accesso/sessione.ts'
+import { creaCodiciEmail } from './accesso/codiciEmail.ts'
 import { creaServizioCerchio } from './cerchio/cerchio.service.ts'
 import { creaServizioInviti } from './cerchio/inviti.service.ts'
 import { rotteCerchio } from './cerchio/cerchio.routes.ts'
@@ -44,11 +45,13 @@ import { rotteFoto } from './foto/foto.routes.ts'
 /** postino, spingitore, traduttore: chi consegna email e push e chi traduce (i test ne passano di finti). */
 export function creaApp(
   db: Database,
-  opzioni: { postino?: Postino; spingitore?: Spingitore; traduttore?: Traduttore | null; limiti?: Partial<typeof config.limiti> } = {},
+  opzioni: { postino?: Postino; spingitore?: Spingitore; traduttore?: Traduttore | null; limiti?: Partial<typeof config.limiti>; confermaEmail?: boolean } = {},
 ): express.Express & { avvisi: Avvisi; pianificatore: Pianificatore; diretta: Diretta } {
   const app = express()
   const push = creaPush(db, opzioni.spingitore ?? spingitoreWebPush())
-  const avvisi = creaAvvisi(db, opzioni.postino ?? postinoPredefinito(), push)
+  const postino = opzioni.postino ?? postinoPredefinito()
+  const avvisi = creaAvvisi(db, postino, push)
+  const confermaEmail = opzioni.confermaEmail ?? config.confermaEmail
   const diretta = creaDiretta(db)
   // Quando una richiesta cambia: avvisi (email e push) e, in più, la diretta per i telefoni aperti.
   const richieste = creaServizioRichieste(db, {
@@ -116,11 +119,11 @@ export function creaApp(
 
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
   app.use(cookieParser()) // legge i cookie (serve per la sessione)
-  app.use('/api', controlloSessione(db)) // chi è collegato (cookie valido e non annullato)
+  app.use('/api', controlloSessione(db, confermaEmail)) // chi è collegato (cookie valido e non annullato)
 
   app.use('/api', rotteStato(db))
   const inviti = creaServizioInviti(db)
-  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db), inviti, limiti.registrazioniOra))
+  app.use('/api/auth', rotteAccesso(creaServizioAccesso(db), inviti, creaCodiciEmail(db, postino), { registrazioniOra: limiti.registrazioniOra, confermaEmail }))
   app.use('/api', rotteCerchio(creaServizioCerchio(db), inviti))
   app.use('/api', rotteRichieste(richieste))
   app.use('/api', rotteSenior(db, creaServizioTelefono(db), richieste, medicine, push, appuntamenti, vocali, traduzione, diretta))

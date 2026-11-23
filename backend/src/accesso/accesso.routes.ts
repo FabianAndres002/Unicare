@@ -3,6 +3,10 @@
 // POST /api/auth/registrati   crea l'account e fa entrare     (201)
 // POST /api/auth/login        accesso con email e password
 // POST /api/auth/logout       esce                             (204)
+// POST /api/auth/conferma-email {codice}         conferma l'email con il codice ricevuto → profilo
+// POST /api/auth/conferma-email/reinvia          manda un codice nuovo                  (204)
+// POST /api/auth/password-dimenticata {email}    manda il codice per la nuova password   (204, anche se l'email non esiste)
+// POST /api/auth/nuova-password {email, codice, password}  cambia la password ed entra → profilo
 // POST /api/auth/esci-ovunque  esce da tutti gli altri telefoni; questo resta dentro (204)
 // GET  /api/auth/registrazione  {serveCodice}: se per registrarsi serve il codice segreto
 // GET  /api/auth/io           chi è l'utente collegato         (401 senza login)
@@ -19,7 +23,8 @@ import { z } from 'zod'
 import { config } from '../config.ts'
 import type { ServizioInviti } from '../cerchio/inviti.service.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
-import { schemaEliminaAccount, schemaLogin, schemaPreferenze, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
+import type { CodiciEmail } from './codiciEmail.ts'
+import { schemaPassword, type Profilo, schemaEliminaAccount, schemaLogin, schemaPreferenze, schemaRegistrazione, type ServizioAccesso } from './accesso.service.ts'
 import { creaFrequenza, creaLimitatore } from '../comune/limitatore.ts'
 import { apriSessione, chiudiSessione, richiedeAccesso } from './sessione.ts'
 
@@ -29,7 +34,8 @@ function uguali(a: string, b: string): boolean {
   return timingSafeEqual(h(a), h(b))
 }
 
-export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, registrazioniOra: number): Router {
+export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, codici: CodiciEmail,
+  { registrazioniOra, confermaEmail }: { registrazioniOra: number; confermaEmail: boolean }): Router {
   const router = Router()
 
   /**
@@ -50,6 +56,16 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
   router.get('/registrazione', (_req, res) => {
     res.json({ serveCodice: !!config.codiceRegistrazione })
   })
+  /** Il profilo per il frontend: daConfermare = deve ancora scrivere il codice ricevuto per email. */
+  const conStato = (p: Profilo) => ({ ...p, daConfermare: confermaEmail && !p.emailConfermata })
+  /** Manda il codice senza far fallire la richiesta se la posta non va (l'errore resta nel terminale). */
+  const mandaCodice = (id: number, scopo: 'CONFERMA' | 'PASSWORD') =>
+    codici.manda(id, scopo).catch((e) => console.error('Codice email non inviato:', e))
+  const schemaCodiceEmail = z.string().trim().regex(/^\d{6}$/, 'il codice ha 6 cifre')
+  const limiteCodici = creaLimitatore(10, 15)
+  const limiteInvioCodici = creaFrequenza(5, 3_600_000, () =>
+    new ErroreApplicativo(429, 'TROPPI_CODICI', 'Hai chiesto troppi codici. Riprova tra un’ora.'))
+
   const limiteLogin = creaLimitatore(10, 15)
   const limiteAccount = creaLimitatore(10, 15)
   const limiteRegistrazioni = creaFrequenza(registrazioniOra, 3_600_000,
@@ -64,7 +80,55 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
     }
     const profilo = await accesso.registra(dati)
     apriSessione(res, profilo.id, 0)
-    res.status(201).json(profilo)
+    if (confermaEmail) await mandaCodice(profilo.id, 'CONFERMA')
+    res.status(201).json(conStato(profilo))
+  })
+
+  router.post('/conferma-email', async (req, res) => {
+    // Qui arriva anche chi non ha ancora confermato (vedi controlloSessione).
+    const id = res.locals.idUtente as number | undefined
+    if (id === undefined) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
+    const codice = schemaCodiceEmail.parse(req.body?.codice)
+    limiteCodici.controlla(`u${id}`)
+    if (!(await codici.verifica(id, 'CONFERMA', codice))) {
+      limiteCodici.sbagliato(`u${id}`)
+      throw new ErroreApplicativo(400, 'CODICE_EMAIL_SBAGLIATO', 'Il codice non è giusto o è scaduto. Controlla l’email o chiedine uno nuovo.')
+    }
+    limiteCodici.riuscito(`u${id}`)
+    await accesso.confermaEmail(id)
+    res.json(conStato((await accesso.trovaProfilo(id))!))
+  })
+
+  router.post('/conferma-email/reinvia', async (_req, res) => {
+    const id = res.locals.idUtente as number | undefined
+    if (id === undefined) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
+    limiteInvioCodici.conta(`u${id}`)
+    await codici.manda(id, 'CONFERMA')
+    res.status(204).end()
+  })
+
+  router.post('/password-dimenticata', async (req, res) => {
+    const { email } = z.object({ email: z.string().trim().email('email non valida').max(254) }).parse(req.body)
+    limiteInvioCodici.conta(`e${email.toLowerCase()}`)
+    limiteInvioCodici.conta(`ip${req.ip}`)
+    // Stessa risposta che l'account esista o no: così non si scopre chi è iscritto.
+    const id = await accesso.idDaEmail(email)
+    if (id !== undefined) void mandaCodice(id, 'PASSWORD')
+    res.status(204).end()
+  })
+
+  router.post('/nuova-password', async (req, res) => {
+    const dati = z.object({ email: z.string().trim().max(254), codice: schemaCodiceEmail, password: schemaPassword }).parse(req.body)
+    const chiave = `p${dati.email.toLowerCase()}`
+    limiteCodici.controlla(chiave)
+    const id = await accesso.idDaEmail(dati.email)
+    if (id === undefined || !(await codici.verifica(id, 'PASSWORD', dati.codice))) {
+      limiteCodici.sbagliato(chiave)
+      throw new ErroreApplicativo(400, 'CODICE_EMAIL_SBAGLIATO', 'Il codice non è giusto o è scaduto. Controlla l’email o chiedine uno nuovo.')
+    }
+    limiteCodici.riuscito(chiave)
+    apriSessione(res, id, await accesso.cambiaPassword(id, dati.password))
+    res.json(conStato((await accesso.trovaProfilo(id))!))
   })
 
   router.post('/login', async (req, res) => {
@@ -86,7 +150,7 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
     limiteLogin.riuscito(chi)
     limiteAccount.riuscito(account)
     apriSessione(res, profilo.id, await accesso.versioneSessione(profilo.id))
-    res.json(profilo)
+    res.json(conStato(profilo))
   })
 
   router.post('/logout', (_req, res) => {
@@ -108,13 +172,13 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
       chiudiSessione(res)
       throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
     }
-    res.json(profilo)
+    res.json(conStato(profilo))
   })
 
   router.patch('/io', richiedeAccesso, async (req, res) => {
     const profilo = await accesso.impostaPreferenze(res.locals.idUtente, schemaPreferenze.parse(req.body))
     if (!profilo) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
-    res.json(profilo)
+    res.json(conStato(profilo))
   })
 
   router.get('/io/dati', richiedeAccesso, async (_req, res) => {
