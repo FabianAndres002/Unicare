@@ -304,6 +304,8 @@ export const api = {
   registrati: (dati: DatiRegistrazione) => chiama<Profilo>('POST', '/api/auth/registrati', dati),
   registrazione: () => chiama<{ serveCodice: boolean }>('GET', '/api/auth/registrazione'),
   logout: () => chiama<void>('POST', '/api/auth/logout'),
+  /** Gli altri telefoni escono e smettono di ricevere notifiche; endpoint = le notifiche di questo, che restano. */
+  esciOvunque: (endpoint?: string) => chiama<void>('POST', '/api/auth/esci-ovunque', { endpoint }),
   preferenze: (dati: { emailAvvisi?: boolean; telefono?: string; lingua?: Lingua }) => chiama<Profilo>('PATCH', '/api/auth/io', dati),
 
   // Cerchi e anziani

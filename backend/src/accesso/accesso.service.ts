@@ -107,6 +107,27 @@ export function creaServizioAccesso(db: Database) {
      * Tutti i dati personali dell'utente, da scaricare (diritto di accesso e portabilità, GDPR art. 15 e 20).
      * Dei cerchi riporta solo il suo ruolo e cosa ha fatto lui: i dati degli altri non sono suoi.
      */
+    /** La versione attuale degli accessi di questo utente (va scritta nel cookie). */
+    async versioneSessione(id: number): Promise<number> {
+      const [u] = await db.query<{ v: number }>('SELECT sessione_versione AS v FROM utente WHERE id = $1', [id])
+      return u?.v ?? 0
+    },
+
+    /**
+     * "Esci dagli altri telefoni": tutti i cookie già dati smettono di valere e gli altri
+     * telefoni non ricevono più le notifiche (resta solo quella di questo, se c'è).
+     * Restituisce la nuova versione, per il cookie di questo telefono.
+     */
+    async esciOvunque(id: number, endpointQui?: string): Promise<number> {
+      return db.transazione(async (tx) => {
+        const [u] = await tx.query<{ v: number }>(
+          'UPDATE utente SET sessione_versione = sessione_versione + 1 WHERE id = $1 RETURNING sessione_versione AS v', [id])
+        if (!u) throw new ErroreApplicativo(401, 'NON_AUTENTICATO', 'Devi accedere per continuare.')
+        await tx.query('DELETE FROM iscrizione_push WHERE utente_id = $1 AND endpoint <> $2', [id, endpointQui ?? ''])
+        return u.v
+      })
+    },
+
     async esportaDati(id: number) {
       const [profilo] = await db.query(
         `SELECT email, nome, cognome, tipo, email_avvisi AS "emailAvvisi", telefono, lingua, creato_il AS "registratoIl" FROM utente WHERE id = $1`,

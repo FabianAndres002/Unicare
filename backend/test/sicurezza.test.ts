@@ -85,4 +85,29 @@ describe('sicurezza', () => {
     const finto = Buffer.from('{"alg":"none","typ":"JWT"}').toString('base64url') + '.' + Buffer.from('{"sub":"1"}').toString('base64url') + '.'
     await request(app).get('/api/auth/io').set('Cookie', `unicare_accesso=${finto}`).expect(401)
   })
+
+  it('"Esci dagli altri telefoni": il telefono rubato perde accesso e notifiche, questo resta dentro', async () => {
+    const { db, app } = await preparaApp()
+    await request(app).post('/api/auth/registrati').send(nuovoUtente(1)).expect(201)
+    const entra = async () => {
+      const a = request.agent(app)
+      await a.post('/api/auth/login').send({ email: 'persona1@example.com', password: 'unaPasswordLunga' }).expect(200)
+      return a
+    }
+    const mio = await entra()
+    const rubato = await entra()
+    const chiavi = { p256dh: 'x', auth: 'y' }
+    await mio.post('/api/push/iscrizione').send({ endpoint: 'https://push.example.com/mio', keys: chiavi }).expect(204)
+    await rubato.post('/api/push/iscrizione').send({ endpoint: 'https://push.example.com/rubato', keys: chiavi }).expect(204)
+
+    await mio.post('/api/auth/esci-ovunque').send({ endpoint: 'https://push.example.com/mio' }).expect(204)
+
+    await mio.get('/api/auth/io').expect(200)
+    await rubato.get('/api/auth/io').expect(401)
+    const iscrizioni = await db.query<{ endpoint: string }>('SELECT endpoint FROM iscrizione_push')
+    expect(iscrizioni.map((i) => i.endpoint)).toEqual(['https://push.example.com/mio'])
+    // Rientrando con la password si torna dentro normalmente.
+    const dinuovo = await entra()
+    await dinuovo.get('/api/auth/io').expect(200)
+  })
 })

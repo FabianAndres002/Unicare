@@ -12,6 +12,7 @@ import { creaFrequenza } from './comune/limitatore.ts'
 import { rotteStato } from './comune/stato.routes.ts'
 import { creaServizioAccesso } from './accesso/accesso.service.ts'
 import { rotteAccesso } from './accesso/accesso.routes.ts'
+import { controlloSessione } from './accesso/sessione.ts'
 import { creaServizioCerchio } from './cerchio/cerchio.service.ts'
 import { creaServizioInviti } from './cerchio/inviti.service.ts'
 import { rotteCerchio } from './cerchio/cerchio.routes.ts'
@@ -115,6 +116,7 @@ export function creaApp(
 
   app.use(express.json({ limit: '100kb' })) // legge i corpi JSON
   app.use(cookieParser()) // legge i cookie (serve per la sessione)
+  app.use('/api', controlloSessione(db)) // chi è collegato (cookie valido e non annullato)
 
   app.use('/api', rotteStato(db))
   const inviti = creaServizioInviti(db)

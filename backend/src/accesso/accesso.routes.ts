@@ -3,6 +3,7 @@
 // POST /api/auth/registrati   crea l'account e fa entrare     (201)
 // POST /api/auth/login        accesso con email e password
 // POST /api/auth/logout       esce                             (204)
+// POST /api/auth/esci-ovunque  esce da tutti gli altri telefoni; questo resta dentro (204)
 // GET  /api/auth/registrazione  {serveCodice}: se per registrarsi serve il codice segreto
 // GET  /api/auth/io           chi è l'utente collegato         (401 senza login)
 // PATCH /api/auth/io          preferenze (avvisi via email)
@@ -14,6 +15,7 @@
 
 import { createHash, timingSafeEqual } from 'node:crypto'
 import { Router } from 'express'
+import { z } from 'zod'
 import { config } from '../config.ts'
 import type { ServizioInviti } from '../cerchio/inviti.service.ts'
 import { ErroreApplicativo } from '../comune/errori.ts'
@@ -61,7 +63,7 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
       throw new ErroreApplicativo(403, 'CODICE_REGISTRAZIONE', 'Per registrarti serve il codice che ti ha mandato chi ti ha invitato.')
     }
     const profilo = await accesso.registra(dati)
-    apriSessione(res, profilo.id)
+    apriSessione(res, profilo.id, 0)
     res.status(201).json(profilo)
   })
 
@@ -83,12 +85,19 @@ export function rotteAccesso(accesso: ServizioAccesso, inviti: ServizioInviti, r
     }
     limiteLogin.riuscito(chi)
     limiteAccount.riuscito(account)
-    apriSessione(res, profilo.id)
+    apriSessione(res, profilo.id, await accesso.versioneSessione(profilo.id))
     res.json(profilo)
   })
 
   router.post('/logout', (_req, res) => {
     chiudiSessione(res)
+    res.status(204).end()
+  })
+
+  router.post('/esci-ovunque', richiedeAccesso, async (req, res) => {
+    const id: number = res.locals.idUtente
+    const { endpoint } = z.object({ endpoint: z.string().max(1000).optional() }).parse(req.body ?? {})
+    apriSessione(res, id, await accesso.esciOvunque(id, endpoint))
     res.status(204).end()
   })
 
