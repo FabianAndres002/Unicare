@@ -30,7 +30,11 @@ export const config = {
   codiceRegistrazione: (process.env.CODICE_REGISTRAZIONE ?? '').trim(),
 
   // Indirizzo dell'app, usato nei link dentro le email.
-  urlApp: process.env.URL_APP ?? 'http://localhost:5173',
+  // Su Render, se URL_APP non c'è, si usa l'indirizzo che Render dà al servizio.
+  urlApp: process.env.URL_APP ?? process.env.RENDER_EXTERNAL_URL ?? 'http://localhost:5173',
+
+  // In produzione il backend serve anche le pagine dell'app (cartella creata da "npm run build").
+  cartellaFrontend: process.env.CARTELLA_FRONTEND ?? '../frontend/dist',
 
   // Email. Se SMTP_HOST è vuoto non si spedisce nulla: ogni email viene salvata come
   // pagina .html in questa cartella, così si può vedere com'è senza un vero servizio di posta.

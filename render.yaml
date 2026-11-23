@@ -1,0 +1,24 @@
+# Configurazione per Render (https://render.com): un solo servizio che serve sia l'app sia le API.
+# Su Render: New › Blueprint › scegli il repository Unicare. Le voci "sync: false" le scrivi tu.
+services:
+  - type: web
+    name: unicare
+    runtime: node
+    region: frankfurt
+    plan: starter
+    buildCommand: cd frontend && npm ci --include=dev && npm run build && cd ../backend && npm ci --include=dev
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/stato
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: CODICE_REGISTRAZIONE
+        sync: false
+      - key: DEEPL_API_KEY
+        sync: false

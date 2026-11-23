@@ -1,6 +1,8 @@
 // Costruisce l'applicazione Express. È separata da server.ts così i test
 // possono creare un'app con un database tutto loro.
 
+import { existsSync } from 'node:fs'
+import { resolve, sep } from 'node:path'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Database } from './db/db.ts'
@@ -105,6 +107,25 @@ export function creaApp(
   app.use('/api', () => {
     throw new ErroreApplicativo(404, 'NON_TROVATO', 'Indirizzo non trovato.')
   })
+
+  // Online (un solo indirizzo): il backend serve anche l'app. Qualsiasi pagina che non è un
+  // file (/richieste, /senior…) riceve index.html, poi ci pensa il router del frontend.
+  const pagine = resolve(config.cartellaFrontend)
+  if (config.inProduzione && existsSync(resolve(pagine, 'index.html'))) {
+    app.use(express.static(pagine, {
+      index: false,
+      setHeaders(res, percorso) {
+        // I file in /assets hanno l'impronta nel nome: si possono tenere a lungo.
+        if (percorso.includes(`${sep}assets${sep}`)) res.set('Cache-Control', 'public, max-age=31536000, immutable')
+        // sw.js e il manifest vanno sempre ricontrollati, altrimenti gli aggiornamenti non arrivano.
+        else res.set('Cache-Control', 'no-cache')
+      },
+    }))
+    app.get(/^(?!\/api\/).*/, (_req, res) => {
+      res.set('Cache-Control', 'no-cache')
+      res.sendFile(resolve(pagine, 'index.html'))
+    })
+  }
 
   app.use(gestoreErrori)
   return Object.assign(app, { avvisi, pianificatore, diretta })
