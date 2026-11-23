@@ -138,7 +138,7 @@ export default function HomeSenior({ io, benvenuto, onCambiata, onPersona }: Pro
 
       <Collegamento a="/senior/aggiungi" className="senior-link senior-aggiungi"><UserPlus size={24} />{' '}{t('Usate in due questo telefono? Aggiungi un’altra persona')}</Collegamento>
 
-      <button type="button" className="senior-ascolta" onClick={apriGuida}><CircleHelp size={26} />{' '}{t('Come funziona? Rivedi la guida')}</button>
+      <button type="button" className="senior-ascolta rivedi-guida" onClick={apriGuida}><CircleHelp size={26} />{' '}{t('Come funziona? Rivedi la guida')}</button>
 
       <section>
         <h2>{t('La tua famiglia')}</h2>

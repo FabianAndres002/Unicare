@@ -99,7 +99,7 @@ export default function ProfiloPagina({ profilo, cerchi, attivo, onScegli, onEsc
         {errore && <p className="errore">{errore}</p>}
       </section>
 
-      <button type="button" className="pulsante fantasma con-icona" onClick={apriGuida}><CircleHelp size={20} />{' '}{t('Rivedi la guida')}</button>
+      <button type="button" className="pulsante fantasma con-icona rivedi-guida" onClick={apriGuida}><CircleHelp size={20} />{' '}{t('Rivedi la guida')}</button>
 
       <PrivacyProfilo onEliminato={onEsci} />
 

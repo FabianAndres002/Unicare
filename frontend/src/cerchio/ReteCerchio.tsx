@@ -42,8 +42,15 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
     const angolo = (-90 + (i * 360) / giro.length) * (Math.PI / 180)
     return { ...n, x: 50 + RAGGIO * Math.cos(angolo), y: 50 + RAGGIO * Math.sin(angolo) }
   })
-  // Con più persone assistite, stanno affiancate al centro.
-  const centri = anziani.map((a, i) => ({ anziano: a, x: 50 + (i - (anziani.length - 1) / 2) * 22, y: 50 }))
+  // Con più persone assistite, stanno al centro su un piccolo cerchio, staccate tra loro
+  // (due: a sinistra e a destra; tre: a triangolo) e un po' più piccole.
+  const piu = anziani.length > 1
+  const centri = anziani.map((a, i) => {
+    if (!piu) return { anziano: a, x: 50, y: 50 }
+    const angolo = ((anziani.length === 2 ? 180 : -90) + (i * 360) / anziani.length) * (Math.PI / 180)
+    const r = anziani.length === 2 ? 13 : 14
+    return { anziano: a, x: 50 + r * Math.cos(angolo), y: (anziani.length === 2 ? 47 : 50) + r * Math.sin(angolo) }
+  })
   const ritardo = (i: number) => ({ '--ritardo': `${0.08 * i}s` }) as CSSProperties
 
   return (
@@ -76,7 +83,7 @@ export default function ReteCerchio({ anziani, membri, inviti, mioId, puoInvitar
       </svg>
 
       {centri.map(({ anziano: a, x, y }) => (
-        <button key={`a${a.id}`} type="button" className={`rete-nodo centro ${scelta?.tipo === 'anziano' && scelta.id === a.id ? 'scelto' : ''}`}
+        <button key={`a${a.id}`} type="button" className={`rete-nodo centro ${piu ? 'piu' : ''} ${scelta?.tipo === 'anziano' && scelta.id === a.id ? 'scelto' : ''}`}
           style={{ left: `${x}%`, top: `${y}%` }} aria-pressed={scelta?.tipo === 'anziano' && scelta.id === a.id}
           onClick={() => onScegli({ tipo: 'anziano', id: a.id })}>
           <span className="rete-alone" aria-hidden="true" />

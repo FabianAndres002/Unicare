@@ -101,7 +101,7 @@ export function MedicineAdesso({ nome, medicine, adesso, onCambiata }: Props) {
 export function MedicineDiOggi({ medicine }: { medicine: Occorrenza[] }) {
   if (!medicine.length) return null
   return (
-    <section>
+    <section className="senior-medicine-oggi">
       <h2>{t('Le medicine di oggi')}</h2>
       <ul className="senior-oggi">
         {medicine.map((o) => {

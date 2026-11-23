@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { BriefcaseBusiness, CircleUser, HandHelping, House, MessagesSquare, UserPlus, Users } from 'lucide-react'
 import { Collegamento } from '../comune/router'
 import Avatar from '../comune/Avatar'
+import GuidaIniziale from '../comune/Guida'
 import type { Profilo } from '../comune/api'
 import { t } from '../comune/lingua'
 
@@ -48,6 +49,8 @@ export default function Guscio({ percorso, profilo, nomeCerchio, puoInvitare, ha
       </nav>
 
       <main className="contenuto">{children}</main>
+      {/* La visita guidata parte qui: solo dentro l'app vera (non sulla pagina "crea il cerchio"). */}
+      <GuidaIniziale tipo={profilo.tipo} />
     </div>
   )
 }
