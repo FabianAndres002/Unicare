@@ -1,5 +1,5 @@
 {
-  // Il codice gira con "tsx" (niente compilazione a mano).
+  // Il codice gira senza compilazione: "tsx" in sviluppo, Node da solo in produzione (npm start).
   // "npm run controlla" usa TypeScript solo per trovare errori di tipo.
   "compilerOptions": {
     "target": "es2023",

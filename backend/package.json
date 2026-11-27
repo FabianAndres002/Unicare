@@ -4,7 +4,7 @@
   "description": "Backend di Unicare: Node.js + TypeScript + Express",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
+    "start": "node src/server.ts",
     "test": "vitest run",
     "controlla": "tsc --noEmit"
   },

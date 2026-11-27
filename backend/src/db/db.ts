@@ -4,6 +4,7 @@
 //   Niente da installare; i dati restano nella cartella .database-locale.
 // - In produzione: un PostgreSQL normale, indicato da DATABASE_URL (libreria "pg").
 
+import { mkdirSync } from 'node:fs'
 import { PGlite } from '@electric-sql/pglite'
 import pg from 'pg'
 
@@ -22,7 +23,10 @@ export interface Database extends Esecutore {
 
 /** PostgreSQL integrato. cartella = undefined → solo in memoria (usato nei test). */
 export async function apriDatabaseIntegrato(cartella?: string): Promise<Database> {
-  const db = cartella ? new PGlite(cartella) : new PGlite()
+  // Memoria piccola: su Render il server ha 512 MB in tutto. Per pochi utenti bastano 16 MB di cache.
+  const opzioni = { startParams: [...PGlite.defaultStartParams, '-c', 'shared_buffers=16MB'] }
+  if (cartella) mkdirSync(cartella, { recursive: true })
+  const db = cartella ? new PGlite(cartella, opzioni) : new PGlite(opzioni)
   await db.waitReady
   return {
     async query<R>(sql: string, parametri: unknown[] = []) {
