@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node src/server.ts",
+    "prepara-database": "node scripts/prepara-database.ts",
     "test": "vitest run",
     "controlla": "tsc --noEmit"
   },

@@ -4,7 +4,9 @@
 //   Niente da installare; i dati restano nella cartella .database-locale.
 // - In produzione: un PostgreSQL normale, indicato da DATABASE_URL (libreria "pg").
 
-import { mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { PGlite } from '@electric-sql/pglite'
 import pg from 'pg'
 
@@ -21,13 +23,38 @@ export interface Database extends Esecutore {
   chiudi(): Promise<void>
 }
 
+// Creare un database da zero (initdb) chiede più di 600 MB per qualche secondo: troppo per Render.
+// Per questo "npm run prepara-database" (nel comando di build) prepara un database vuoto già pronto,
+// e al primo avvio lo si copia nella cartella invece di crearlo da zero.
+export const fileModelloDatabase = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../.modello-database.tgz',
+)
+
+// Memoria piccola: su Render il server ha 512 MB in tutto. Per pochi utenti bastano 16 MB di cache.
+export const parametriAvvio = [...PGlite.defaultStartParams, '-c', 'shared_buffers=16MB']
+
 /** PostgreSQL integrato. cartella = undefined → solo in memoria (usato nei test). */
 export async function apriDatabaseIntegrato(cartella?: string): Promise<Database> {
-  // Memoria piccola: su Render il server ha 512 MB in tutto. Per pochi utenti bastano 16 MB di cache.
-  const opzioni = { startParams: [...PGlite.defaultStartParams, '-c', 'shared_buffers=16MB'] }
-  if (cartella) mkdirSync(cartella, { recursive: true })
-  const db = cartella ? new PGlite(cartella, opzioni) : new PGlite(opzioni)
+  let db: PGlite
+  if (!cartella) {
+    db = new PGlite({ startParams: parametriAvvio })
+  } else {
+    mkdirSync(cartella, { recursive: true })
+    const nuovo = !existsSync(path.join(cartella, 'PG_VERSION'))
+    const modello = nuovo && existsSync(fileModelloDatabase)
+    db = new PGlite(cartella, {
+      startParams: parametriAvvio,
+      ...(modello ? { loadDataDir: new Blob([readFileSync(fileModelloDatabase)]) } : {}),
+    })
+    if (modello) console.log('Database nuovo creato dal modello già pronto')
+  }
   await db.waitReady
+  return comeDatabase(db)
+}
+
+/** Avvolge un PGlite già aperto con l'interfaccia Database. */
+export function comeDatabase(db: PGlite): Database {
   return {
     async query<R>(sql: string, parametri: unknown[] = []) {
       return (await db.query<R>(sql, parametri)).rows
