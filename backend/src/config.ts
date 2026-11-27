@@ -64,7 +64,8 @@ export const config = {
 
   // Interprete: chiave di DeepL (gratuita fino a 500.000 caratteri al mese, finisce con ":fx").
   // Senza chiave, in sviluppo si usa un servizio di prova gratuito; in produzione l'interprete resta spento.
-  deeplChiave: process.env.DEEPL_API_KEY ?? '',
+  // Un trattino ("-") vale come nessuna chiave: su Render un campo non può restare vuoto.
+  deeplChiave: (process.env.DEEPL_API_KEY ?? '').trim().replace(/^-$/, ''),
 
   // Limiti contro chi prova a sovraccaricare il server o a creare account in massa.
   limiti: {
