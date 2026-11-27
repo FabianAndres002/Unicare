@@ -2,14 +2,14 @@
 
 import { describe, expect, it } from 'vitest'
 import request from 'supertest'
-import { apriDatabaseIntegrato } from '../src/db/db.ts'
 import { eseguiMigrazioni } from '../src/db/migrazioni.ts'
 import { creaApp } from '../src/app.ts'
 import { postinoMemoria } from '../src/notifiche/postino.ts'
 import { spingitoreMemoria } from '../src/notifiche/push.ts'
+import { apriDatabaseDiProva } from './aiuti.ts'
 
 async function prepara(confermaEmail: boolean) {
-  const db = await apriDatabaseIntegrato()
+  const db = await apriDatabaseDiProva()
   await eseguiMigrazioni(db, () => {})
   const postino = postinoMemoria()
   const app = creaApp(db, { postino, spingitore: spingitoreMemoria(), traduttore: null, confermaEmail })

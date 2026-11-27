@@ -3,16 +3,15 @@
 
 import { describe, expect, it } from 'vitest'
 import request from 'supertest'
-import { apriDatabaseIntegrato } from '../src/db/db.ts'
 import { eseguiMigrazioni } from '../src/db/migrazioni.ts'
 import { creaApp } from '../src/app.ts'
 import { postinoMemoria } from '../src/notifiche/postino.ts'
 import { spingitoreMemoria } from '../src/notifiche/push.ts'
 import { creaServizioTelefono } from '../src/senior/telefono.service.ts'
-import { preparaApp, utenteCollegato } from './aiuti.ts'
+import { apriDatabaseDiProva, preparaApp, utenteCollegato } from './aiuti.ts'
 
 async function appConLimiti(limiti: { richiesteMinuto?: number; registrazioniOra?: number }) {
-  const db = await apriDatabaseIntegrato()
+  const db = await apriDatabaseDiProva()
   await eseguiMigrazioni(db, () => {})
   const app = creaApp(db, { postino: postinoMemoria(), spingitore: spingitoreMemoria(), traduttore: null, limiti })
   // Come online dietro il proxy: l'indirizzo vero arriva in X-Forwarded-For.
